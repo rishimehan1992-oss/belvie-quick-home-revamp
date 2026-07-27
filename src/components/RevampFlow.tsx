@@ -18,6 +18,7 @@ import type {
 } from "@/lib/types";
 import { parseJsonResponse } from "@/lib/api";
 import { BeforeAfter } from "@/components/BeforeAfter";
+import { VisionResults } from "@/components/VisionResults";
 import { applyStylingToImage } from "@/lib/same-image-revamp";
 
 type Step =
@@ -42,14 +43,6 @@ const STEPS: Step[] = [
   "lead",
   "done",
 ];
-
-function formatINR(amount: number) {
-  return new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-    maximumFractionDigits: 0,
-  }).format(amount);
-}
 
 async function fileToBase64(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -169,7 +162,7 @@ export function RevampFlow() {
     setPhotos((prev) => {
       const next = [...prev];
       for (const file of compressed) {
-        if (next.length >= 3) break;
+        if (next.length >= 6) break;
         next.push({ file, preview: URL.createObjectURL(file) });
       }
       return next;
@@ -231,7 +224,7 @@ export function RevampFlow() {
 
     try {
       const images = await Promise.all(
-        photos.slice(0, 2).map((p) => fileToBase64(p.file)),
+        photos.slice(0, 6).map((p) => fileToBase64(p.file)),
       );
 
       const res = await fetch("/api/analyze", {
@@ -338,8 +331,9 @@ export function RevampFlow() {
               Upload your room
             </h1>
             <p className="mt-4 text-ink-soft">
-              Share 1–3 clear photos — hall, bedroom, study, anything you want
-              refreshed. Good daylight helps.
+              Share 2–6 clear photos from different angles — hall, bedroom,
+              study. Include doors, windows, and built-ins so we can plan
+              around them.
             </p>
 
             <div className="mt-8 grid gap-3 sm:grid-cols-2">
@@ -366,7 +360,7 @@ export function RevampFlow() {
                 </span>
                 <span className="mt-3 font-medium text-ink">Choose gallery</span>
                 <span className="mt-1 text-center text-sm text-ink-soft">
-                  Pick up to 3 images
+                  Pick up to 6 images
                 </span>
                 <input
                   type="file"
@@ -379,7 +373,7 @@ export function RevampFlow() {
             </div>
 
             <p className="mt-3 text-center text-xs text-stone">
-              JPG or PNG · {photos.length}/3 photos added
+              JPG or PNG · {photos.length}/6 photos added
             </p>
 
             {photos.length > 0 ? (
@@ -646,8 +640,8 @@ export function RevampFlow() {
             {photos[0] ? (
               <div className="mt-8">
                 <p className="mb-3 text-sm text-ink-soft">
-                  Same room structure — we add wallpaper, wall panels, area
-                  carpet, and furniture/decor on top of your photo.
+                  Same room structure — cosmetic makeover preview with
+                  wallpaper, panels, carpet & furniture on your exact photo.
                 </p>
                 <BeforeAfter
                   beforeSrc={photos[0].preview}
@@ -662,103 +656,13 @@ export function RevampFlow() {
               </div>
             ) : null}
 
-            <p className="mt-6 text-lg leading-relaxed text-ink">
-              {vision.visionSummary}
-            </p>
-
-            <div className="mt-8 border border-line bg-mist/40 p-5">
-              <p className="text-xs uppercase tracking-widest text-sage">
-                Estimated budget
-              </p>
-              <p className="mt-2 font-display text-3xl text-ink">
-                {formatINR(vision.estimatedBudget.min)} –{" "}
-                {formatINR(vision.estimatedBudget.max)}
-              </p>
-              <p className="mt-2 text-sm text-ink-soft">
-                {vision.estimatedBudget.breakdown}
-              </p>
-            </div>
-
-            <div className="mt-6 flex items-center gap-3 border border-saffron/30 bg-saffron/8 px-5 py-4">
-              <span className="text-2xl">⚡</span>
-              <div>
-                <p className="font-medium text-ink">
-                  Done in ~{vision.timelineHours} hours · No room vacation
-                </p>
-                <p className="mt-1 text-sm text-ink-soft">
-                  {vision.noVacationNote}
-                </p>
-              </div>
-            </div>
-
             <div className="mt-8">
-              <h2 className="font-medium text-ink">Design direction</h2>
-              <p className="mt-2 text-ink-soft">{vision.designDirection}</p>
+              <VisionResults
+                vision={vision}
+                previewItemCount={5}
+                onGetFullPlan={() => setStep("lead")}
+              />
             </div>
-
-            <div className="mt-8">
-              <h2 className="font-medium text-ink">Key changes</h2>
-              <ul className="mt-3 space-y-2">
-                {vision.keyChanges.map((change) => (
-                  <li key={change} className="flex gap-3 text-ink-soft">
-                    <span className="text-saffron">✦</span>
-                    {change}
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <div className="mt-8">
-              <h2 className="font-medium text-ink">Colour palette</h2>
-              <div className="mt-3 flex flex-wrap gap-2">
-                {vision.colorPalette.map((color) => (
-                  <span
-                    key={color}
-                    className="border border-line bg-paper px-3 py-1.5 text-sm text-ink-soft"
-                  >
-                    {color}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            <div className="mt-8">
-              <h2 className="font-medium text-ink">Items to source</h2>
-              <p className="mt-1 text-sm text-ink-soft">
-                Preview below — share your number to get the full list on
-                WhatsApp.
-              </p>
-              <ul className="mt-4 space-y-3">
-                {vision.items.slice(0, 3).map((item) => (
-                  <li
-                    key={item.name}
-                    className="flex justify-between border-b border-line pb-3 text-sm"
-                  >
-                    <span className="text-ink">{item.name}</span>
-                    <span className="text-ink-soft">
-                      {formatINR(item.estimatedCost)}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-              {vision.items.length > 3 ? (
-                <p className="mt-3 text-sm text-stone">
-                  + {vision.items.length - 3} more items in your full plan
-                </p>
-              ) : null}
-            </div>
-
-            <p className="mt-6 text-sm italic text-ink-soft">
-              💡 {vision.bangaloreTip}
-            </p>
-
-            <button
-              type="button"
-              onClick={() => setStep("lead")}
-              className="mt-10 w-full bg-saffron px-6 py-4 text-sm font-medium tracking-wide text-paper"
-            >
-              Get full plan on WhatsApp
-            </button>
           </section>
         ) : null}
 
@@ -857,41 +761,8 @@ export function RevampFlow() {
             ) : null}
 
             {vision ? (
-              <div className="mx-auto mt-10 max-w-md space-y-6 text-left">
-                <div className="border border-line bg-mist/40 p-6">
-                  <p className="text-xs uppercase tracking-widest text-sage">
-                    Your plan snapshot
-                  </p>
-                  <p className="mt-3 text-ink">{vision.visionSummary}</p>
-                  <p className="mt-4 font-display text-2xl text-ink">
-                    {formatINR(vision.estimatedBudget.min)} –{" "}
-                    {formatINR(vision.estimatedBudget.max)}
-                  </p>
-                </div>
-
-                <div className="border border-line bg-paper p-6">
-                  <p className="text-xs uppercase tracking-widest text-sage">
-                    Full item list
-                  </p>
-                  <ul className="mt-4 space-y-3">
-                    {vision.items.map((item) => (
-                      <li
-                        key={item.name}
-                        className="border-b border-line pb-3 text-sm last:border-0"
-                      >
-                        <div className="flex justify-between gap-4">
-                          <span className="text-ink">{item.name}</span>
-                          <span className="shrink-0 text-ink-soft">
-                            {formatINR(item.estimatedCost)}
-                          </span>
-                        </div>
-                        <p className="mt-1 text-xs text-stone">
-                          {item.whereToBuy}
-                        </p>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+              <div className="mx-auto mt-10 max-w-2xl text-left">
+                <VisionResults vision={vision} showFullCostTable />
               </div>
             ) : null}
 

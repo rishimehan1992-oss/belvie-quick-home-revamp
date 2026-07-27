@@ -16,8 +16,16 @@ export async function saveLead(lead: LeadPayload): Promise<void> {
     revampNotes: lead.brief.revampNotes,
     photoCount: lead.photoCount,
     visionSummary: lead.vision.visionSummary,
+    primaryTheme: lead.vision.primaryTheme,
+    roomAnalysis: lead.vision.roomAnalysis,
+    grandTotal: lead.vision.costTotals.grandTotal,
+    budgetVersionTotal: lead.vision.costTotals.budgetVersionTotal,
     estimatedBudget: `${lead.vision.estimatedBudget.min}–${lead.vision.estimatedBudget.max}`,
     items: lead.vision.items.map((i) => i.name).join(", "),
+    costLineItems: lead.vision.costLineItems
+      .map((l) => `${l.item} (₹${l.estimatedTotal})`)
+      .join("; "),
+    phasingPlan: lead.vision.phasingPlan.join(" | "),
     bangaloreTip: lead.vision.bangaloreTip,
   };
 

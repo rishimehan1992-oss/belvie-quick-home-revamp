@@ -1,101 +1,12 @@
-import {
-  BUDGET_BANDS,
-  DESIGN_STYLES,
-  PRIORITIES,
-  ROOM_TYPES,
-} from "./constants";
 import type { RevampBrief, RevampVision } from "./types";
 import {
-  sanitizeKeyChanges,
-  stylingRulesPromptBlock,
-} from "./styling-rules";
+  buildStylistAgentPrompt,
+  parseVisionJson,
+} from "./stylist-agent";
 
 const CLAUDE_URL = "https://api.anthropic.com/v1/messages";
 const MODEL = "claude-sonnet-4-5-20250929";
-
-function labelFor<T extends { id: string; label: string }>(
-  list: readonly T[],
-  id: string,
-) {
-  return list.find((item) => item.id === id)?.label ?? id;
-}
-
-function buildPrompt(brief: RevampBrief, photoCount: number) {
-  const budget = BUDGET_BANDS.find((b) => b.id === brief.budgetBand);
-
-  return `You are Belvie, a Bangalore-based quick home revamp consultant. A customer wants a room makeover.
-
-Customer brief:
-- Room type: ${labelFor(ROOM_TYPES, brief.roomType)}
-- Design style: ${labelFor(DESIGN_STYLES, brief.designStyle)}
-- Budget band: ${budget?.label ?? brief.budgetBand} (strict — total must stay within this range)
-- Priority: ${labelFor(PRIORITIES, brief.priority)}
-- When they want it: ${brief.timeline || "As soon as possible"}
-- What needs revamp: ${brief.revampNotes || "Full room refresh"}
-- Photos uploaded: ${photoCount}
-
-Belvie USPs to weave in:
-- No room vacation — customer stays at home during revamp
-- Most revamps completed in under 4 hours
-${stylingRulesPromptBlock()}
-
-${photoCount > 0 ? "Analyze the uploaded room photo(s). Note existing doors, cabinets, walls, windows — then plan ONLY surface-level styling on top of what exists." : "Plan for a typical Bangalore " + labelFor(ROOM_TYPES, brief.roomType) + "."}
-
-keyChanges must ONLY list styling layers: wallpaper, carpet/rug, cushion covers, curtains, lamps, wall art, small added furniture. NEVER suggest moving doors, changing walls, replacing cabinets, or layout changes.
-
-Return ONLY valid JSON (no markdown, no extra text) in this exact shape:
-{
-  "visionSummary": "2-3 sentence overview of the transformed room",
-  "designDirection": "paragraph on style, materials, mood",
-  "colorPalette": ["color 1", "color 2", "color 3"],
-  "keyChanges": ["change 1", "change 2", "change 3", "change 4"],
-  "items": [
-    {
-      "name": "item name",
-      "estimatedCost": 5000,
-      "whereToBuy": "store/market in Bangalore",
-      "category": "furniture|decor|lighting|textiles|paint|storage|other"
-    }
-  ],
-  "estimatedBudget": {
-    "min": 30000,
-    "max": 45000,
-    "breakdown": "short explanation of how budget is split"
-  },
-  "timelineHours": 4,
-  "bangaloreTip": "one practical local sourcing tip",
-  "noVacationNote": "how revamp happens without customer leaving home"
-}
-
-Include 6-10 items. All costs in INR. estimatedBudget min/max must fit the customer's budget band.`;
-}
-
-function parseVision(content: string): RevampVision {
-  const cleaned = content
-    .replace(/^```json\s*/i, "")
-    .replace(/^```\s*/i, "")
-    .replace(/\s*```$/i, "")
-    .trim();
-
-  try {
-    const parsed = JSON.parse(cleaned) as RevampVision;
-    if (!parsed.visionSummary || !parsed.items?.length) {
-      throw new Error("Incomplete vision response");
-    }
-    return parsed;
-  } catch {
-    const match = cleaned.match(/\{[\s\S]*\}/);
-    if (!match) {
-      throw new Error("Could not parse AI response. Please try again.");
-    }
-
-    const parsed = JSON.parse(match[0]) as RevampVision;
-    if (!parsed.visionSummary || !parsed.items?.length) {
-      throw new Error("Incomplete vision response");
-    }
-    return parsed;
-  }
-}
+const MAX_PHOTOS = 6;
 
 type ClaudeContentBlock =
   | { type: "text"; text: string }
@@ -131,7 +42,7 @@ async function callClaude(
   images: string[],
 ): Promise<string> {
   const imageBlocks = images
-    .slice(0, 2)
+    .slice(0, MAX_PHOTOS)
     .map(parseDataUrl)
     .filter((b): b is ClaudeContentBlock => b !== null);
 
@@ -149,7 +60,7 @@ async function callClaude(
     },
     body: JSON.stringify({
       model: MODEL,
-      max_tokens: 2500,
+      max_tokens: 4096,
       messages: [{ role: "user", content }],
     }),
   });
@@ -191,18 +102,7 @@ export async function analyzeRoom(
     throw new Error("ANTHROPIC_API_KEY is not configured on the server");
   }
 
-  const prompt = buildPrompt(brief, images.length);
+  const prompt = buildStylistAgentPrompt(brief, images.length, images.length > 0);
   const content = await callClaude(apiKey, prompt, images);
-  const vision = parseVision(content);
-  vision.keyChanges = sanitizeKeyChanges(vision.keyChanges);
-  if (vision.keyChanges.length < 3) {
-    vision.keyChanges = [
-      "Add wallpaper on accent wall",
-      "Add area carpet/rug",
-      "New cushion covers on existing sofa/chair",
-      "Add curtains on existing windows",
-      "Add floor lamp and wall art",
-    ];
-  }
-  return vision;
+  return parseVisionJson(content);
 }

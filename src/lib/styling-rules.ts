@@ -1,46 +1,49 @@
-/** Shared rules — Belvie never changes core structure, only styling layers */
+/** Shared rules — Belvie never changes core structure, only cosmetic styling */
 
 export const STRUCTURE_MUST_PRESERVE = [
-  "door positions and door frames",
-  "wall alignment, wall angles, and room shape",
-  "built-in cabinets, wardrobes, and kitchen units",
-  "window size, position, and frames",
-  "floor tiles / flooring layout",
-  "ceiling height and beams",
-  "room dimensions and camera angle",
-  "existing fixed furniture placement (sofa, bed, desk stay in same spot)",
+  "room dimensions, proportions, and perspective",
+  "ceiling height and layout footprint",
+  "walls, doors, door frames, and door positions",
+  "windows, window grills, and window positions",
+  "built-in almirahs, wardrobes, and kitchen units",
+  "flooring structure and tile layout (rugs may be added on top)",
+  "columns, beams, and ceiling",
+  "ceiling fans, light fixtures, switchboards, sockets",
+  "AC units, geysers, taps, and plumbing fixtures",
+  "camera angle for before/after comparison",
 ];
 
 export const ALLOWED_STYLING_ONLY = [
-  "wallpaper on existing walls",
-  "removable wall panels / wall art",
-  "carpet / area rug",
-  "cushion covers and throws",
-  "curtains / drapes",
-  "additional small furniture (side table, lamp stand, stool)",
-  "floor lamps, table lamps, string lights",
-  "decor accents (vases, frames, plants, organisers)",
-  "sofa / chair covers (not replacing the piece)",
-  "bedding and linens",
+  "wallpaper or peel-and-stick wall coverings on existing walls",
+  "wall paint color (simple repaint, same walls)",
+  "carpets, rugs, and floor runners over existing flooring",
+  "loose furniture: sofas, beds, chairs, tables, TV units, bookshelves, side tables",
+  "curtains, blinds, and curtain rods",
+  "cushions, throws, bed linen, upholstery covers",
+  "plug-in lamps (floor lamps, table lamps — not ceiling/wall fixtures)",
+  "wall art, framed prints, mirrors on existing walls",
+  "indoor plants and planters",
+  "decor accessories: vases, clocks, trays, baskets",
+  "removable wall panels",
 ];
 
 export const FORBIDDEN_CHANGES = [
-  "moving or removing doors",
+  "civil work, demolition, or false ceiling",
+  "moving or removing doors, windows, or built-ins",
   "changing wall alignment or knocking walls",
-  "replacing or relocating cabinets",
-  "new windows or resized windows",
-  "civil work or demolition",
+  "tile replacement or flooring structure changes",
+  "plumbing or electrical rework",
+  "painting that requires wall repair",
+  "replacing or relocating ceiling fans or fixed fixtures",
   "changing room layout or floor plan",
-  "replacing built-in wardrobes",
-  "moving kitchen/bathroom fixtures",
 ];
 
 export function stylingRulesPromptBlock(): string {
   return `
-STRICT BELVIE RULES — STRUCTURE IS SACRED:
-MUST PRESERVE (do not change in plan or image): ${STRUCTURE_MUST_PRESERVE.join("; ")}.
+HARD CONSTRAINTS — NEVER VIOLATE:
+MUST PRESERVE: ${STRUCTURE_MUST_PRESERVE.join("; ")}.
 
-ONLY ALLOWED: ${ALLOWED_STYLING_ONLY.join("; ")}.
+ONLY ALLOWED (cosmetic layer): ${ALLOWED_STYLING_ONLY.join("; ")}.
 
 NEVER SUGGEST OR SHOW: ${FORBIDDEN_CHANGES.join("; ")}.
 `.trim();
@@ -48,14 +51,15 @@ NEVER SUGGEST OR SHOW: ${FORBIDDEN_CHANGES.join("; ")}.
 
 export function imageEditPromptPrefix(): string {
   return [
-    "STRICT PHOTO EDIT — same exact photograph.",
-    "PRESERVE PIXEL-PERFECT: doors, door frames, wall lines, wall corners, built-in cabinets, wardrobes, windows, floor tiles, ceiling, room shape, camera angle.",
-    "ONLY ADD ON TOP: wallpaper on walls, carpet/rug, cushion covers, curtains, lamps, wall art, small decor, removable panels.",
-    "FORBIDDEN: moving doors, changing walls, new cabinets, layout change, civil work, replacing built-ins.",
+    "STRICT PHOTO EDIT — same exact photograph, same camera angle.",
+    "PRESERVE: room size, doors, windows, built-in almirahs, ceiling fans, switches, floor tiles, fixtures.",
+    "ONLY ADD: wallpaper, carpet/rug, loose furniture, curtains, cushions, plug-in lamps, wall art, plants, decor.",
+    "FORBIDDEN: structural changes, civil work, moving fixtures, layout changes.",
   ].join(" ");
 }
 
 export function sanitizeKeyChanges(changes: string[]): string[] {
-  const blocked = /knock|demolish|remove wall|move door|relocate|new window|resize|built.?in|cabinet replacement|change layout|floor plan|structural/i;
+  const blocked =
+    /knock|demolish|remove wall|move door|relocate|new window|resize|false ceiling|civil|plumb|electrical rework|tile replacement|structural|built.?in replacement/i;
   return changes.filter((c) => !blocked.test(c));
 }

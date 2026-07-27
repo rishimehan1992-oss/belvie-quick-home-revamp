@@ -26,11 +26,43 @@ export type BudgetItem = {
   category: string;
 };
 
+export type CostLineItem = {
+  lineNumber: number;
+  item: string;
+  description: string;
+  qty: number;
+  estimatedUnitCost: number;
+  unitCostRange?: string;
+  estimatedTotal: number;
+  whereToBuy: string;
+  isLabor?: boolean;
+  category: string;
+};
+
+export type CostTotals = {
+  subtotal: number;
+  laborTotal: number;
+  contingencyPercent: number;
+  contingency: number;
+  grandTotal: number;
+  budgetVersionTotal: number;
+  budgetVersionNote: string;
+};
+
 export type RevampVision = {
+  roomAnalysis: string;
+  primaryTheme: string;
+  designConcept: string;
+  alternativeTheme: string;
+  afterImageBrief: string;
   visionSummary: string;
   designDirection: string;
   colorPalette: string[];
   keyChanges: string[];
+  assumptions: string[];
+  costLineItems: CostLineItem[];
+  costTotals: CostTotals;
+  phasingPlan: string[];
   items: BudgetItem[];
   estimatedBudget: {
     min: number;
