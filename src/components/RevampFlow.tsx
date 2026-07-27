@@ -50,7 +50,16 @@ function formatINR(amount: number) {
   }).format(amount);
 }
 
-async function compressImage(file: File, maxSize = 1280): Promise<File> {
+async function fileToBase64(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+async function compressImage(file: File, maxSize = 960): Promise<File> {
   if (!file.type.startsWith("image/")) return file;
 
   const bitmap = await createImageBitmap(file);
@@ -69,7 +78,7 @@ async function compressImage(file: File, maxSize = 1280): Promise<File> {
   bitmap.close();
 
   const blob = await new Promise<Blob | null>((resolve) => {
-    canvas.toBlob(resolve, "image/jpeg", 0.82);
+    canvas.toBlob(resolve, "image/jpeg", 0.75);
   });
 
   if (!blob) return file;
@@ -186,12 +195,16 @@ export function RevampFlow() {
     setImageLoading(true);
 
     try {
+      const images = await Promise.all(
+        photos.slice(0, 2).map((p) => fileToBase64(p.file)),
+      );
+
       const res = await fetch("/api/analyze", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           brief,
-          photoCount: photos.length,
+          images,
         }),
       });
 

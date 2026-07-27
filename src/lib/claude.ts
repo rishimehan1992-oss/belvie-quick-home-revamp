@@ -6,8 +6,8 @@ import {
 } from "./constants";
 import type { RevampBrief, RevampVision } from "./types";
 
-const DEEPSEEK_URL = "https://api.deepseek.com/chat/completions";
-const MODEL = "deepseek-v4-flash";
+const CLAUDE_URL = "https://api.anthropic.com/v1/messages";
+const MODEL = "claude-sonnet-4-20250514";
 
 function labelFor<T extends { id: string; label: string }>(
   list: readonly T[],
@@ -28,7 +28,7 @@ Customer brief:
 - Priority: ${labelFor(PRIORITIES, brief.priority)}
 - When they want it: ${brief.timeline || "As soon as possible"}
 - What needs revamp: ${brief.revampNotes || "Full room refresh"}
-- Photos uploaded: ${photoCount} (plan for a typical Bangalore ${labelFor(ROOM_TYPES, brief.roomType)})
+- Photos uploaded: ${photoCount}
 
 Belvie USPs to weave in:
 - No room vacation — customer stays at home during revamp
@@ -36,6 +36,8 @@ Belvie USPs to weave in:
 - STYLING ONLY — same room layout, walls, windows unchanged. No demolition, no civil work.
 - Only add/change: decor, textiles, lighting, soft furnishings, organisers, wall art, curtains, sofa covers
 - Items and pricing for Bangalore (IKEA Bangalore, Home Centre, local markets in Koramangala, HSR, Indiranagar)
+
+${photoCount > 0 ? "Analyze the uploaded room photo(s). Base your plan on what you actually see — room size, existing furniture, lighting, wall colour." : "No photo was provided — plan for a typical Bangalore " + labelFor(ROOM_TYPES, brief.roomType) + "."}
 
 Return ONLY valid JSON (no markdown, no extra text) in this exact shape:
 {
@@ -91,19 +93,60 @@ function parseVision(content: string): RevampVision {
   }
 }
 
-async function callDeepSeek(apiKey: string, prompt: string): Promise<string> {
-  const response = await fetch(DEEPSEEK_URL, {
+type ClaudeContentBlock =
+  | { type: "text"; text: string }
+  | {
+      type: "image";
+      source: {
+        type: "base64";
+        media_type: "image/jpeg" | "image/png" | "image/webp" | "image/gif";
+        data: string;
+      };
+    };
+
+function parseDataUrl(dataUrl: string): ClaudeContentBlock | null {
+  const match = dataUrl.match(/^data:(image\/[\w+]+);base64,(.+)$/);
+  if (!match) return null;
+
+  const mediaType = match[1] as
+    | "image/jpeg"
+    | "image/png"
+    | "image/webp"
+    | "image/gif";
+  const data = match[2];
+
+  return {
+    type: "image",
+    source: { type: "base64", media_type: mediaType, data },
+  };
+}
+
+async function callClaude(
+  apiKey: string,
+  prompt: string,
+  images: string[],
+): Promise<string> {
+  const imageBlocks = images
+    .slice(0, 2)
+    .map(parseDataUrl)
+    .filter((b): b is ClaudeContentBlock => b !== null);
+
+  const content: ClaudeContentBlock[] = [
+    ...imageBlocks,
+    { type: "text", text: prompt },
+  ];
+
+  const response = await fetch(CLAUDE_URL, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
+      "x-api-key": apiKey,
+      "anthropic-version": "2023-06-01",
     },
     body: JSON.stringify({
       model: MODEL,
-      messages: [{ role: "user", content: prompt }],
-      temperature: 0.7,
       max_tokens: 2500,
-      response_format: { type: "json_object" },
+      messages: [{ role: "user", content }],
     }),
   });
 
@@ -112,41 +155,39 @@ async function callDeepSeek(apiKey: string, prompt: string): Promise<string> {
   if (!response.ok) {
     let message = raw;
     try {
-      const err = JSON.parse(raw) as {
-        error?: { message?: string };
-      };
+      const err = JSON.parse(raw) as { error?: { message?: string } };
       message = err.error?.message ?? raw;
     } catch {
       // keep raw text
     }
-    throw new Error(`DeepSeek error (${response.status}): ${message}`);
+    throw new Error(`Claude error (${response.status}): ${message}`);
   }
 
-  let data: { choices?: { message?: { content?: string } }[] };
+  let data: { content?: { type: string; text?: string }[] };
   try {
     data = JSON.parse(raw) as typeof data;
   } catch {
-    throw new Error("Invalid response from DeepSeek. Please try again.");
+    throw new Error("Invalid response from Claude. Please try again.");
   }
 
-  const content = data.choices?.[0]?.message?.content;
-  if (!content) {
-    throw new Error("Empty response from DeepSeek");
+  const text = data.content?.find((block) => block.type === "text")?.text;
+  if (!text) {
+    throw new Error("Empty response from Claude");
   }
 
-  return content;
+  return text;
 }
 
 export async function analyzeRoom(
   brief: RevampBrief,
-  photoCount = 0,
+  images: string[] = [],
 ): Promise<RevampVision> {
-  const apiKey = process.env.DEEPSEEK_API_KEY;
+  const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
-    throw new Error("DEEPSEEK_API_KEY is not configured on the server");
+    throw new Error("ANTHROPIC_API_KEY is not configured on the server");
   }
 
-  const prompt = buildPrompt(brief, photoCount);
-  const content = await callDeepSeek(apiKey, prompt);
+  const prompt = buildPrompt(brief, images.length);
+  const content = await callClaude(apiKey, prompt, images);
   return parseVision(content);
 }

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { analyzeRoom } from "@/lib/deepseek";
+import { analyzeRoom } from "@/lib/claude";
 import { buildAfterImagePrompt, buildAfterImageUrl } from "@/lib/image-gen";
 import type { RevampBrief } from "@/lib/types";
 
@@ -9,7 +9,7 @@ export async function POST(request: Request) {
   try {
     const body = (await request.json()) as {
       brief: RevampBrief;
-      photoCount?: number;
+      images?: string[];
     };
 
     if (!body.brief?.roomType || !body.brief?.budgetBand) {
@@ -19,10 +19,9 @@ export async function POST(request: Request) {
       );
     }
 
-    const vision = await analyzeRoom(
-      body.brief,
-      Math.min(body.photoCount ?? 0, 3),
-    );
+    const images = (body.images ?? []).slice(0, 2);
+
+    const vision = await analyzeRoom(body.brief, images);
 
     const afterImagePrompt = buildAfterImagePrompt(body.brief, vision);
     const afterImageUrl = buildAfterImageUrl(afterImagePrompt);
