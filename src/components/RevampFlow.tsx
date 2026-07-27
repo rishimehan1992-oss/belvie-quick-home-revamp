@@ -17,6 +17,7 @@ import type {
   RoomTypeId,
 } from "@/lib/types";
 import { parseJsonResponse } from "@/lib/api";
+import { BeforeAfter } from "@/components/BeforeAfter";
 
 type Step =
   | "upload"
@@ -117,6 +118,8 @@ export function RevampFlow() {
   const [timeline, setTimeline] = useState("");
   const [revampNotes, setRevampNotes] = useState("");
   const [vision, setVision] = useState<RevampVision | null>(null);
+  const [afterImageUrl, setAfterImageUrl] = useState<string | null>(null);
+  const [imageLoading, setImageLoading] = useState(false);
   const [error, setError] = useState("");
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
@@ -167,6 +170,8 @@ export function RevampFlow() {
     if (!brief) return;
     setStep("analyzing");
     setError("");
+    setAfterImageUrl(null);
+    setImageLoading(true);
 
     try {
       const res = await fetch("/api/analyze", {
@@ -178,9 +183,11 @@ export function RevampFlow() {
         }),
       });
 
-      const data = await parseJsonResponse<{ vision?: RevampVision; error?: string }>(
-        res,
-      );
+      const data = await parseJsonResponse<{
+        vision?: RevampVision;
+        afterImageUrl?: string;
+        error?: string;
+      }>(res);
       if (!res.ok) throw new Error(data.error || "Analysis failed");
 
       if (!data.vision) {
@@ -188,6 +195,7 @@ export function RevampFlow() {
       }
 
       setVision(data.vision);
+      setAfterImageUrl(data.afterImageUrl ?? null);
       setStep("results");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
@@ -535,8 +543,8 @@ export function RevampFlow() {
               Crafting your vision
             </h1>
             <p className="mt-4 max-w-sm text-ink-soft">
-              Belvie is reading your room and planning a Bangalore-ready revamp
-              — usually takes under a minute.
+              Belvie is planning your Bangalore revamp and generating a visual
+              preview — usually under a minute.
             </p>
           </section>
         ) : null}
@@ -547,9 +555,30 @@ export function RevampFlow() {
               Your room vision
             </p>
             <h1 className="mt-3 font-display text-4xl tracking-wide text-ink">
-              Here&apos;s the plan
+              Here&apos;s your revamp
             </h1>
-            <p className="mt-4 text-lg leading-relaxed text-ink">
+
+            {photos[0] ? (
+              <div className="mt-8">
+                <BeforeAfter
+                  beforeSrc={photos[0].preview}
+                  afterSrc={afterImageUrl}
+                  afterLoading={imageLoading && !afterImageUrl}
+                />
+                {afterImageUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={afterImageUrl}
+                    alt=""
+                    className="hidden"
+                    onLoad={() => setImageLoading(false)}
+                    onError={() => setImageLoading(false)}
+                  />
+                ) : null}
+              </div>
+            ) : null}
+
+            <p className="mt-6 text-lg leading-relaxed text-ink">
               {vision.visionSummary}
             </p>
 
@@ -733,6 +762,15 @@ export function RevampFlow() {
               24 hours with your full revamp plan and how to get started — no
               room vacation, done in under 4 hours.
             </p>
+
+            {vision && photos[0] && afterImageUrl ? (
+              <div className="mx-auto mt-10 max-w-lg">
+                <BeforeAfter
+                  beforeSrc={photos[0].preview}
+                  afterSrc={afterImageUrl}
+                />
+              </div>
+            ) : null}
 
             {vision ? (
               <div className="mx-auto mt-10 max-w-md space-y-6 text-left">

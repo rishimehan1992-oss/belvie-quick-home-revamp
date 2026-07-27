@@ -2,38 +2,24 @@ import Link from "next/link";
 
 export function StartCta() {
   return (
-    <section
-      id="start"
-      className="relative overflow-hidden bg-saffron px-6 py-24 text-paper md:px-10 md:py-32"
-    >
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -right-24 -top-24 h-80 w-80 rounded-full bg-gold/30 blur-3xl"
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -bottom-32 -left-16 h-72 w-72 rounded-full bg-terracotta/40 blur-3xl"
-      />
-
-      <div className="relative mx-auto max-w-6xl">
-        <p className="font-display text-5xl tracking-[0.06em] md:text-6xl">
-          Belvie
+    <section className="relative overflow-hidden bg-ink px-6 py-20 text-paper md:px-10 md:py-28">
+      <div className="relative mx-auto max-w-3xl text-center">
+        <p className="font-display text-4xl tracking-[0.06em] md:text-5xl">
+          Ready to see your room?
         </p>
-        <h2 className="mt-6 max-w-lg text-2xl font-medium leading-snug tracking-tight md:text-3xl">
-          Dekho aapka room kaisa ban sakta hai
-        </h2>
-        <p className="mt-5 max-w-md text-base leading-relaxed text-paper/85">
-          Ek photo se shuru karo. Plan pasand aaye toh number share karo — hum
-          24 ghante ke andar WhatsApp karenge.
+        <p className="mx-auto mt-5 max-w-md text-paper/75">
+          Free AI vision. Bangalore budget. Under 4 hours execution. No shifting
+          out. What&apos;s stopping you?
         </p>
-        <div className="mt-10">
-          <Link
-            href="/revamp"
-            className="inline-block bg-paper px-8 py-4 text-sm font-medium tracking-wide text-ink transition-colors hover:bg-mist"
-          >
-            Abhi shuru karo →
-          </Link>
-        </div>
+        <Link
+          href="/revamp"
+          className="mt-8 inline-block bg-saffron px-10 py-4 text-sm font-semibold text-paper transition-colors hover:bg-terracotta"
+        >
+          Get my free room vision →
+        </Link>
+        <p className="mt-4 text-xs text-paper/50">
+          Pilot · Limited slots · WhatsApp follow-up in 24h
+        </p>
       </div>
     </section>
   );

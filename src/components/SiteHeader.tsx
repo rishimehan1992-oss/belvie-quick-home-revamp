@@ -2,26 +2,32 @@ import Link from "next/link";
 
 export function SiteHeader() {
   return (
-    <header className="absolute inset-x-0 top-0 z-20">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-6 md:px-10 md:py-8">
+    <header className="sticky top-0 z-30 border-b border-line/80 bg-paper/90 backdrop-blur-md">
+      <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4 md:px-10">
         <Link
           href="/"
-          className="font-display text-2xl tracking-[0.04em] text-paper md:text-[1.65rem]"
+          className="font-display text-2xl tracking-[0.04em] text-ink"
         >
           Belvie
         </Link>
-        <nav className="flex items-center gap-6 text-sm tracking-wide text-paper/85 md:gap-8">
-          <a href="#why" className="hidden opacity-80 transition-opacity hover:opacity-100 sm:inline">
-            Why Belvie
+        <nav className="flex items-center gap-4 text-sm md:gap-6">
+          <a
+            href="#pricing"
+            className="hidden text-ink-soft transition-colors hover:text-ink sm:inline"
+          >
+            Pricing
           </a>
-          <a href="#how" className="opacity-80 transition-opacity hover:opacity-100">
+          <a
+            href="#how"
+            className="hidden text-ink-soft transition-colors hover:text-ink sm:inline"
+          >
             How it works
           </a>
           <Link
             href="/revamp"
-            className="border border-paper/40 px-4 py-2 text-paper transition-colors hover:bg-paper hover:text-ink"
+            className="bg-saffron px-4 py-2.5 text-sm font-semibold text-paper transition-colors hover:bg-terracotta md:px-5"
           >
-            Begin
+            Free vision →
           </Link>
         </nav>
       </div>

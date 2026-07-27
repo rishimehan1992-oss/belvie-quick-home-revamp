@@ -1,23 +1,29 @@
-import { Hero } from "@/components/Hero";
+import { ConversionHero } from "@/components/ConversionHero";
+import { FaqSection } from "@/components/FaqSection";
 import { HowItWorks } from "@/components/HowItWorks";
-import { PromiseSection } from "@/components/PromiseSection";
+import { PricingSection } from "@/components/PricingSection";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import { StartCta } from "@/components/StartCta";
+import { StickyCta } from "@/components/StickyCta";
+import { TrustBar } from "@/components/TrustBar";
 import { UspSection } from "@/components/UspSection";
 
 export default function HomePage() {
   return (
     <>
       <SiteHeader />
-      <main>
-        <Hero />
+      <main className="pb-20 md:pb-0">
+        <ConversionHero />
+        <TrustBar />
         <UspSection />
         <HowItWorks />
-        <PromiseSection />
+        <PricingSection />
+        <FaqSection />
         <StartCta />
       </main>
       <SiteFooter />
+      <StickyCta />
     </>
   );
 }
