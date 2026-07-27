@@ -86,7 +86,7 @@ export function DemoRoomCompare({
           After Belvie
         </span>
         <span className="absolute bottom-2 left-2 right-2 bg-ink/70 px-2 py-1 text-[10px] text-paper/90">
-          Same room · styling edits only
+          Same room · wallpaper, panels, carpet & furniture added
         </span>
       </div>
     </div>

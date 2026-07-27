@@ -12,12 +12,13 @@ export type DemoTransformation = {
   unchanged: string[];
 };
 
+/** Plain apartment rooms — clear walls, doors & floor for renovation overlay demos */
 const LIVING_BEFORE =
-  "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=1200&q=85";
+  "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=1200&q=85";
 const BEDROOM_BEFORE =
-  "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1200&q=85";
+  "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?auto=format&fit=crop&w=1200&q=85";
 const STUDY_BEFORE =
-  "https://images.unsplash.com/photo-1598928506311-c55ded39a2c?auto=format&fit=crop&w=1200&q=85";
+  "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1200&q=85";
 
 export const DEMO_TRANSFORMATIONS: DemoTransformation[] = [
   {
@@ -27,18 +28,18 @@ export const DEMO_TRANSFORMATIONS: DemoTransformation[] = [
     budget: "₹58,000",
     before: {
       src: LIVING_BEFORE,
-      alt: "Living room before Belvie styling",
+      alt: "Plain Bangalore apartment living room before Belvie revamp",
     },
-    afterAlt: "Living room after wallpaper panels and decor added",
+    afterAlt: "Same living room with wallpaper, panels, rug and decor added",
     styling: {
-      roomType: "living",
-      colorPalette: ["Terracotta", "Walnut", "Sand"],
+      roomType: "living-hall",
+      colorPalette: ["Terracotta (#C4623F)", "Walnut", "Warm sand"],
       keyChanges: [
-        "Wallpaper accent on back wall",
-        "Wooden wall panels near TV",
-        "Sofa cover + new cushions",
-        "Area rug + floor lamp",
-        "Wall art frames",
+        "Peel-and-stick wallpaper on accent wall",
+        "Wooden wall panels behind TV zone",
+        "Sofa cushion covers + throw",
+        "Area rug over existing floor tiles",
+        "Floor lamp and framed wall art",
       ],
     },
     stylingChanges: [
@@ -51,8 +52,8 @@ export const DEMO_TRANSFORMATIONS: DemoTransformation[] = [
     unchanged: [
       "Doors & frames",
       "Wall alignment",
-      "Cabinets & wardrobes",
-      "Windows",
+      "Built-in cabinets",
+      "Windows & ceiling fan",
       "Floor tiles",
     ],
   },
@@ -63,57 +64,61 @@ export const DEMO_TRANSFORMATIONS: DemoTransformation[] = [
     budget: "₹46,000",
     before: {
       src: BEDROOM_BEFORE,
-      alt: "Bedroom before Belvie styling",
+      alt: "Simple bedroom before curtains, bedding and decor revamp",
     },
-    afterAlt: "Bedroom after curtains bedding and lamps added",
+    afterAlt: "Same bedroom with linen bedding, curtains and bedside lamps",
     styling: {
       roomType: "bedroom",
-      colorPalette: ["Linen", "Sage", "Blush"],
+      colorPalette: ["Linen (#E8DCC8)", "Sage green", "Soft blush"],
       keyChanges: [
         "New linen bedding set",
-        "Blackout curtains",
-        "Bedside lamps",
-        "Wall mirror + throw",
+        "Blackout curtains on existing rod",
+        "Plug-in bedside lamps",
+        "Area rug at foot of bed",
+        "Wall mirror and throw blanket",
       ],
     },
     stylingChanges: [
       "New linen bedding set",
       "Blackout curtains",
       "Bedside lamps",
-      "Wall mirror + throw",
+      "Area rug + throw",
+      "Wall mirror",
     ],
     unchanged: [
       "Doors & frames",
       "Wall alignment",
-      "Wardrobes",
+      "Wardrobe position",
       "Windows",
       "Bed frame position",
     ],
   },
   {
     id: "study-indiranagar",
-    room: "Study",
+    room: "Study / Home Office",
     location: "Indiranagar",
     budget: "₹38,000",
     before: {
       src: STUDY_BEFORE,
-      alt: "Study before Belvie styling",
+      alt: "Home office before wallpaper panels and desk styling",
     },
-    afterAlt: "Study after shelf lamp and organisers added",
+    afterAlt: "Same study with wallpaper, panels, rug and task lighting",
     styling: {
       roomType: "study",
-      colorPalette: ["Charcoal", "Teal", "Cream"],
+      colorPalette: ["Charcoal (#36454F)", "Teal", "Cream"],
       keyChanges: [
-        "Floating shelf",
-        "Desk organisers",
-        "Task lamp",
-        "Wall art + plant",
+        "Accent wallpaper on side wall",
+        "Wooden wall panels behind desk",
+        "Desk organisers and task lamp",
+        "Area rug under desk chair",
+        "Wall art and desk plant",
       ],
     },
     stylingChanges: [
-      "Floating shelf",
-      "Desk organisers",
-      "Task lamp",
+      "Accent wallpaper",
+      "Wall panels behind desk",
+      "Desk organisers + task lamp",
+      "Area rug",
       "Wall art + plant",
     ],
     unchanged: [
