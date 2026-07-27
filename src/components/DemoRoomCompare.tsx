@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import type { DemoTransformation } from "@/lib/demo-transformations";
-import { parseJsonResponse } from "@/lib/api";
+import { applyStylingToImage } from "@/lib/same-image-revamp";
 
 type DemoRoomCompareProps = {
   demo: DemoTransformation;
@@ -13,37 +13,25 @@ type DemoRoomCompareProps = {
 export function DemoRoomCompare({ demo, compact = false }: DemoRoomCompareProps) {
   const [afterSrc, setAfterSrc] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
 
-    fetch("/api/demo-revamped-image", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        beforeImageUrl: demo.before.src,
-        brief: demo.brief,
-        vision: {
-          roomStructure: demo.roomStructure,
-          afterImageBrief: demo.afterImageBrief,
-          keyChanges: demo.keyChanges,
-          colorPalette: demo.colorPalette,
-          primaryTheme: demo.room,
-        },
-      }),
+    applyStylingToImage(demo.before.src, {
+      colorPalette: demo.colorPalette,
+      keyChanges: demo.keyChanges,
+      roomType: demo.brief.roomType,
+      primaryTheme: demo.room,
     })
-      .then(async (res) => {
-        const data = await parseJsonResponse<{ afterImageUrl?: string }>(res);
-        if (!res.ok) throw new Error("Demo image failed");
+      .then((url) => {
         if (!cancelled) {
-          setAfterSrc(data.afterImageUrl ?? null);
+          setAfterSrc(url);
           setLoading(false);
         }
       })
       .catch(() => {
         if (!cancelled) {
-          setError(true);
+          setAfterSrc(demo.before.src);
           setLoading(false);
         }
       });
@@ -75,16 +63,10 @@ export function DemoRoomCompare({ demo, compact = false }: DemoRoomCompareProps)
       <div
         className={`relative overflow-hidden bg-mist ${compact ? "aspect-[3/4]" : "aspect-[4/3]"}`}
       >
-        {loading ? (
-          <div className="flex h-full flex-col items-center justify-center gap-2 bg-sage-deep/90 px-4 text-center text-paper">
+        {loading || !afterSrc ? (
+          <div className="flex h-full flex-col items-center justify-center gap-2 bg-ink/80 px-4 text-center text-paper">
             <div className="h-6 w-6 animate-spin rounded-full border-2 border-paper border-t-transparent" />
-            <p className="text-xs">
-              Analyzing room & generating photorealistic revamp…
-            </p>
-          </div>
-        ) : error || !afterSrc ? (
-          <div className="flex h-full items-center justify-center bg-mist px-4 text-center text-xs text-stone">
-            After preview loading — refresh to retry
+            <p className="text-xs">Marking revamp plan on your room…</p>
           </div>
         ) : (
           // eslint-disable-next-line @next/next/no-img-element
@@ -95,10 +77,10 @@ export function DemoRoomCompare({ demo, compact = false }: DemoRoomCompareProps)
           />
         )}
         <span className="absolute left-2 top-2 bg-saffron px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-paper">
-          After Belvie
+          Planned changes
         </span>
         <span className="absolute bottom-2 left-2 right-2 bg-ink/70 px-2 py-1 text-[10px] text-paper/90">
-          AI revamp · same room size & fixtures
+          Same photo · numbered cosmetic plan (not a fake render)
         </span>
       </div>
     </div>

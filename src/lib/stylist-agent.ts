@@ -6,7 +6,30 @@ import {
 } from "./constants";
 import type { RevampBrief, RevampVision, RoomStructure } from "./types";
 import { sanitizeKeyChanges } from "./styling-rules";
-import { defaultRoomStructure } from "./revamped-image";
+
+export const defaultRoomStructure: RoomStructure = {
+  approximateDimensions:
+    "Typical Indian apartment room, proportions match reference",
+  ceilingHeight: "~10 ft flat ceiling",
+  cameraAngle: "Eye-level, match reference photo angle exactly",
+  floorType: "Existing flooring unchanged",
+  wallDescription: "Same wall positions and corners as reference",
+  lightDirection: "Same natural light direction as reference",
+  referencePhotoIndex: 0,
+  fixtures: [
+    {
+      type: "doors and windows",
+      position: "exact positions as reference photo",
+      description: "do not move, resize, or replace",
+    },
+    {
+      type: "ceiling fan and switches",
+      position: "exact positions as reference",
+      description: "must remain identical",
+    },
+  ],
+  existingFurniture: [],
+};
 
 function labelFor<T extends { id: string; label: string }>(
   list: readonly T[],

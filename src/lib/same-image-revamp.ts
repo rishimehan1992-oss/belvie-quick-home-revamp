@@ -1,54 +1,21 @@
 /**
- * Apply Belvie renovation layers on the exact same room photo.
- * Always adds: wallpaper, wall panels, area carpet, and furniture/decor.
+ * Professional design-markup overlay on the EXACT room photo.
+ * No colour washes, no wallpaper fills, no reinvented rooms.
+ * Shows numbered callouts for planned cosmetic changes.
  */
 
-import { drawWallpaper } from "./revamp-overlay/wallpaper";
-import { drawWallPanels } from "./revamp-overlay/panels";
-import { drawCarpet } from "./revamp-overlay/carpet";
-import { drawFurniture } from "./revamp-overlay/furniture";
-
-export type StylingOverlayConfig = {
+export type MarkupConfig = {
   colorPalette: string[];
-  keyChanges?: string[];
+  keyChanges: string[];
   roomType?: string;
+  primaryTheme?: string;
 };
 
-const NAMED_COLORS: Record<string, string> = {
-  terracotta: "#c4623f",
-  saffron: "#e8a838",
-  sage: "#7d8b6f",
-  cream: "#f5f0e8",
-  ivory: "#fffff0",
-  beige: "#d4c4a8",
-  walnut: "#5c4033",
-  charcoal: "#36454f",
-  navy: "#1e3a5f",
-  teal: "#2d6a6a",
-  mustard: "#d4a017",
-  rust: "#b7410e",
-  linen: "#e8dcc8",
-  sand: "#c2b280",
-  olive: "#6b6b47",
-  blush: "#e8c4c4",
-  white: "#f8f8f8",
-  warm: "#e8d5c4",
-  gold: "#c9a227",
-  brown: "#6b4423",
-  wood: "#8b6914",
+type Marker = {
+  x: number; // 0–1
+  y: number;
+  label: string;
 };
-
-function parseColor(input: string, fallback: string): string {
-  const hex = input.match(/#[0-9a-fA-F]{6}/)?.[0];
-  if (hex) return hex;
-
-  const lower = input.toLowerCase();
-  for (const [name, value] of Object.entries(NAMED_COLORS)) {
-    if (lower.includes(name)) return value;
-  }
-
-  return fallback;
-}
 
 function loadImage(src: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
@@ -60,45 +27,100 @@ function loadImage(src: string): Promise<HTMLImageElement> {
   });
 }
 
-function drawLegend(ctx: CanvasRenderingContext2D, w: number, h: number) {
-  const items = ["WALLPAPER", "PANELS", "CARPET", "FURNITURE"];
-  const boxH = Math.max(18, h * 0.028);
-  const fontSize = Math.max(8, w * 0.014);
-  const pad = 6;
-  const gap = 4;
+function shortLabel(change: string): string {
+  const t = change.toLowerCase();
+  if (t.includes("wallpaper") || t.includes("paint")) return "Wallpaper";
+  if (t.includes("panel")) return "Wall panels";
+  if (t.includes("carpet") || t.includes("rug")) return "Area carpet";
+  if (t.includes("curtain") || t.includes("drape") || t.includes("blind"))
+    return "Curtains";
+  if (t.includes("cushion") || t.includes("throw") || t.includes("bedding") || t.includes("linen"))
+    return "Soft furnishings";
+  if (t.includes("lamp") || t.includes("light")) return "Plug-in lighting";
+  if (t.includes("art") || t.includes("mirror") || t.includes("frame"))
+    return "Wall art";
+  if (t.includes("plant")) return "Plants";
+  if (t.includes("sofa") || t.includes("chair") || t.includes("table") || t.includes("furniture") || t.includes("desk"))
+    return "Furniture add-on";
+  const words = change.replace(/[^a-zA-Z0-9 ]/g, " ").trim().split(/\s+/).slice(0, 3);
+  return words.join(" ") || "Styling";
+}
 
-  ctx.save();
-  ctx.font = `600 ${fontSize}px system-ui, sans-serif`;
+/** Heuristic marker positions by change type — room photo stays untouched underneath */
+function markersFor(changes: string[], roomType?: string): Marker[] {
+  const room = (roomType ?? "").toLowerCase();
+  const isBed = room.includes("bed");
+  const isStudy = room.includes("study") || room.includes("office");
 
-  let totalW = pad;
-  for (const item of items) {
-    totalW += ctx.measureText(item).width + pad * 2 + gap;
+  const slots: Record<string, { x: number; y: number }> = {
+    Wallpaper: { x: 0.62, y: 0.28 },
+    "Wall panels": { x: 0.78, y: 0.36 },
+    "Area carpet": { x: 0.5, y: 0.82 },
+    Curtains: { x: 0.9, y: 0.32 },
+    "Soft furnishings": isBed ? { x: 0.48, y: 0.55 } : { x: 0.42, y: 0.62 },
+    "Plug-in lighting": { x: 0.14, y: 0.58 },
+    "Wall art": { x: 0.55, y: 0.18 },
+    Plants: { x: 0.22, y: 0.7 },
+    "Furniture add-on": isStudy ? { x: 0.5, y: 0.65 } : { x: 0.68, y: 0.68 },
+  };
+
+  const used = new Set<string>();
+  const markers: Marker[] = [];
+
+  for (const change of changes.slice(0, 6)) {
+    const label = shortLabel(change);
+    const key = used.has(label) ? `${label} ${markers.length + 1}` : label;
+    used.add(label);
+    const slot = slots[label] ?? {
+      x: 0.2 + (markers.length % 3) * 0.28,
+      y: 0.25 + Math.floor(markers.length / 3) * 0.28,
+    };
+    // slight jitter so duplicates don't stack
+    const jitter = used.has(label) && markers.some((m) => m.label === label) ? 0.06 : 0;
+    markers.push({
+      x: Math.min(0.92, slot.x + jitter),
+      y: Math.min(0.9, slot.y + jitter * 0.5),
+      label: key,
+    });
   }
 
-  let x = w - totalW - 8;
-  const y = 8;
-
-  ctx.fillStyle = "rgba(0,0,0,0.55)";
-  ctx.fillRect(x - 4, y - 2, totalW + 8, boxH + 8);
-
-  for (const item of items) {
-    const tw = ctx.measureText(item).width;
-    ctx.fillStyle = "rgba(255,255,255,0.95)";
-    ctx.fillRect(x, y + 2, tw + pad * 2, boxH);
-    ctx.fillStyle = "#1a1a1a";
-    ctx.fillText(item, x + pad, y + boxH - 4);
-    x += tw + pad * 2 + gap;
+  if (!markers.length) {
+    return [
+      { x: 0.6, y: 0.3, label: "Wallpaper" },
+      { x: 0.5, y: 0.8, label: "Area carpet" },
+      { x: 0.15, y: 0.55, label: "Lighting" },
+      { x: 0.4, y: 0.6, label: "Cushions" },
+    ];
   }
-  ctx.restore();
+
+  return markers;
+}
+
+function drawRoundedRect(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  r: number,
+) {
+  const radius = Math.min(r, w / 2, h / 2);
+  ctx.beginPath();
+  ctx.moveTo(x + radius, y);
+  ctx.arcTo(x + w, y, x + w, y + h, radius);
+  ctx.arcTo(x + w, y + h, x, y + h, radius);
+  ctx.arcTo(x, y + h, x, y, radius);
+  ctx.arcTo(x, y, x + w, y, radius);
+  ctx.closePath();
 }
 
 /**
- * Draws the original photo, then layers renovation items on top.
- * Room structure (doors, walls, cabinets) stays — we add visible products.
+ * Draws the original photograph unchanged, then adds clean numbered
+ * consultant-style callouts for the planned cosmetic changes.
  */
 export async function applyStylingToImage(
   imageSrc: string,
-  config: StylingOverlayConfig,
+  config: MarkupConfig,
 ): Promise<string> {
   const img = await loadImage(imageSrc);
   const canvas = document.createElement("canvas");
@@ -110,36 +132,94 @@ export async function applyStylingToImage(
   const ctx = canvas.getContext("2d");
   if (!ctx) throw new Error("Canvas not supported");
 
-  // 1. Exact same photograph as base
+  // Exact same photograph — untouched
   ctx.drawImage(img, 0, 0, w, h);
 
-  const palette = config.colorPalette.length
-    ? config.colorPalette
-    : ["Terracotta", "Sage green", "Walnut"];
-  const wallColor = parseColor(palette[0], "#c4623f");
-  const accentColor = parseColor(palette[1] ?? palette[0], "#7d8b6f");
-  const rugColor = parseColor(palette[2] ?? palette[1] ?? palette[0], "#5c4033");
-  const woodColor = parseColor(
-    palette.find((c) => /walnut|wood|brown|oak/i.test(c)) ?? palette[1] ?? "",
-    "#6b4423",
-  );
+  const markers = markersFor(config.keyChanges, config.roomType);
+  const scale = Math.max(w, h) / 1000;
+  const badgeR = Math.max(14, 16 * scale);
+  const fontPx = Math.max(12, Math.round(14 * scale));
+  const pad = Math.max(8, 10 * scale);
 
-  const roomType = config.roomType ?? "living";
+  // Soft top banner — plan title only (no colour wash on the room)
+  const bannerH = Math.max(36, Math.round(h * 0.055));
+  ctx.fillStyle = "rgba(20, 18, 16, 0.72)";
+  ctx.fillRect(0, 0, w, bannerH);
+  ctx.fillStyle = "#ffffff";
+  ctx.font = `600 ${Math.max(11, Math.round(13 * scale))}px "Segoe UI", system-ui, sans-serif`;
+  const theme = config.primaryTheme ? ` · ${config.primaryTheme}` : "";
+  ctx.fillText(`Belvie cosmetic plan${theme}`, pad * 1.2, bannerH * 0.68);
 
-  // 2. Wallpaper on wall zones
-  drawWallpaper(ctx, w, h, wallColor, accentColor);
+  markers.forEach((marker, i) => {
+    const cx = marker.x * w;
+    const cy = marker.y * h;
+    const n = i + 1;
 
-  // 3. Wooden wall panels
-  drawWallPanels(ctx, w, h, woodColor);
+    // Leader line from badge toward label
+    const labelX = cx + badgeR + 10 * scale;
+    const labelY = cy;
 
-  // 4. Area carpet on floor
-  drawCarpet(ctx, w, h, rugColor, accentColor);
+    // Shadow under badge
+    ctx.beginPath();
+    ctx.arc(cx + 1 * scale, cy + 2 * scale, badgeR, 0, Math.PI * 2);
+    ctx.fillStyle = "rgba(0,0,0,0.35)";
+    ctx.fill();
 
-  // 5. Add-on furniture & decor
-  drawFurniture(ctx, w, h, wallColor, accentColor, woodColor, roomType);
+    // Number badge
+    ctx.beginPath();
+    ctx.arc(cx, cy, badgeR, 0, Math.PI * 2);
+    ctx.fillStyle = "#c4623f"; // saffron/terracotta
+    ctx.fill();
+    ctx.lineWidth = Math.max(2, 2 * scale);
+    ctx.strokeStyle = "#ffffff";
+    ctx.stroke();
 
-  // Legend so user sees what was added
-  drawLegend(ctx, w, h);
+    ctx.fillStyle = "#ffffff";
+    ctx.font = `700 ${Math.max(12, Math.round(15 * scale))}px "Segoe UI", system-ui, sans-serif`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(String(n), cx, cy + 0.5);
 
-  return canvas.toDataURL("image/jpeg", 0.93);
+    // Label pill
+    ctx.textAlign = "left";
+    ctx.textBaseline = "middle";
+    ctx.font = `600 ${fontPx}px "Segoe UI", system-ui, sans-serif`;
+    const text = `${n}. ${marker.label}`;
+    const tw = ctx.measureText(text).width;
+    const boxW = tw + pad * 2;
+    const boxH = fontPx + pad * 1.4;
+    let bx = labelX;
+    let by = labelY - boxH / 2;
+
+    // Keep label on canvas
+    if (bx + boxW > w - 8) bx = cx - badgeR - 10 * scale - boxW;
+    if (by < bannerH + 4) by = bannerH + 4;
+    if (by + boxH > h - 8) by = h - boxH - 8;
+
+    ctx.fillStyle = "rgba(255,255,255,0.94)";
+    drawRoundedRect(ctx, bx, by, boxW, boxH, 4);
+    ctx.fill();
+    ctx.strokeStyle = "rgba(0,0,0,0.12)";
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    ctx.fillStyle = "#1a1a1a";
+    ctx.fillText(text, bx + pad, by + boxH / 2);
+  });
+
+  // Bottom strip — palette chips (small, not a wash)
+  const stripH = Math.max(28, Math.round(h * 0.045));
+  ctx.fillStyle = "rgba(20, 18, 16, 0.7)";
+  ctx.fillRect(0, h - stripH, w, stripH);
+  ctx.fillStyle = "#ffffff";
+  ctx.font = `500 ${Math.max(10, Math.round(11 * scale))}px "Segoe UI", system-ui, sans-serif`;
+  ctx.textAlign = "left";
+  ctx.textBaseline = "middle";
+  const palette = (config.colorPalette ?? []).slice(0, 4).join(" · ") || "Cosmetic styling only";
+  ctx.fillText(`Palette: ${palette}  ·  Structure unchanged`, pad * 1.2, h - stripH / 2);
+
+  return canvas.toDataURL("image/jpeg", 0.92);
 }
+
+/** @deprecated alias — kept for imports that still say applyStylingToImage */
+export type StylingOverlayConfig = MarkupConfig;

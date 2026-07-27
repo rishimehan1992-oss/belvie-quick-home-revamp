@@ -77,9 +77,8 @@ export function DemoTransformations() {
         </div>
 
         <p className="mt-10 text-center text-xs text-stone">
-          After previews are AI-generated revamps of the same room — we analyze
-          size, fixtures & camera angle first, then create a new photorealistic
-          image with wallpaper, panels, carpet & furniture.
+          Right side shows your exact room photo with numbered cosmetic changes
+          marked — wallpaper, panels, carpet, furniture — structure untouched.
         </p>
 
         <div className="mt-8 text-center">
