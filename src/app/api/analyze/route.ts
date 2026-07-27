@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
-import { analyzeRoom } from "@/lib/claude";
-import { buildAfterImagePrompt, buildAfterImageUrl } from "@/lib/image-gen";
+import { analyzeRoom } from "@/lib/analyze-room";
+import { generateAfterImageUrl } from "@/lib/room-image";
 import type { RevampBrief } from "@/lib/types";
 
-export const maxDuration = 60;
+export const maxDuration = 120;
 
 export async function POST(request: Request) {
   try {
@@ -19,14 +19,24 @@ export async function POST(request: Request) {
       );
     }
 
-    const images = (body.images ?? []).slice(0, 2);
+    const images = (body.images ?? []).slice(0, 1);
+
+    if (!images.length) {
+      return NextResponse.json(
+        { error: "Please upload at least one room photo" },
+        { status: 400 },
+      );
+    }
 
     const vision = await analyzeRoom(body.brief, images);
 
-    const afterImagePrompt = buildAfterImagePrompt(body.brief, vision);
-    const afterImageUrl = buildAfterImageUrl(afterImagePrompt);
+    const afterImageUrl = await generateAfterImageUrl(
+      images[0],
+      body.brief,
+      vision,
+    );
 
-    return NextResponse.json({ vision, afterImageUrl, afterImagePrompt });
+    return NextResponse.json({ vision, afterImageUrl });
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "Analysis failed";

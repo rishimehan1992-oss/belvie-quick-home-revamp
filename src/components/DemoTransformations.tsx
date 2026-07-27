@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { DEMO_TRANSFORMATIONS } from "@/lib/demo-transformations";
-import { RealisticRoomPair } from "@/components/RealisticRoomPair";
+import { RoomCompare } from "@/components/RoomCompare";
 
 export function DemoTransformations() {
   return (
@@ -8,14 +8,14 @@ export function DemoTransformations() {
       <div className="mx-auto max-w-6xl">
         <div className="text-center">
           <p className="text-xs font-medium uppercase tracking-[0.22em] text-sage">
-            What we actually deliver
+            Real styling edits
           </p>
           <h2 className="mt-4 font-display text-4xl tracking-wide text-ink md:text-5xl">
-            Same room. Better styling.
+            Same room. Visible upgrades.
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-ink-soft">
-            No demolition, no layout change. We keep your walls, windows & furniture
-            frame — and add decor, textiles, lighting & storage. Done in ~4 hours.
+            Wallpaper, wall panels, cushions, curtains, lamps — we add to your
+            existing room. Walls, windows and layout stay exactly as they are.
           </p>
         </div>
 
@@ -25,11 +25,11 @@ export function DemoTransformations() {
               key={demo.id}
               className="border border-line bg-paper shadow-sm"
             >
-              <RealisticRoomPair
-                image={demo.image}
-                alt={demo.alt}
-                beforeCaption={demo.beforeCaption}
-                afterCaption={demo.afterCaption}
+              <RoomCompare
+                beforeSrc={demo.before.src}
+                beforeAlt={demo.before.alt}
+                afterSrc={demo.after.src}
+                afterAlt={demo.after.alt}
               />
 
               <div className="grid gap-6 border-t border-line px-5 py-6 md:grid-cols-3">
@@ -54,10 +54,10 @@ export function DemoTransformations() {
 
                 <div>
                   <p className="text-xs font-medium uppercase tracking-wider text-sage">
-                    What Belvie adds
+                    What we add / change
                   </p>
                   <ul className="mt-2 space-y-1.5">
-                    {demo.itemsAdded.map((item) => (
+                    {demo.stylingChanges.map((item) => (
                       <li key={item} className="text-sm text-ink">
                         + {item}
                       </li>
@@ -67,13 +67,13 @@ export function DemoTransformations() {
 
                 <div className="md:text-right">
                   <p className="text-xs font-medium uppercase tracking-wider text-sage">
-                    Total styling budget
+                    Styling budget
                   </p>
                   <p className="mt-1 font-display text-3xl text-saffron">
                     {demo.budget}
                   </p>
                   <p className="mt-2 text-xs text-stone">
-                    Incl. sourcing from Bangalore markets
+                    Bangalore markets · ~4 hr install
                   </p>
                 </div>
               </div>
@@ -82,8 +82,8 @@ export function DemoTransformations() {
         </div>
 
         <p className="mt-10 text-center text-xs text-stone">
-          Before previews are simulated from the same room photo to show typical
-          unstyled state. After shows the deliverable styling result.
+          After previews are AI-styled edits of the same room photo — wallpaper,
+          panels, decor & furniture styling only.
         </p>
 
         <div className="mt-8 text-center">

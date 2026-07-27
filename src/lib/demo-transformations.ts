@@ -1,16 +1,29 @@
+import {
+  BUDGET_BANDS,
+  DESIGN_STYLES,
+  PRIORITIES,
+  ROOM_TYPES,
+} from "./constants";
+import type { RevampBrief, RevampVision } from "./types";
+import { generateDemoAfterUrl } from "./room-image";
+
 export type DemoTransformation = {
   id: string;
   room: string;
   location: string;
   budget: string;
-  /** Single room photo — before is a styled-down version of the same image */
-  image: string;
-  alt: string;
-  beforeCaption: string;
-  afterCaption: string;
-  itemsAdded: string[];
+  before: { src: string; alt: string };
+  after: { src: string; alt: string };
+  stylingChanges: string[];
   unchanged: string[];
 };
+
+const LIVING_BEFORE =
+  "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=1200&q=85";
+const BEDROOM_BEFORE =
+  "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1200&q=85";
+const STUDY_BEFORE =
+  "https://images.unsplash.com/photo-1598928506311-c55ded39a2c?auto=format&fit=crop&w=1200&q=85";
 
 export const DEMO_TRANSFORMATIONS: DemoTransformation[] = [
   {
@@ -18,56 +31,72 @@ export const DEMO_TRANSFORMATIONS: DemoTransformation[] = [
     room: "Living / Hall",
     location: "HSR Layout",
     budget: "₹58,000",
-    image:
-      "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=1200&q=85",
-    alt: "Bangalore apartment living room styling revamp",
-    beforeCaption: "Existing sofa & walls — bare, flat lighting",
-    afterCaption: "Same layout — cushions, rug, art & warm lights added",
-    itemsAdded: [
-      "Sofa cover + cushions (₹12K)",
-      "Cotton area rug (₹8K)",
-      "Wall art set of 3 (₹6K)",
-      "Warm LED floor lamp (₹5K)",
-      "Side table & planter (₹7K)",
+    before: {
+      src: LIVING_BEFORE,
+      alt: "Living room before Belvie styling",
+    },
+    after: {
+      src: generateDemoAfterUrl(
+        LIVING_BEFORE,
+        "Same living room identical layout and camera angle. Add warm terracotta wallpaper on back wall, wooden wall panels beside TV, new sofa cushion covers, patterned area rug, framed wall art, warm floor lamp. Keep same sofa frame windows and floor.",
+      ),
+      alt: "Living room after wallpaper panels and decor added",
+    },
+    stylingChanges: [
+      "Wallpaper accent on back wall",
+      "Wooden wall panels near TV",
+      "Sofa cover + new cushions",
+      "Area rug + floor lamp",
+      "Wall art frames",
     ],
-    unchanged: ["Room size", "Windows", "Sofa frame", "Flooring"],
+    unchanged: ["Room size", "Windows", "Sofa frame", "Floor tiles"],
   },
   {
     id: "bedroom-koramangala",
     room: "Bedroom",
     location: "Koramangala",
     budget: "₹46,000",
-    image:
-      "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1200&q=85",
-    alt: "Bangalore bedroom styling revamp",
-    beforeCaption: "Plain bedding, no curtains, cold overhead light",
-    afterCaption: "Same bed & walls — linen, curtains, lamps styled",
-    itemsAdded: [
-      "Linen bedding set (₹9K)",
-      "Blackout curtains (₹11K)",
-      "Bedside lamps pair (₹6K)",
-      "Wall mirror + hooks (₹5K)",
-      "Throw & bedside tray (₹4K)",
+    before: {
+      src: BEDROOM_BEFORE,
+      alt: "Bedroom before Belvie styling",
+    },
+    after: {
+      src: generateDemoAfterUrl(
+        BEDROOM_BEFORE,
+        "Same bedroom identical layout. Add linen bedding, blackout curtains on windows, warm bedside lamps, round wall mirror, textured throw blanket. Keep same bed frame walls and window positions.",
+      ),
+      alt: "Bedroom after curtains bedding and lamps added",
+    },
+    stylingChanges: [
+      "New linen bedding set",
+      "Blackout curtains",
+      "Bedside lamps",
+      "Wall mirror + throw",
     ],
-    unchanged: ["Bed frame", "Wall colour", "Window position", "Floor tiles"],
+    unchanged: ["Bed frame", "Wall colour", "Window position", "Floor"],
   },
   {
     id: "study-indiranagar",
     room: "Study",
     location: "Indiranagar",
     budget: "₹38,000",
-    image:
-      "https://images.unsplash.com/photo-1598928506311-c55ded39a2c?auto=format&fit=crop&w=1200&q=85",
-    alt: "Bangalore home study styling revamp",
-    beforeCaption: "Basic desk, cables visible, no storage",
-    afterCaption: "Same desk spot — organisers, shelf, task light added",
-    itemsAdded: [
-      "Desk organiser set (₹4K)",
-      "Floating shelf (₹6K)",
-      "Task lamp (₹5K)",
-      "Cable management kit (₹2K)",
-      "Desk plant + frame (₹5K)",
+    before: {
+      src: STUDY_BEFORE,
+      alt: "Study before Belvie styling",
+    },
+    after: {
+      src: generateDemoAfterUrl(
+        STUDY_BEFORE,
+        "Same study room identical layout. Add floating wall shelf above desk, desk organisers, modern task lamp, small wall art, cable management, desk plant. Keep same desk chair and wall layout.",
+      ),
+      alt: "Study after shelf lamp and organisers added",
+    },
+    stylingChanges: [
+      "Floating shelf",
+      "Desk organisers",
+      "Task lamp",
+      "Wall art + plant",
     ],
-    unchanged: ["Desk", "Wall layout", "Room dimensions", "Chair"],
+    unchanged: ["Desk", "Chair", "Room dimensions", "Wall layout"],
   },
 ];

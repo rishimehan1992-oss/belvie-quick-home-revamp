@@ -37,7 +37,9 @@ Belvie USPs to weave in:
 - Only add/change: decor, textiles, lighting, soft furnishings, organisers, wall art, curtains, sofa covers
 - Items and pricing for Bangalore (IKEA Bangalore, Home Centre, local markets in Koramangala, HSR, Indiranagar)
 
-${photoCount > 0 ? "Analyze the uploaded room photo(s). Base your plan on what you actually see — room size, existing furniture, lighting, wall colour." : "No photo was provided — plan for a typical Bangalore " + labelFor(ROOM_TYPES, brief.roomType) + "."}
+${photoCount > 0 ? "Analyze the uploaded room photo(s). Describe what you see — layout, furniture, wall colour, lighting — then plan styling-only changes (wallpaper, panels, decor, textiles) that keep the exact same room shell." : "Plan for a typical Bangalore " + labelFor(ROOM_TYPES, brief.roomType) + "."}
+
+keyChanges must list ONLY deliverable styling edits e.g. "add wallpaper on left wall", "wooden wall panels behind TV", "new sofa cushion covers", "add floor lamp" — NOT structural changes.
 
 Return ONLY valid JSON (no markdown, no extra text) in this exact shape:
 {

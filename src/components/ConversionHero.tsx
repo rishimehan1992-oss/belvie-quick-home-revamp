@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { DEMO_TRANSFORMATIONS } from "@/lib/demo-transformations";
-import { RealisticRoomPair } from "@/components/RealisticRoomPair";
+import { RoomCompare } from "@/components/RoomCompare";
 
 const heroDemo = DEMO_TRANSFORMATIONS[0];
 
@@ -11,7 +11,7 @@ export function ConversionHero() {
         <div>
           <div className="inline-flex items-center gap-2 border border-saffron/30 bg-saffron/10 px-3 py-1.5 text-xs font-medium text-saffron">
             <span className="h-1.5 w-1.5 rounded-full bg-saffron animate-pulse" />
-            Styling revamp · Same room · Bangalore
+            Wallpaper · Panels · Decor · Same room
           </div>
 
           <p className="mt-6 font-display text-5xl tracking-[0.04em] text-ink sm:text-6xl">
@@ -22,8 +22,8 @@ export function ConversionHero() {
             <span className="text-saffron">Under 4 hours.</span>
           </h1>
           <p className="mt-4 max-w-md text-base leading-relaxed text-ink-soft">
-            We don&apos;t rebuild your home — we style it. Upload a photo, get a
-            realistic plan with item list & budget. No shifting out, no civil work.
+            We add wallpaper, wall panels, cushions, curtains & decor to your
+            existing room — no breaking walls, no shifting out.
           </p>
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -55,19 +55,16 @@ export function ConversionHero() {
         </div>
 
         <div>
-          <RealisticRoomPair
-            image={heroDemo.image}
-            alt={heroDemo.alt}
-            beforeCaption={heroDemo.beforeCaption}
-            afterCaption={heroDemo.afterCaption}
+          <RoomCompare
+            beforeSrc={heroDemo.before.src}
+            beforeAlt={heroDemo.before.alt}
+            afterSrc={heroDemo.after.src}
+            afterAlt={heroDemo.after.alt}
             compact
           />
           <p className="mt-3 text-center text-sm font-medium text-ink">
             {heroDemo.room} · {heroDemo.location} ·{" "}
             <span className="text-saffron">{heroDemo.budget}</span>
-          </p>
-          <p className="mt-1 text-center text-xs text-stone">
-            Same room — only decor, textiles & lighting changed
           </p>
           <a
             href="#examples"
