@@ -43,7 +43,7 @@ export function PricingSection() {
           href="/revamp"
           className="mt-10 inline-block bg-saffron px-8 py-4 text-sm font-semibold text-paper transition-colors hover:bg-terracotta"
         >
-          Start with free vision →
+          Start with a free preview →
         </Link>
       </div>
     </section>

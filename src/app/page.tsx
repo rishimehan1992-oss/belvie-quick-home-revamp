@@ -1,4 +1,5 @@
 import { ConversionHero } from "@/components/ConversionHero";
+import { DemoTransformations } from "@/components/DemoTransformations";
 import { FaqSection } from "@/components/FaqSection";
 import { HowItWorks } from "@/components/HowItWorks";
 import { PricingSection } from "@/components/PricingSection";
@@ -16,6 +17,7 @@ export default function HomePage() {
       <main className="pb-20 md:pb-0">
         <ConversionHero />
         <TrustBar />
+        <DemoTransformations />
         <UspSection />
         <HowItWorks />
         <PricingSection />

@@ -4,7 +4,7 @@ const TRUST_ITEMS = [
   { icon: "⚡", label: "Under 4 hours" },
   { icon: "🏠", label: "No room vacation" },
   { icon: "📍", label: "Bangalore pricing" },
-  { icon: "✓", label: "Free room vision" },
+  { icon: "✓", label: "No upfront payment" },
 ];
 
 export function TrustBar() {
@@ -24,7 +24,7 @@ export function TrustBar() {
           href="/revamp"
           className="hidden bg-saffron px-5 py-2 text-sm font-medium text-paper transition-colors hover:bg-terracotta md:inline-block"
         >
-          Get free vision →
+          Preview my room →
         </Link>
       </div>
     </section>

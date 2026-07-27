@@ -1,7 +1,7 @@
 const FAQS = [
   {
-    q: "Is the room vision really free?",
-    a: "Yes. Upload your photo, answer a few questions, and get a full makeover plan with budget estimate — no payment needed.",
+    q: "Does the room preview cost anything?",
+    a: "No. Upload your photo, answer a few questions, and get a full makeover plan with budget estimate — completely free, no payment needed.",
   },
   {
     q: "What does 'no room vacation' mean?",

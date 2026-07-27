@@ -14,7 +14,7 @@ const steps = [
   {
     num: "3",
     title: "See before & after",
-    body: "AI vision + budget + item list for Bangalore.",
+    body: "Before/after preview + budget + item list for Bangalore.",
   },
 ];
 
@@ -24,7 +24,7 @@ export function HowItWorks() {
       <div className="mx-auto max-w-6xl">
         <div className="text-center">
           <p className="text-xs font-medium uppercase tracking-[0.22em] text-sage">
-            2 minutes to your vision
+            2 minutes to your makeover plan
           </p>
           <h2 className="mt-4 font-display text-4xl tracking-wide text-ink md:text-5xl">
             How it works

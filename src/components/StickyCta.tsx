@@ -21,7 +21,7 @@ export function StickyCta() {
         href="/revamp"
         className="block w-full bg-saffron py-3.5 text-center text-sm font-semibold text-paper"
       >
-        Get free room vision →
+        Preview my room →
       </Link>
     </div>
   );

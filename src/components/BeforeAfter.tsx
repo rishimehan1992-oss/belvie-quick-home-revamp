@@ -25,12 +25,12 @@ export function BeforeAfter({ beforeSrc, afterSrc, afterLoading }: BeforeAfterPr
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={afterSrc}
-              alt="AI-generated revamped room vision"
+              alt="AI-generated revamped room preview"
               className="h-full w-full object-cover"
             />
           ) : (
             <div className="flex h-full items-center justify-center text-sm text-ink-soft">
-              Revamped vision loading…
+              Revamped preview loading…
             </div>
           )}
         </div>
@@ -76,7 +76,7 @@ export function BeforeAfter({ beforeSrc, afterSrc, afterLoading }: BeforeAfterPr
         </span>
       </div>
       <p className="px-4 py-2 text-center text-xs text-stone bg-paper">
-        Drag the slider to compare your room with the Belvie revamp vision
+        Drag the slider to compare your room with the Belvie revamp preview
       </p>
     </div>
   );

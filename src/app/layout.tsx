@@ -18,11 +18,11 @@ const figtree = Figtree({
 export const metadata: Metadata = {
   title: "Belvie — Quick Home Revamp | Bangalore",
   description:
-    "Upload your room photo. Get a complete makeover vision with Bangalore pricing. No room vacation — revamp done in under 4 hours.",
+    "Upload your room photo. Get a makeover plan with before/after preview and Bangalore pricing. No room vacation — revamp done in under 4 hours.",
   openGraph: {
     title: "Belvie — Quick Home Revamp",
     description:
-      "Indian home makeovers, Bangalore pace. Photo in. Vision out. Done in 4 hours.",
+      "Indian home makeovers, Bangalore pace. Photo in. Plan out. Done in 4 hours.",
     type: "website",
   },
 };

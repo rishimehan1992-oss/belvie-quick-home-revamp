@@ -567,7 +567,7 @@ export function RevampFlow() {
                 onClick={runAnalysis}
                 className="flex-1 bg-saffron px-6 py-4 text-sm font-medium text-paper disabled:opacity-40"
               >
-                Get my room vision
+                Get my revamp plan
               </button>
             </div>
           </section>
@@ -577,7 +577,7 @@ export function RevampFlow() {
           <section className="flex min-h-[50vh] flex-col items-center justify-center text-center">
             <div className="h-12 w-12 animate-spin rounded-full border-2 border-saffron border-t-transparent" />
             <h1 className="mt-8 font-display text-3xl tracking-wide text-ink">
-              Crafting your vision
+              Designing your makeover
             </h1>
             <p className="mt-4 max-w-sm text-ink-soft">
               Belvie is planning your Bangalore revamp and generating a visual
@@ -589,7 +589,7 @@ export function RevampFlow() {
         {step === "results" && vision ? (
           <section>
             <p className="text-xs font-medium uppercase tracking-[0.22em] text-sage">
-              Your room vision
+              Your revamp plan
             </p>
             <h1 className="mt-3 font-display text-4xl tracking-wide text-ink">
               Here&apos;s your revamp
@@ -813,7 +813,7 @@ export function RevampFlow() {
               <div className="mx-auto mt-10 max-w-md space-y-6 text-left">
                 <div className="border border-line bg-mist/40 p-6">
                   <p className="text-xs uppercase tracking-widest text-sage">
-                    Your vision snapshot
+                    Your plan snapshot
                   </p>
                   <p className="mt-3 text-ink">{vision.visionSummary}</p>
                   <p className="mt-4 font-display text-2xl text-ink">
