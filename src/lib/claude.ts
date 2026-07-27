@@ -7,7 +7,7 @@ import {
 import type { RevampBrief, RevampVision } from "./types";
 
 const CLAUDE_URL = "https://api.anthropic.com/v1/messages";
-const MODEL = "claude-sonnet-4-20250514";
+const MODEL = "claude-sonnet-4-5-20250929";
 
 function labelFor<T extends { id: string; label: string }>(
   list: readonly T[],
