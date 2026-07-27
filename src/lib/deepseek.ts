@@ -5,6 +5,10 @@ import {
   ROOM_TYPES,
 } from "./constants";
 import type { RevampBrief, RevampVision } from "./types";
+import {
+  sanitizeKeyChanges,
+  stylingRulesPromptBlock,
+} from "./styling-rules";
 
 const DEEPSEEK_URL = "https://api.deepseek.com/chat/completions";
 const MODEL = "deepseek-v4-flash";
@@ -30,9 +34,9 @@ Customer brief:
 - Needs revamp: ${brief.revampNotes || "Full styling refresh"}
 - Photos: ${photoCount}
 
-STYLING ONLY — same room layout, walls, windows, floor plan unchanged.
-Allowed: wallpaper, wall panels, cushion covers, curtains, rugs, lamps, wall art, organisers, furniture re-covering.
-Not allowed: demolition, moving walls, changing windows, civil work.
+STYLING ONLY — preserve all doors, wall alignment, cabinets, windows, floor plan.
+${stylingRulesPromptBlock()}
+Items and pricing for Bangalore markets.
 
 Return ONLY valid JSON:
 {
@@ -109,5 +113,7 @@ export async function analyzeRoomWithDeepSeek(
   const content = data.choices?.[0]?.message?.content;
   if (!content) throw new Error("Empty DeepSeek response");
 
-  return parseVision(content);
+  const vision = parseVision(content);
+  vision.keyChanges = sanitizeKeyChanges(vision.keyChanges);
+  return vision;
 }

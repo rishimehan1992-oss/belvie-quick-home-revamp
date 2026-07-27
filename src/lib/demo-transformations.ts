@@ -6,6 +6,7 @@ import {
 } from "./constants";
 import type { RevampBrief, RevampVision } from "./types";
 import { generateDemoAfterUrl } from "./room-image";
+import { imageEditPromptPrefix } from "./styling-rules";
 
 export type DemoTransformation = {
   id: string;
@@ -38,7 +39,7 @@ export const DEMO_TRANSFORMATIONS: DemoTransformation[] = [
     after: {
       src: generateDemoAfterUrl(
         LIVING_BEFORE,
-        "Same living room identical layout and camera angle. Add warm terracotta wallpaper on back wall, wooden wall panels beside TV, new sofa cushion covers, patterned area rug, framed wall art, warm floor lamp. Keep same sofa frame windows and floor.",
+        `${imageEditPromptPrefix()} Add terracotta wallpaper on back wall only, sofa cushion covers, area carpet, wall art frames, floor lamp. Doors cabinets windows unchanged.`,
       ),
       alt: "Living room after wallpaper panels and decor added",
     },
@@ -49,7 +50,13 @@ export const DEMO_TRANSFORMATIONS: DemoTransformation[] = [
       "Area rug + floor lamp",
       "Wall art frames",
     ],
-    unchanged: ["Room size", "Windows", "Sofa frame", "Floor tiles"],
+    unchanged: [
+      "Doors & frames",
+      "Wall alignment",
+      "Cabinets & wardrobes",
+      "Windows",
+      "Floor tiles",
+    ],
   },
   {
     id: "bedroom-koramangala",
@@ -63,7 +70,7 @@ export const DEMO_TRANSFORMATIONS: DemoTransformation[] = [
     after: {
       src: generateDemoAfterUrl(
         BEDROOM_BEFORE,
-        "Same bedroom identical layout. Add linen bedding, blackout curtains on windows, warm bedside lamps, round wall mirror, textured throw blanket. Keep same bed frame walls and window positions.",
+        `${imageEditPromptPrefix()} Add linen bedding, blackout curtains, bedside lamps, wall mirror, throw blanket. Doors cabinets walls windows unchanged.`,
       ),
       alt: "Bedroom after curtains bedding and lamps added",
     },
@@ -73,7 +80,13 @@ export const DEMO_TRANSFORMATIONS: DemoTransformation[] = [
       "Bedside lamps",
       "Wall mirror + throw",
     ],
-    unchanged: ["Bed frame", "Wall colour", "Window position", "Floor"],
+    unchanged: [
+      "Doors & frames",
+      "Wall alignment",
+      "Wardrobes",
+      "Windows",
+      "Bed frame position",
+    ],
   },
   {
     id: "study-indiranagar",
@@ -87,7 +100,7 @@ export const DEMO_TRANSFORMATIONS: DemoTransformation[] = [
     after: {
       src: generateDemoAfterUrl(
         STUDY_BEFORE,
-        "Same study room identical layout. Add floating wall shelf above desk, desk organisers, modern task lamp, small wall art, cable management, desk plant. Keep same desk chair and wall layout.",
+        `${imageEditPromptPrefix()} Add desk organisers, task lamp, wall art, desk plant, small shelf. Doors cabinets walls desk position unchanged.`,
       ),
       alt: "Study after shelf lamp and organisers added",
     },
@@ -97,6 +110,12 @@ export const DEMO_TRANSFORMATIONS: DemoTransformation[] = [
       "Task lamp",
       "Wall art + plant",
     ],
-    unchanged: ["Desk", "Chair", "Room dimensions", "Wall layout"],
+    unchanged: [
+      "Doors & frames",
+      "Wall alignment",
+      "Built-in shelves",
+      "Windows",
+      "Desk & chair position",
+    ],
   },
 ];

@@ -616,8 +616,9 @@ export function RevampFlow() {
             {photos[0] ? (
               <div className="mt-8">
                 <p className="mb-3 text-sm text-ink-soft">
-                  Your room (left) → same room with wallpaper, panels, decor &
-                  styling applied (right). Layout unchanged.
+                  Same room — doors, walls, cabinets stay exactly as they are.
+                  We only add wallpaper, carpet, cushions, curtains, lamps &
+                  decor.
                 </p>
                 <BeforeAfter
                   beforeSrc={photos[0].preview}

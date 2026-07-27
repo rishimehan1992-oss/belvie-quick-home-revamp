@@ -1,5 +1,10 @@
 import type { RevampBrief, RevampVision } from "./types";
 import { DESIGN_STYLES, ROOM_TYPES } from "./constants";
+import {
+  imageEditPromptPrefix,
+  sanitizeKeyChanges,
+  stylingRulesPromptBlock,
+} from "./styling-rules";
 
 function labelFor<T extends { id: string; label: string }>(
   list: readonly T[],
@@ -14,15 +19,15 @@ export function buildStylingEditPrompt(
 ): string {
   const room = labelFor(ROOM_TYPES, brief.roomType);
   const style = labelFor(DESIGN_STYLES, brief.designStyle);
-  const edits = vision.keyChanges.slice(0, 6).join("; ");
+  const safeChanges = sanitizeKeyChanges(vision.keyChanges).slice(0, 5);
 
   return [
-    `Edit this exact ${room} photo. CRITICAL: keep identical room dimensions, wall positions, window placement, door locations, ceiling height, floor tiles, and camera angle.`,
-    `ONLY apply these styling changes — no demolition, no layout change: ${edits}.`,
-    `Style direction: ${style}. ${vision.designDirection}`,
-    `Add realistic deliverables: wallpaper or wall panels where suitable, cushion covers, curtains, rugs, wall art, lamps, decor accents, organisers.`,
-    `Colours: ${vision.colorPalette.join(", ")}.`,
-    "Photorealistic Indian apartment in Bangalore. Same furniture pieces may be re-covered or restyled but room shell unchanged.",
+    imageEditPromptPrefix(),
+    `Room type: ${room}.`,
+    `Apply ONLY these styling layers: ${safeChanges.join("; ")}.`,
+    `Style: ${style}. Colours: ${vision.colorPalette.join(", ")}.`,
+    "Add only: wallpaper, carpet, cushions, curtains, lamps, wall art, small extra furniture pieces.",
+    "Do not alter doors, walls, cabinets, windows, or alignment.",
   ].join(" ");
 }
 
@@ -36,6 +41,8 @@ export function buildPollinationsEditUrl(
     height: "768",
     nologo: "true",
     image: beforeImageUrl,
+    // Lower strength = preserve more of original structure
+    strength: "0.35",
   });
 
   return `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?${params.toString()}`;
@@ -52,7 +59,6 @@ function dataUrlToBuffer(dataUrl: string): { buffer: Buffer; mime: string } {
 }
 
 function toDirectTmpUrl(url: string): string {
-  // https://tmpfiles.org/abc/file.jpg -> https://tmpfiles.org/dl/abc/file.jpg
   return url.replace("tmpfiles.org/", "tmpfiles.org/dl/");
 }
 
@@ -87,7 +93,6 @@ async function uploadTempImage(dataUrl: string): Promise<string> {
   return toDirectTmpUrl(url);
 }
 
-/** Pollinations img2img — edits the actual uploaded room photo */
 export async function generateAfterImageUrl(
   beforeDataUrl: string,
   brief: RevampBrief,
@@ -98,7 +103,6 @@ export async function generateAfterImageUrl(
   return buildPollinationsEditUrl(publicUrl, prompt);
 }
 
-/** For homepage demos where before image is already a public URL */
 export function generateDemoAfterUrl(
   beforeImageUrl: string,
   prompt: string,

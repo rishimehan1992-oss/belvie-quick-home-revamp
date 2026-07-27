@@ -5,6 +5,10 @@ import {
   ROOM_TYPES,
 } from "./constants";
 import type { RevampBrief, RevampVision } from "./types";
+import {
+  sanitizeKeyChanges,
+  stylingRulesPromptBlock,
+} from "./styling-rules";
 
 const CLAUDE_URL = "https://api.anthropic.com/v1/messages";
 const MODEL = "claude-sonnet-4-5-20250929";
@@ -33,13 +37,11 @@ Customer brief:
 Belvie USPs to weave in:
 - No room vacation — customer stays at home during revamp
 - Most revamps completed in under 4 hours
-- STYLING ONLY — same room layout, walls, windows unchanged. No demolition, no civil work.
-- Only add/change: decor, textiles, lighting, soft furnishings, organisers, wall art, curtains, sofa covers
-- Items and pricing for Bangalore (IKEA Bangalore, Home Centre, local markets in Koramangala, HSR, Indiranagar)
+${stylingRulesPromptBlock()}
 
-${photoCount > 0 ? "Analyze the uploaded room photo(s). Describe what you see — layout, furniture, wall colour, lighting — then plan styling-only changes (wallpaper, panels, decor, textiles) that keep the exact same room shell." : "Plan for a typical Bangalore " + labelFor(ROOM_TYPES, brief.roomType) + "."}
+${photoCount > 0 ? "Analyze the uploaded room photo(s). Note existing doors, cabinets, walls, windows — then plan ONLY surface-level styling on top of what exists." : "Plan for a typical Bangalore " + labelFor(ROOM_TYPES, brief.roomType) + "."}
 
-keyChanges must list ONLY deliverable styling edits e.g. "add wallpaper on left wall", "wooden wall panels behind TV", "new sofa cushion covers", "add floor lamp" — NOT structural changes.
+keyChanges must ONLY list styling layers: wallpaper, carpet/rug, cushion covers, curtains, lamps, wall art, small added furniture. NEVER suggest moving doors, changing walls, replacing cabinets, or layout changes.
 
 Return ONLY valid JSON (no markdown, no extra text) in this exact shape:
 {
@@ -191,5 +193,16 @@ export async function analyzeRoom(
 
   const prompt = buildPrompt(brief, images.length);
   const content = await callClaude(apiKey, prompt, images);
-  return parseVision(content);
+  const vision = parseVision(content);
+  vision.keyChanges = sanitizeKeyChanges(vision.keyChanges);
+  if (vision.keyChanges.length < 3) {
+    vision.keyChanges = [
+      "Add wallpaper on accent wall",
+      "Add area carpet/rug",
+      "New cushion covers on existing sofa/chair",
+      "Add curtains on existing windows",
+      "Add floor lamp and wall art",
+    ];
+  }
+  return vision;
 }

@@ -14,8 +14,8 @@ export function DemoTransformations() {
             Same room. Visible upgrades.
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-ink-soft">
-            Wallpaper, wall panels, cushions, curtains, lamps — we add to your
-            existing room. Walls, windows and layout stay exactly as they are.
+            Doors, walls, cabinets stay exactly as they are. We only add
+            wallpaper, carpet, cushions, curtains, lamps & small decor.
           </p>
         </div>
 
