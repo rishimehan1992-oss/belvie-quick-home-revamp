@@ -1,4 +1,12 @@
-/** Apply Belvie styling layers on the exact same room photo (canvas overlays). */
+/**
+ * Apply Belvie renovation layers on the exact same room photo.
+ * Always adds: wallpaper, wall panels, area carpet, and furniture/decor.
+ */
+
+import { drawWallpaper } from "./revamp-overlay/wallpaper";
+import { drawWallPanels } from "./revamp-overlay/panels";
+import { drawCarpet } from "./revamp-overlay/carpet";
+import { drawFurniture } from "./revamp-overlay/furniture";
 
 export type StylingOverlayConfig = {
   colorPalette: string[];
@@ -26,6 +34,8 @@ const NAMED_COLORS: Record<string, string> = {
   white: "#f8f8f8",
   warm: "#e8d5c4",
   gold: "#c9a227",
+  brown: "#6b4423",
+  wood: "#8b6914",
 };
 
 function parseColor(input: string, fallback: string): string {
@@ -50,169 +60,41 @@ function loadImage(src: string): Promise<HTMLImageElement> {
   });
 }
 
-function roundRect(
-  ctx: CanvasRenderingContext2D,
-  x: number,
-  y: number,
-  w: number,
-  h: number,
-  r: number,
-) {
-  const radius = Math.min(r, w / 2, h / 2);
-  ctx.beginPath();
-  ctx.moveTo(x + radius, y);
-  ctx.lineTo(x + w - radius, y);
-  ctx.quadraticCurveTo(x + w, y, x + w, y + radius);
-  ctx.lineTo(x + w, y + h - radius);
-  ctx.quadraticCurveTo(x + w, y + h, x + w - radius, y + h);
-  ctx.lineTo(x + radius, y + h);
-  ctx.quadraticCurveTo(x, y + h, x, y + h - radius);
-  ctx.lineTo(x, y + radius);
-  ctx.quadraticCurveTo(x, y, x + radius, y);
-  ctx.closePath();
-}
+function drawLegend(ctx: CanvasRenderingContext2D, w: number, h: number) {
+  const items = ["WALLPAPER", "PANELS", "CARPET", "FURNITURE"];
+  const boxH = Math.max(18, h * 0.028);
+  const fontSize = Math.max(8, w * 0.014);
+  const pad = 6;
+  const gap = 4;
 
-function changesText(config: StylingOverlayConfig): string {
-  return (config.keyChanges ?? []).join(" ").toLowerCase();
-}
-
-function wantsFeature(text: string, keywords: string[]): boolean {
-  return keywords.some((k) => text.includes(k));
-}
-
-function drawWallpaperZones(
-  ctx: CanvasRenderingContext2D,
-  w: number,
-  h: number,
-  color: string,
-  intensity: number,
-) {
   ctx.save();
-  ctx.globalCompositeOperation = "multiply";
-  ctx.globalAlpha = intensity;
-  ctx.fillStyle = color;
-  // Left wall
-  ctx.fillRect(0, 0, w * 0.36, h * 0.9);
-  // Back wall
-  ctx.fillRect(w * 0.34, 0, w * 0.66, h * 0.58);
-  ctx.restore();
+  ctx.font = `600 ${fontSize}px system-ui, sans-serif`;
 
-  // Subtle vertical wallpaper grain
-  ctx.save();
-  ctx.globalAlpha = 0.07;
-  ctx.strokeStyle = "#1a1a1a";
-  for (let x = 0; x < w; x += 14) {
-    ctx.beginPath();
-    ctx.moveTo(x, 0);
-    ctx.lineTo(x, h * 0.58);
-    ctx.stroke();
+  let totalW = pad;
+  for (const item of items) {
+    totalW += ctx.measureText(item).width + pad * 2 + gap;
   }
-  ctx.restore();
-}
 
-function drawWallPanels(
-  ctx: CanvasRenderingContext2D,
-  w: number,
-  h: number,
-  color: string,
-) {
-  ctx.save();
-  ctx.globalCompositeOperation = "multiply";
-  ctx.globalAlpha = 0.2;
-  ctx.fillStyle = color;
-  const panelX = w * 0.58;
-  const panelW = w * 0.28;
-  ctx.fillRect(panelX, h * 0.12, panelW, h * 0.42);
-  ctx.restore();
+  let x = w - totalW - 8;
+  const y = 8;
 
-  ctx.save();
-  ctx.globalAlpha = 0.12;
-  ctx.strokeStyle = color;
-  ctx.lineWidth = 2;
-  for (let i = 0; i < 4; i++) {
-    const x = panelX + (panelW / 4) * i;
-    ctx.beginPath();
-    ctx.moveTo(x, h * 0.12);
-    ctx.lineTo(x, h * 0.54);
-    ctx.stroke();
+  ctx.fillStyle = "rgba(0,0,0,0.55)";
+  ctx.fillRect(x - 4, y - 2, totalW + 8, boxH + 8);
+
+  for (const item of items) {
+    const tw = ctx.measureText(item).width;
+    ctx.fillStyle = "rgba(255,255,255,0.95)";
+    ctx.fillRect(x, y + 2, tw + pad * 2, boxH);
+    ctx.fillStyle = "#1a1a1a";
+    ctx.fillText(item, x + pad, y + boxH - 4);
+    x += tw + pad * 2 + gap;
   }
-  ctx.restore();
-}
-
-function drawRug(
-  ctx: CanvasRenderingContext2D,
-  w: number,
-  h: number,
-  color: string,
-) {
-  ctx.save();
-  ctx.globalCompositeOperation = "multiply";
-  ctx.globalAlpha = 0.34;
-  const rugW = w * 0.52;
-  const rugH = h * 0.17;
-  const rugX = (w - rugW) / 2;
-  const rugY = h * 0.79;
-  roundRect(ctx, rugX, rugY, rugW, rugH, 10);
-  ctx.fillStyle = color;
-  ctx.fill();
-  ctx.restore();
-
-  // Rug border
-  ctx.save();
-  ctx.globalAlpha = 0.25;
-  ctx.strokeStyle = color;
-  ctx.lineWidth = 3;
-  roundRect(ctx, rugX + 6, rugY + 6, rugW - 12, rugH - 12, 6);
-  ctx.stroke();
-  ctx.restore();
-}
-
-function drawCurtains(
-  ctx: CanvasRenderingContext2D,
-  w: number,
-  h: number,
-  color: string,
-) {
-  ctx.save();
-  ctx.globalCompositeOperation = "multiply";
-  ctx.globalAlpha = 0.2;
-  ctx.fillStyle = color;
-  ctx.fillRect(0, 0, w * 0.1, h * 0.72);
-  ctx.fillRect(w * 0.9, 0, w * 0.1, h * 0.72);
-  ctx.restore();
-}
-
-function drawBeddingWarmth(
-  ctx: CanvasRenderingContext2D,
-  w: number,
-  h: number,
-  color: string,
-) {
-  ctx.save();
-  ctx.globalCompositeOperation = "soft-light";
-  ctx.globalAlpha = 0.22;
-  ctx.fillStyle = color;
-  ctx.fillRect(w * 0.2, h * 0.48, w * 0.6, h * 0.38);
-  ctx.restore();
-}
-
-function drawWarmGrade(
-  ctx: CanvasRenderingContext2D,
-  w: number,
-  h: number,
-  color: string,
-) {
-  ctx.save();
-  ctx.globalCompositeOperation = "soft-light";
-  ctx.globalAlpha = 0.12;
-  ctx.fillStyle = color;
-  ctx.fillRect(0, 0, w, h);
   ctx.restore();
 }
 
 /**
- * Draws the original photo, then layers styling edits on top.
- * Structure (doors, walls, cabinets) is never altered — only surface overlays.
+ * Draws the original photo, then layers renovation items on top.
+ * Room structure (doors, walls, cabinets) stays — we add visible products.
  */
 export async function applyStylingToImage(
   imageSrc: string,
@@ -228,40 +110,36 @@ export async function applyStylingToImage(
   const ctx = canvas.getContext("2d");
   if (!ctx) throw new Error("Canvas not supported");
 
-  // Exact same photograph as the base layer
+  // 1. Exact same photograph as base
   ctx.drawImage(img, 0, 0, w, h);
 
   const palette = config.colorPalette.length
     ? config.colorPalette
-    : ["Warm terracotta", "Sage green", "Cream"];
-  const wallColor = parseColor(palette[0], "#c4a484");
-  const accentColor = parseColor(palette[1] ?? palette[0], "#8b7355");
-  const rugColor = parseColor(palette[2] ?? palette[1] ?? palette[0], "#6b5344");
+    : ["Terracotta", "Sage green", "Walnut"];
+  const wallColor = parseColor(palette[0], "#c4623f");
+  const accentColor = parseColor(palette[1] ?? palette[0], "#7d8b6f");
+  const rugColor = parseColor(palette[2] ?? palette[1] ?? palette[0], "#5c4033");
+  const woodColor = parseColor(
+    palette.find((c) => /walnut|wood|brown|oak/i.test(c)) ?? palette[1] ?? "",
+    "#6b4423",
+  );
 
-  const text = changesText(config);
-  const room = (config.roomType ?? "").toLowerCase();
+  const roomType = config.roomType ?? "living";
 
-  const showWallpaper =
-    wantsFeature(text, ["wallpaper", "wall paper", "accent wall", "panel"]) ||
-    room.includes("living") ||
-    room.includes("hall");
-  const showRug =
-    wantsFeature(text, ["rug", "carpet", "area rug"]) ||
-    room.includes("living");
-  const showCurtains = wantsFeature(text, ["curtain", "drape", "blackout"]);
-  const showPanels = wantsFeature(text, ["panel", "wooden wall"]);
-  const showBedding =
-    wantsFeature(text, ["bedding", "linen", "throw", "blanket"]) ||
-    room.includes("bed");
+  // 2. Wallpaper on wall zones
+  drawWallpaper(ctx, w, h, wallColor, accentColor);
 
-  if (showWallpaper) drawWallpaperZones(ctx, w, h, wallColor, 0.24);
-  if (showPanels) drawWallPanels(ctx, w, h, accentColor);
-  if (showRug) drawRug(ctx, w, h, rugColor);
-  if (showCurtains) drawCurtains(ctx, w, h, accentColor);
-  if (showBedding) drawBeddingWarmth(ctx, w, h, wallColor);
+  // 3. Wooden wall panels
+  drawWallPanels(ctx, w, h, woodColor);
 
-  // Always apply a gentle cohesive colour grade from the palette
-  drawWarmGrade(ctx, w, h, wallColor);
+  // 4. Area carpet on floor
+  drawCarpet(ctx, w, h, rugColor, accentColor);
 
-  return canvas.toDataURL("image/jpeg", 0.92);
+  // 5. Add-on furniture & decor
+  drawFurniture(ctx, w, h, wallColor, accentColor, woodColor, roomType);
+
+  // Legend so user sees what was added
+  drawLegend(ctx, w, h);
+
+  return canvas.toDataURL("image/jpeg", 0.93);
 }

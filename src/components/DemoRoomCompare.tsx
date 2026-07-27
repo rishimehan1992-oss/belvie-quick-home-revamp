@@ -72,7 +72,7 @@ export function DemoRoomCompare({
         {loading || !afterSrc ? (
           <div className="flex h-full flex-col items-center justify-center gap-2 bg-sage-deep/90 text-paper">
             <div className="h-6 w-6 animate-spin rounded-full border-2 border-paper border-t-transparent" />
-            <p className="text-xs">Applying styling…</p>
+            <p className="text-xs">Adding wallpaper, panels, carpet & furniture…</p>
           </div>
         ) : (
           // eslint-disable-next-line @next/next/no-img-element
