@@ -13,9 +13,15 @@ export async function analyzeRoom(
     const creditIssue =
       message.includes("credit balance") || message.includes("billing");
 
-    if (creditIssue && process.env.DEEPSEEK_API_KEY) {
-      console.warn("[analyze] Claude unavailable, falling back to DeepSeek");
-      return analyzeRoomWithDeepSeek(brief, images.length);
+    if (creditIssue) {
+      if (process.env.DEEPSEEK_API_KEY) {
+        console.warn("[analyze] Claude unavailable, falling back to DeepSeek");
+        return analyzeRoomWithDeepSeek(brief, images.length);
+      }
+
+      throw new Error(
+        "Claude API credits are too low. Configure `DEEPSEEK_API_KEY` in Vercel to enable fallback for the revamp plan.",
+      );
     }
 
     throw error;

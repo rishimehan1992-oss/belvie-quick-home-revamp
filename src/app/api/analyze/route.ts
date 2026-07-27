@@ -30,13 +30,26 @@ export async function POST(request: Request) {
 
     const vision = await analyzeRoom(body.brief, images);
 
-    const afterImageUrl = await generateAfterImageUrl(
-      images[0],
-      body.brief,
-      vision,
-    );
+    let afterImageUrl: string | null = null;
+    let imageWarning: string | undefined;
 
-    return NextResponse.json({ vision, afterImageUrl });
+    try {
+      afterImageUrl = await generateAfterImageUrl(
+        images[0],
+        body.brief,
+        vision,
+      );
+    } catch (imageError) {
+      const message =
+        imageError instanceof Error
+          ? imageError.message
+          : "After-image generation failed";
+      console.error("[analyze] after-image", message);
+      imageWarning =
+        "Your revamp plan is ready, but the after-image preview could not be generated right now. Please try again in a minute.";
+    }
+
+    return NextResponse.json({ vision, afterImageUrl, imageWarning });
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "Analysis failed";

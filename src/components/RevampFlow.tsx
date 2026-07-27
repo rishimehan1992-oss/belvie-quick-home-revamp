@@ -128,6 +128,7 @@ export function RevampFlow() {
   const [revampNotes, setRevampNotes] = useState("");
   const [vision, setVision] = useState<RevampVision | null>(null);
   const [afterImageUrl, setAfterImageUrl] = useState<string | null>(null);
+  const [imageWarning, setImageWarning] = useState<string | null>(null);
   const [imageLoading, setImageLoading] = useState(false);
   const [error, setError] = useState("");
   const [name, setName] = useState("");
@@ -192,6 +193,7 @@ export function RevampFlow() {
     setStep("analyzing");
     setError("");
     setAfterImageUrl(null);
+    setImageWarning(null);
     setImageLoading(true);
 
     try {
@@ -210,7 +212,8 @@ export function RevampFlow() {
 
       const data = await parseJsonResponse<{
         vision?: RevampVision;
-        afterImageUrl?: string;
+        afterImageUrl?: string | null;
+        imageWarning?: string;
         error?: string;
       }>(res);
       if (!res.ok) throw new Error(data.error || "Analysis failed");
@@ -221,6 +224,8 @@ export function RevampFlow() {
 
       setVision(data.vision);
       setAfterImageUrl(data.afterImageUrl ?? null);
+      setImageWarning(data.imageWarning ?? null);
+      setImageLoading(!data.afterImageUrl);
       setStep("results");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
@@ -626,8 +631,18 @@ export function RevampFlow() {
                     alt=""
                     className="hidden"
                     onLoad={() => setImageLoading(false)}
-                    onError={() => setImageLoading(false)}
+                    onError={() => {
+                      setImageLoading(false);
+                      setImageWarning(
+                        "After-image preview failed to load. Your plan below is still valid — try again in a minute.",
+                      );
+                    }}
                   />
+                ) : null}
+                {imageWarning ? (
+                  <p className="mt-3 border border-terracotta/30 bg-terracotta/8 px-4 py-3 text-sm text-terracotta">
+                    {imageWarning}
+                  </p>
                 ) : null}
               </div>
             ) : null}
