@@ -16,6 +16,7 @@ import type {
   RevampVision,
   RoomTypeId,
 } from "@/lib/types";
+import { parseJsonResponse } from "@/lib/api";
 
 type Step =
   | "upload"
@@ -48,12 +49,32 @@ function formatINR(amount: number) {
   }).format(amount);
 }
 
-async function fileToBase64(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result as string);
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
+async function compressImage(file: File, maxSize = 1280): Promise<File> {
+  if (!file.type.startsWith("image/")) return file;
+
+  const bitmap = await createImageBitmap(file);
+  const scale = Math.min(1, maxSize / Math.max(bitmap.width, bitmap.height));
+  const width = Math.round(bitmap.width * scale);
+  const height = Math.round(bitmap.height * scale);
+
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return file;
+
+  ctx.drawImage(bitmap, 0, 0, width, height);
+  bitmap.close();
+
+  const blob = await new Promise<Blob | null>((resolve) => {
+    canvas.toBlob(resolve, "image/jpeg", 0.82);
+  });
+
+  if (!blob) return file;
+
+  return new File([blob], file.name.replace(/\.\w+$/, ".jpg"), {
+    type: "image/jpeg",
   });
 }
 
@@ -120,20 +141,23 @@ export function RevampFlow() {
     };
   }, [roomType, designStyle, budgetBand, priority, timeline, revampNotes]);
 
-  const handlePhotos = useCallback(
-    (files: FileList | null) => {
-      if (!files) return;
-      const next = [...photos];
-      for (const file of Array.from(files)) {
-        if (!file.type.startsWith("image/")) continue;
-        if (next.length >= 3) break;
-        next.push({ file, preview: URL.createObjectURL(file) });
-      }
-      setPhotos(next);
-      setError("");
-    },
-    [photos],
-  );
+  const handlePhotos = useCallback(async (files: FileList | null) => {
+    if (!files) return;
+
+    const next = [...photos];
+    for (const file of Array.from(files)) {
+      if (!file.type.startsWith("image/")) continue;
+      if (next.length >= 3) break;
+
+      const compressed = await compressImage(file);
+      next.push({
+        file: compressed,
+        preview: URL.createObjectURL(compressed),
+      });
+    }
+    setPhotos(next);
+    setError("");
+  }, [photos]);
 
   const removePhoto = (index: number) => {
     setPhotos((prev) => prev.filter((_, i) => i !== index));
@@ -145,16 +169,23 @@ export function RevampFlow() {
     setError("");
 
     try {
-      const images = await Promise.all(photos.map((p) => fileToBase64(p.file)));
-
       const res = await fetch("/api/analyze", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ brief, images }),
+        body: JSON.stringify({
+          brief,
+          photoCount: photos.length,
+        }),
       });
 
-      const data = await res.json();
+      const data = await parseJsonResponse<{ vision?: RevampVision; error?: string }>(
+        res,
+      );
       if (!res.ok) throw new Error(data.error || "Analysis failed");
+
+      if (!data.vision) {
+        throw new Error("No vision returned. Please try again.");
+      }
 
       setVision(data.vision);
       setStep("results");
@@ -183,7 +214,9 @@ export function RevampFlow() {
         }),
       });
 
-      const data = await res.json();
+      const data = await parseJsonResponse<{ success?: boolean; error?: string }>(
+        res,
+      );
       if (!res.ok) throw new Error(data.error || "Could not save your details");
 
       setStep("done");

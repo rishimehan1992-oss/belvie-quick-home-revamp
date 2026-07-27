@@ -8,7 +8,7 @@ export async function POST(request: Request) {
   try {
     const body = (await request.json()) as {
       brief: RevampBrief;
-      images: string[];
+      photoCount?: number;
     };
 
     if (!body.brief?.roomType || !body.brief?.budgetBand) {
@@ -18,7 +18,10 @@ export async function POST(request: Request) {
       );
     }
 
-    const vision = await analyzeRoom(body.brief, body.images ?? []);
+    const vision = await analyzeRoom(
+      body.brief,
+      Math.min(body.photoCount ?? 0, 3),
+    );
 
     return NextResponse.json({ vision });
   } catch (error) {
