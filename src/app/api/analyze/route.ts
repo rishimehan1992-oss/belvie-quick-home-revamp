@@ -19,7 +19,8 @@ export async function POST(request: Request) {
       );
     }
 
-    const images = (body.images ?? []).slice(0, 6);
+    // Send at most 2 photos to Claude (structure analysis); keep payload under Vercel limits
+    const images = (body.images ?? []).slice(0, 2);
 
     if (!images.length) {
       return NextResponse.json(

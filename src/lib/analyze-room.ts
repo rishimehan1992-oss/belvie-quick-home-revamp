@@ -1,4 +1,7 @@
-import { analyzeRoom as analyzeWithClaude } from "./claude";
+import {
+  analyzeRoom as analyzeWithClaude,
+  isClaudeFallbackableError,
+} from "./claude";
 import { analyzeRoomWithDeepSeek } from "./deepseek";
 import type { RevampBrief, RevampVision } from "./types";
 
@@ -9,21 +12,35 @@ export async function analyzeRoom(
   try {
     return await analyzeWithClaude(brief, images);
   } catch (error) {
-    const message = error instanceof Error ? error.message : "";
-    const creditIssue =
-      message.includes("credit balance") || message.includes("billing");
+    const message = error instanceof Error ? error.message : String(error);
+    console.error("[analyze] Claude failed:", message);
 
-    if (creditIssue) {
-      if (process.env.DEEPSEEK_API_KEY) {
-        console.warn("[analyze] Claude unavailable, falling back to DeepSeek");
-        return analyzeRoomWithDeepSeek(brief, images.length);
-      }
+    if (isClaudeFallbackableError(message) && process.env.DEEPSEEK_API_KEY) {
+      console.warn("[analyze] Falling back to DeepSeek");
+      return analyzeRoomWithDeepSeek(brief, images.length);
+    }
 
+    if (isClaudeFallbackableError(message) && !process.env.DEEPSEEK_API_KEY) {
       throw new Error(
-        "Claude API credits are too low. Configure `DEEPSEEK_API_KEY` in Vercel to enable fallback for the revamp plan.",
+        "Claude API is unavailable (credits/billing/auth). Add DEEPSEEK_API_KEY in Vercel for fallback, or top up Anthropic credits.",
       );
     }
 
-    throw error;
+    // JSON parse / incomplete responses — still try DeepSeek so the flow works
+    if (
+      process.env.DEEPSEEK_API_KEY &&
+      (message.includes("parse") ||
+        message.includes("Incomplete") ||
+        message.includes("Empty response"))
+    ) {
+      console.warn("[analyze] Claude response unusable, falling back to DeepSeek");
+      return analyzeRoomWithDeepSeek(brief, images.length);
+    }
+
+    throw new Error(
+      message.startsWith("Claude error")
+        ? message
+        : `Analysis failed: ${message}`,
+    );
   }
 }

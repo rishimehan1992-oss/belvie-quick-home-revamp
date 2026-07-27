@@ -52,7 +52,7 @@ async function fileToBase64(file: File): Promise<string> {
   });
 }
 
-async function compressImage(file: File, maxSize = 960): Promise<File> {
+async function compressImage(file: File, maxSize = 800): Promise<File> {
   if (!file.type.startsWith("image/")) return file;
 
   const bitmap = await createImageBitmap(file);
@@ -71,7 +71,7 @@ async function compressImage(file: File, maxSize = 960): Promise<File> {
   bitmap.close();
 
   const blob = await new Promise<Blob | null>((resolve) => {
-    canvas.toBlob(resolve, "image/jpeg", 0.75);
+    canvas.toBlob(resolve, "image/jpeg", 0.7);
   });
 
   if (!blob) return file;
@@ -191,7 +191,7 @@ export function RevampFlow() {
 
     try {
       const images = await Promise.all(
-        photos.slice(0, 6).map((p) => fileToBase64(p.file)),
+        photos.slice(0, 2).map((p) => fileToBase64(p.file)),
       );
 
       const res = await fetch("/api/analyze", {
