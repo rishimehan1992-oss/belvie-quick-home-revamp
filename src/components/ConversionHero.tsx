@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { DEMO_TRANSFORMATIONS } from "@/lib/demo-transformations";
-import { RoomCompare } from "@/components/RoomCompare";
+import { DemoRoomCompare } from "@/components/DemoRoomCompare";
 
 const heroDemo = DEMO_TRANSFORMATIONS[0];
 
@@ -55,11 +55,11 @@ export function ConversionHero() {
         </div>
 
         <div>
-          <RoomCompare
+          <DemoRoomCompare
             beforeSrc={heroDemo.before.src}
             beforeAlt={heroDemo.before.alt}
-            afterSrc={heroDemo.after.src}
-            afterAlt={heroDemo.after.alt}
+            afterAlt={heroDemo.afterAlt}
+            styling={heroDemo.styling}
             compact
           />
           <p className="mt-3 text-center text-sm font-medium text-ink">

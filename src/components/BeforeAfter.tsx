@@ -19,13 +19,13 @@ export function BeforeAfter({ beforeSrc, afterSrc, afterLoading }: BeforeAfterPr
           {afterLoading ? (
             <div className="flex h-full flex-col items-center justify-center gap-3 bg-sage-deep/90 text-paper">
               <div className="h-8 w-8 animate-spin rounded-full border-2 border-paper border-t-transparent" />
-              <p className="text-sm">Generating your revamped room…</p>
+              <p className="text-sm">Applying styling to your photo…</p>
             </div>
           ) : afterSrc ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={afterSrc}
-              alt="AI-generated revamped room preview"
+              alt="Your room with Belvie styling applied"
               className="h-full w-full object-cover"
             />
           ) : (
@@ -76,7 +76,7 @@ export function BeforeAfter({ beforeSrc, afterSrc, afterLoading }: BeforeAfterPr
         </span>
       </div>
       <p className="px-4 py-2 text-center text-xs text-stone bg-paper">
-        Drag the slider to compare your room with the Belvie revamp preview
+        Drag the slider — after is your exact photo with styling layers added
       </p>
     </div>
   );

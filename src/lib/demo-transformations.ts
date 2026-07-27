@@ -1,12 +1,4 @@
-import {
-  BUDGET_BANDS,
-  DESIGN_STYLES,
-  PRIORITIES,
-  ROOM_TYPES,
-} from "./constants";
-import type { RevampBrief, RevampVision } from "./types";
-import { generateDemoAfterUrl } from "./room-image";
-import { imageEditPromptPrefix } from "./styling-rules";
+import type { StylingOverlayConfig } from "./same-image-revamp";
 
 export type DemoTransformation = {
   id: string;
@@ -14,7 +6,8 @@ export type DemoTransformation = {
   location: string;
   budget: string;
   before: { src: string; alt: string };
-  after: { src: string; alt: string };
+  afterAlt: string;
+  styling: StylingOverlayConfig;
   stylingChanges: string[];
   unchanged: string[];
 };
@@ -36,12 +29,17 @@ export const DEMO_TRANSFORMATIONS: DemoTransformation[] = [
       src: LIVING_BEFORE,
       alt: "Living room before Belvie styling",
     },
-    after: {
-      src: generateDemoAfterUrl(
-        LIVING_BEFORE,
-        `${imageEditPromptPrefix()} Add terracotta wallpaper on back wall only, sofa cushion covers, area carpet, wall art frames, floor lamp. Doors cabinets windows unchanged.`,
-      ),
-      alt: "Living room after wallpaper panels and decor added",
+    afterAlt: "Living room after wallpaper panels and decor added",
+    styling: {
+      roomType: "living",
+      colorPalette: ["Terracotta", "Walnut", "Sand"],
+      keyChanges: [
+        "Wallpaper accent on back wall",
+        "Wooden wall panels near TV",
+        "Sofa cover + new cushions",
+        "Area rug + floor lamp",
+        "Wall art frames",
+      ],
     },
     stylingChanges: [
       "Wallpaper accent on back wall",
@@ -67,12 +65,16 @@ export const DEMO_TRANSFORMATIONS: DemoTransformation[] = [
       src: BEDROOM_BEFORE,
       alt: "Bedroom before Belvie styling",
     },
-    after: {
-      src: generateDemoAfterUrl(
-        BEDROOM_BEFORE,
-        `${imageEditPromptPrefix()} Add linen bedding, blackout curtains, bedside lamps, wall mirror, throw blanket. Doors cabinets walls windows unchanged.`,
-      ),
-      alt: "Bedroom after curtains bedding and lamps added",
+    afterAlt: "Bedroom after curtains bedding and lamps added",
+    styling: {
+      roomType: "bedroom",
+      colorPalette: ["Linen", "Sage", "Blush"],
+      keyChanges: [
+        "New linen bedding set",
+        "Blackout curtains",
+        "Bedside lamps",
+        "Wall mirror + throw",
+      ],
     },
     stylingChanges: [
       "New linen bedding set",
@@ -97,12 +99,16 @@ export const DEMO_TRANSFORMATIONS: DemoTransformation[] = [
       src: STUDY_BEFORE,
       alt: "Study before Belvie styling",
     },
-    after: {
-      src: generateDemoAfterUrl(
-        STUDY_BEFORE,
-        `${imageEditPromptPrefix()} Add desk organisers, task lamp, wall art, desk plant, small shelf. Doors cabinets walls desk position unchanged.`,
-      ),
-      alt: "Study after shelf lamp and organisers added",
+    afterAlt: "Study after shelf lamp and organisers added",
+    styling: {
+      roomType: "study",
+      colorPalette: ["Charcoal", "Teal", "Cream"],
+      keyChanges: [
+        "Floating shelf",
+        "Desk organisers",
+        "Task lamp",
+        "Wall art + plant",
+      ],
     },
     stylingChanges: [
       "Floating shelf",

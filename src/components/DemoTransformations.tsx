@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { DEMO_TRANSFORMATIONS } from "@/lib/demo-transformations";
-import { RoomCompare } from "@/components/RoomCompare";
+import { DemoRoomCompare } from "@/components/DemoRoomCompare";
 
 export function DemoTransformations() {
   return (
@@ -25,11 +25,11 @@ export function DemoTransformations() {
               key={demo.id}
               className="border border-line bg-paper shadow-sm"
             >
-              <RoomCompare
+              <DemoRoomCompare
                 beforeSrc={demo.before.src}
                 beforeAlt={demo.before.alt}
-                afterSrc={demo.after.src}
-                afterAlt={demo.after.alt}
+                afterAlt={demo.afterAlt}
+                styling={demo.styling}
               />
 
               <div className="grid gap-6 border-t border-line px-5 py-6 md:grid-cols-3">
@@ -82,8 +82,8 @@ export function DemoTransformations() {
         </div>
 
         <p className="mt-10 text-center text-xs text-stone">
-          After previews are AI-styled edits of the same room photo — wallpaper,
-          panels, decor & furniture styling only.
+          After previews are styling layers applied on the exact same room photo
+          — wallpaper, panels, decor & furniture styling only.
         </p>
 
         <div className="mt-8 text-center">

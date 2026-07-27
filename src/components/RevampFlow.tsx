@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import {
   BUDGET_BANDS,
@@ -18,6 +18,7 @@ import type {
 } from "@/lib/types";
 import { parseJsonResponse } from "@/lib/api";
 import { BeforeAfter } from "@/components/BeforeAfter";
+import { applyStylingToImage } from "@/lib/same-image-revamp";
 
 type Step =
   | "upload"
@@ -188,6 +189,38 @@ export function RevampFlow() {
     setPhotos((prev) => prev.filter((_, i) => i !== index));
   };
 
+  useEffect(() => {
+    if (!vision || !photos[0]?.preview) return;
+
+    let cancelled = false;
+    setImageLoading(true);
+    setImageWarning(null);
+
+    applyStylingToImage(photos[0].preview, {
+      colorPalette: vision.colorPalette,
+      keyChanges: vision.keyChanges,
+      roomType: brief?.roomType,
+    })
+      .then((url) => {
+        if (!cancelled) {
+          setAfterImageUrl(url);
+          setImageLoading(false);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setImageWarning(
+            "Could not apply styling preview on your photo. Your plan below is still valid.",
+          );
+          setImageLoading(false);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [vision, photos, brief?.roomType]);
+
   const runAnalysis = async () => {
     if (!brief) return;
     setStep("analyzing");
@@ -212,8 +245,6 @@ export function RevampFlow() {
 
       const data = await parseJsonResponse<{
         vision?: RevampVision;
-        afterImageUrl?: string | null;
-        imageWarning?: string;
         error?: string;
       }>(res);
       if (!res.ok) throw new Error(data.error || "Analysis failed");
@@ -223,9 +254,9 @@ export function RevampFlow() {
       }
 
       setVision(data.vision);
-      setAfterImageUrl(data.afterImageUrl ?? null);
-      setImageWarning(data.imageWarning ?? null);
-      setImageLoading(!data.afterImageUrl);
+      setAfterImageUrl(null);
+      setImageWarning(null);
+      setImageLoading(true);
       setStep("results");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
@@ -598,8 +629,7 @@ export function RevampFlow() {
               Designing your makeover
             </h1>
             <p className="mt-4 max-w-sm text-ink-soft">
-              Belvie is planning your Bangalore revamp and generating a visual
-              preview — usually under a minute.
+              Belvie is planning your Bangalore revamp — usually under a minute.
             </p>
           </section>
         ) : null}
@@ -625,21 +655,6 @@ export function RevampFlow() {
                   afterSrc={afterImageUrl}
                   afterLoading={imageLoading && !afterImageUrl}
                 />
-                {afterImageUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={afterImageUrl}
-                    alt=""
-                    className="hidden"
-                    onLoad={() => setImageLoading(false)}
-                    onError={() => {
-                      setImageLoading(false);
-                      setImageWarning(
-                        "After-image preview failed to load. Your plan below is still valid — try again in a minute.",
-                      );
-                    }}
-                  />
-                ) : null}
                 {imageWarning ? (
                   <p className="mt-3 border border-terracotta/30 bg-terracotta/8 px-4 py-3 text-sm text-terracotta">
                     {imageWarning}
