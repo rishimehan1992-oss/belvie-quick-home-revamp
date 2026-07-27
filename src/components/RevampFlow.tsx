@@ -147,20 +147,32 @@ export function RevampFlow() {
   const handlePhotos = useCallback(async (files: FileList | null) => {
     if (!files) return;
 
-    const next = [...photos];
+    const compressed: File[] = [];
     for (const file of Array.from(files)) {
       if (!file.type.startsWith("image/")) continue;
-      if (next.length >= 3) break;
-
-      const compressed = await compressImage(file);
-      next.push({
-        file: compressed,
-        preview: URL.createObjectURL(compressed),
-      });
+      compressed.push(await compressImage(file));
     }
-    setPhotos(next);
+
+    if (!compressed.length) return;
+
+    setPhotos((prev) => {
+      const next = [...prev];
+      for (const file of compressed) {
+        if (next.length >= 3) break;
+        next.push({ file, preview: URL.createObjectURL(file) });
+      }
+      return next;
+    });
     setError("");
-  }, [photos]);
+  }, []);
+
+  const onPhotoInput = (
+    files: FileList | null,
+    input: HTMLInputElement | null,
+  ) => {
+    void handlePhotos(files);
+    if (input) input.value = "";
+  };
 
   const removePhoto = (index: number) => {
     setPhotos((prev) => prev.filter((_, i) => i !== index));
@@ -281,20 +293,45 @@ export function RevampFlow() {
               refreshed. Good daylight helps.
             </p>
 
-            <label className="mt-8 flex cursor-pointer flex-col items-center justify-center border border-dashed border-stone bg-mist/50 px-6 py-14 transition-colors hover:border-saffron hover:bg-saffron/5">
-              <span className="text-3xl text-saffron">+</span>
-              <span className="mt-3 font-medium text-ink">Add photos</span>
-              <span className="mt-1 text-sm text-ink-soft">
-                JPG or PNG, up to 3 images
-              </span>
-              <input
-                type="file"
-                accept="image/*"
-                multiple
-                className="hidden"
-                onChange={(e) => handlePhotos(e.target.files)}
-              />
-            </label>
+            <div className="mt-8 grid gap-3 sm:grid-cols-2">
+              <label className="flex cursor-pointer flex-col items-center justify-center border border-dashed border-stone bg-mist/50 px-6 py-10 transition-colors hover:border-saffron hover:bg-saffron/5">
+                <span className="text-2xl" aria-hidden>
+                  📷
+                </span>
+                <span className="mt-3 font-medium text-ink">Take photo</span>
+                <span className="mt-1 text-center text-sm text-ink-soft">
+                  Open camera
+                </span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  capture="environment"
+                  className="hidden"
+                  onChange={(e) => onPhotoInput(e.target.files, e.target)}
+                />
+              </label>
+
+              <label className="flex cursor-pointer flex-col items-center justify-center border border-dashed border-stone bg-mist/50 px-6 py-10 transition-colors hover:border-saffron hover:bg-saffron/5">
+                <span className="text-2xl" aria-hidden>
+                  🖼️
+                </span>
+                <span className="mt-3 font-medium text-ink">Choose gallery</span>
+                <span className="mt-1 text-center text-sm text-ink-soft">
+                  Pick up to 3 images
+                </span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  className="hidden"
+                  onChange={(e) => onPhotoInput(e.target.files, e.target)}
+                />
+              </label>
+            </div>
+
+            <p className="mt-3 text-center text-xs text-stone">
+              JPG or PNG · {photos.length}/3 photos added
+            </p>
 
             {photos.length > 0 ? (
               <div className="mt-6 grid grid-cols-3 gap-3">
