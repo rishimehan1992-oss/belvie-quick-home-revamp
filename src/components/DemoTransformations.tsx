@@ -25,12 +25,7 @@ export function DemoTransformations() {
               key={demo.id}
               className="border border-line bg-paper shadow-sm"
             >
-              <DemoRoomCompare
-                beforeSrc={demo.before.src}
-                beforeAlt={demo.before.alt}
-                afterAlt={demo.afterAlt}
-                styling={demo.styling}
-              />
+              <DemoRoomCompare demo={demo} />
 
               <div className="grid gap-6 border-t border-line px-5 py-6 md:grid-cols-3">
                 <div>
@@ -82,8 +77,9 @@ export function DemoTransformations() {
         </div>
 
         <p className="mt-10 text-center text-xs text-stone">
-          After previews are styling layers applied on the exact same room photo
-          — wallpaper, panels, decor & furniture styling only.
+          After previews are AI-generated revamps of the same room — we analyze
+          size, fixtures & camera angle first, then create a new photorealistic
+          image with wallpaper, panels, carpet & furniture.
         </p>
 
         <div className="mt-8 text-center">

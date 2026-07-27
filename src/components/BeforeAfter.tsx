@@ -19,7 +19,7 @@ export function BeforeAfter({ beforeSrc, afterSrc, afterLoading }: BeforeAfterPr
           {afterLoading ? (
             <div className="flex h-full flex-col items-center justify-center gap-3 bg-sage-deep/90 text-paper">
               <div className="h-8 w-8 animate-spin rounded-full border-2 border-paper border-t-transparent" />
-              <p className="text-sm">Adding wallpaper, panels, carpet & furniture…</p>
+              <p className="text-sm">Generating photorealistic revamp preview…</p>
             </div>
           ) : afterSrc ? (
             // eslint-disable-next-line @next/next/no-img-element
@@ -76,7 +76,7 @@ export function BeforeAfter({ beforeSrc, afterSrc, afterLoading }: BeforeAfterPr
         </span>
       </div>
       <p className="px-4 py-2 text-center text-xs text-stone bg-paper">
-        Drag the slider — after shows wallpaper, wall panels, carpet & furniture on your exact room
+        Drag the slider — after is an AI-generated revamp matching your room size & fixtures
       </p>
     </div>
   );

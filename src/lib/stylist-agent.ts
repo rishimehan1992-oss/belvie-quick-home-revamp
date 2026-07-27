@@ -4,8 +4,9 @@ import {
   PRIORITIES,
   ROOM_TYPES,
 } from "./constants";
-import type { RevampBrief, RevampVision } from "./types";
+import type { RevampBrief, RevampVision, RoomStructure } from "./types";
 import { sanitizeKeyChanges } from "./styling-rules";
+import { defaultRoomStructure } from "./revamped-image";
 
 function labelFor<T extends { id: string; label: string }>(
   list: readonly T[],
@@ -79,6 +80,29 @@ Return ONLY valid JSON (no markdown fences, no extra text) in this exact shape:
   "designConcept": "Step 2 paragraph — theme rationale for this room and light",
   "alternativeTheme": "One alternative theme + brief why",
   "afterImageBrief": "Step 3 — detailed description of the after photo: same angle, same fixtures, only cosmetic changes visible (wallpaper, panels, carpet, furniture, curtains, decor)",
+  "roomStructure": {
+    "approximateDimensions": "e.g. 12ft x 14ft rectangular room — infer from photos",
+    "ceilingHeight": "e.g. ~10ft flat ceiling with ceiling fan center",
+    "cameraAngle": "e.g. shot from doorway, eye level, facing far wall — match photo 1",
+    "floorType": "e.g. beige vitrified tiles, existing layout unchanged",
+    "wallDescription": "e.g. plain white walls, built-in wardrobe on left wall",
+    "lightDirection": "e.g. natural light from window on right wall",
+    "referencePhotoIndex": 0,
+    "fixtures": [
+      {
+        "type": "door|window|ceiling fan|switchboard|AC|built-in wardrobe|almirah",
+        "position": "which wall and where on that wall",
+        "description": "size, color, must stay exact in after image"
+      }
+    ],
+    "existingFurniture": [
+      {
+        "item": "e.g. grey L-shaped sofa",
+        "position": "center along far wall",
+        "notes": "keep position; cushions/covers may change"
+      }
+    ]
+  },
   "visionSummary": "2-3 sentence executive summary for the customer",
   "designDirection": "Same as designConcept or a tighter version for UI",
   "colorPalette": ["color 1", "color 2", "color 3"],
@@ -135,7 +159,36 @@ Rules:
 - Mirror costLineItems into items[] (name + estimatedTotal as estimatedCost) for compatibility.
 - estimatedBudget min/max should align with costTotals grandTotal (use a tight range).
 - keyChanges must ONLY list allowed cosmetic layers — never structural or civil work.
+- roomStructure must be detailed — list every visible door, window, fan, switch, and built-in with wall position. This feeds image generation.
 - All amounts in INR integers.`;
+}
+
+function normalizeRoomStructure(
+  raw: Partial<RoomStructure> | undefined,
+): RoomStructure {
+  if (!raw?.approximateDimensions && !raw?.fixtures?.length) {
+    return defaultRoomStructure;
+  }
+
+  return {
+    approximateDimensions:
+      raw.approximateDimensions?.trim() ||
+      defaultRoomStructure.approximateDimensions,
+    ceilingHeight:
+      raw.ceilingHeight?.trim() || defaultRoomStructure.ceilingHeight,
+    cameraAngle: raw.cameraAngle?.trim() || defaultRoomStructure.cameraAngle,
+    floorType: raw.floorType?.trim() || defaultRoomStructure.floorType,
+    wallDescription:
+      raw.wallDescription?.trim() || defaultRoomStructure.wallDescription,
+    lightDirection:
+      raw.lightDirection?.trim() || defaultRoomStructure.lightDirection,
+    referencePhotoIndex:
+      typeof raw.referencePhotoIndex === "number"
+        ? raw.referencePhotoIndex
+        : 0,
+    fixtures: raw.fixtures?.length ? raw.fixtures : defaultRoomStructure.fixtures,
+    existingFurniture: raw.existingFurniture ?? [],
+  };
 }
 
 export function normalizeVision(raw: Partial<RevampVision>): RevampVision {
@@ -200,6 +253,7 @@ export function normalizeVision(raw: Partial<RevampVision>): RevampVision {
     afterImageBrief:
       raw.afterImageBrief?.trim() ||
       "Same room photo with wallpaper, area rug, cushions, curtains, and plug-in lamps added.",
+    roomStructure: normalizeRoomStructure(raw.roomStructure),
     visionSummary:
       raw.visionSummary?.trim() ||
       roomAnalysis.split(".").slice(0, 2).join(".") + ".",

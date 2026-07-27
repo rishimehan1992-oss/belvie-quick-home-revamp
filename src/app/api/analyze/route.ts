@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { analyzeRoom } from "@/lib/analyze-room";
+import { generateRevampedImageUrl } from "@/lib/revamped-image";
 import type { RevampBrief } from "@/lib/types";
 
 export const maxDuration = 120;
@@ -29,7 +30,32 @@ export async function POST(request: Request) {
 
     const vision = await analyzeRoom(body.brief, images);
 
-    return NextResponse.json({ vision });
+    const refIndex = Math.min(
+      vision.roomStructure.referencePhotoIndex,
+      images.length - 1,
+    );
+    const referenceImage = images[refIndex] ?? images[0];
+
+    let afterImageUrl: string | null = null;
+    let imageWarning: string | undefined;
+
+    try {
+      afterImageUrl = await generateRevampedImageUrl(
+        referenceImage,
+        body.brief,
+        vision,
+      );
+    } catch (imageError) {
+      const message =
+        imageError instanceof Error
+          ? imageError.message
+          : "Revamped image generation failed";
+      console.error("[analyze] revamped-image", message);
+      imageWarning =
+        "Your revamp plan is ready. The photorealistic after-image could not be generated right now — try again in a minute.";
+    }
+
+    return NextResponse.json({ vision, afterImageUrl, imageWarning });
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "Analysis failed";

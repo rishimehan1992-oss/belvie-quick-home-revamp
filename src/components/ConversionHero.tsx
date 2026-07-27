@@ -55,13 +55,7 @@ export function ConversionHero() {
         </div>
 
         <div>
-          <DemoRoomCompare
-            beforeSrc={heroDemo.before.src}
-            beforeAlt={heroDemo.before.alt}
-            afterAlt={heroDemo.afterAlt}
-            styling={heroDemo.styling}
-            compact
-          />
+          <DemoRoomCompare demo={heroDemo} compact />
           <p className="mt-3 text-center text-sm font-medium text-ink">
             {heroDemo.room} · {heroDemo.location} ·{" "}
             <span className="text-saffron">{heroDemo.budget}</span>

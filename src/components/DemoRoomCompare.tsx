@@ -2,42 +2,48 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import {
-  applyStylingToImage,
-  type StylingOverlayConfig,
-} from "@/lib/same-image-revamp";
+import type { DemoTransformation } from "@/lib/demo-transformations";
+import { parseJsonResponse } from "@/lib/api";
 
 type DemoRoomCompareProps = {
-  beforeSrc: string;
-  beforeAlt: string;
-  afterAlt: string;
-  styling: StylingOverlayConfig;
+  demo: DemoTransformation;
   compact?: boolean;
 };
 
-export function DemoRoomCompare({
-  beforeSrc,
-  beforeAlt,
-  afterAlt,
-  styling,
-  compact = false,
-}: DemoRoomCompareProps) {
+export function DemoRoomCompare({ demo, compact = false }: DemoRoomCompareProps) {
   const [afterSrc, setAfterSrc] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
 
-    applyStylingToImage(beforeSrc, styling)
-      .then((url) => {
+    fetch("/api/demo-revamped-image", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        beforeImageUrl: demo.before.src,
+        brief: demo.brief,
+        vision: {
+          roomStructure: demo.roomStructure,
+          afterImageBrief: demo.afterImageBrief,
+          keyChanges: demo.keyChanges,
+          colorPalette: demo.colorPalette,
+          primaryTheme: demo.room,
+        },
+      }),
+    })
+      .then(async (res) => {
+        const data = await parseJsonResponse<{ afterImageUrl?: string }>(res);
+        if (!res.ok) throw new Error("Demo image failed");
         if (!cancelled) {
-          setAfterSrc(url);
+          setAfterSrc(data.afterImageUrl ?? null);
           setLoading(false);
         }
       })
       .catch(() => {
         if (!cancelled) {
-          setAfterSrc(beforeSrc);
+          setError(true);
           setLoading(false);
         }
       });
@@ -45,7 +51,7 @@ export function DemoRoomCompare({
     return () => {
       cancelled = true;
     };
-  }, [beforeSrc, styling]);
+  }, [demo]);
 
   return (
     <div
@@ -55,8 +61,8 @@ export function DemoRoomCompare({
         className={`relative overflow-hidden bg-mist ${compact ? "aspect-[3/4]" : "aspect-[4/3]"}`}
       >
         <Image
-          src={beforeSrc}
-          alt={beforeAlt}
+          src={demo.before.src}
+          alt={demo.before.alt}
           fill
           className="object-cover"
           sizes={compact ? "50vw" : "(max-width: 640px) 100vw, 50vw"}
@@ -69,16 +75,22 @@ export function DemoRoomCompare({
       <div
         className={`relative overflow-hidden bg-mist ${compact ? "aspect-[3/4]" : "aspect-[4/3]"}`}
       >
-        {loading || !afterSrc ? (
-          <div className="flex h-full flex-col items-center justify-center gap-2 bg-sage-deep/90 text-paper">
+        {loading ? (
+          <div className="flex h-full flex-col items-center justify-center gap-2 bg-sage-deep/90 px-4 text-center text-paper">
             <div className="h-6 w-6 animate-spin rounded-full border-2 border-paper border-t-transparent" />
-            <p className="text-xs">Adding wallpaper, panels, carpet & furniture…</p>
+            <p className="text-xs">
+              Analyzing room & generating photorealistic revamp…
+            </p>
+          </div>
+        ) : error || !afterSrc ? (
+          <div className="flex h-full items-center justify-center bg-mist px-4 text-center text-xs text-stone">
+            After preview loading — refresh to retry
           </div>
         ) : (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={afterSrc}
-            alt={afterAlt}
+            alt={demo.afterAlt}
             className="absolute inset-0 h-full w-full object-cover"
           />
         )}
@@ -86,7 +98,7 @@ export function DemoRoomCompare({
           After Belvie
         </span>
         <span className="absolute bottom-2 left-2 right-2 bg-ink/70 px-2 py-1 text-[10px] text-paper/90">
-          Same room · wallpaper, panels, carpet & furniture added
+          AI revamp · same room size & fixtures
         </span>
       </div>
     </div>

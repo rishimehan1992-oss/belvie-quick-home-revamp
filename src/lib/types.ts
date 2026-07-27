@@ -19,6 +19,30 @@ export type RevampBrief = {
   timeline: string;
 };
 
+export type RoomFixture = {
+  type: string;
+  position: string;
+  description: string;
+};
+
+export type ExistingFurniture = {
+  item: string;
+  position: string;
+  notes: string;
+};
+
+export type RoomStructure = {
+  approximateDimensions: string;
+  ceilingHeight: string;
+  cameraAngle: string;
+  floorType: string;
+  wallDescription: string;
+  lightDirection: string;
+  referencePhotoIndex: number;
+  fixtures: RoomFixture[];
+  existingFurniture: ExistingFurniture[];
+};
+
 export type BudgetItem = {
   name: string;
   estimatedCost: number;
@@ -55,6 +79,7 @@ export type RevampVision = {
   designConcept: string;
   alternativeTheme: string;
   afterImageBrief: string;
+  roomStructure: RoomStructure;
   visionSummary: string;
   designDirection: string;
   colorPalette: string[];

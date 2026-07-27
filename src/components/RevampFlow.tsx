@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import Link from "next/link";
 import {
   BUDGET_BANDS,
@@ -19,7 +19,6 @@ import type {
 import { parseJsonResponse } from "@/lib/api";
 import { BeforeAfter } from "@/components/BeforeAfter";
 import { VisionResults } from "@/components/VisionResults";
-import { applyStylingToImage } from "@/lib/same-image-revamp";
 
 type Step =
   | "upload"
@@ -182,38 +181,6 @@ export function RevampFlow() {
     setPhotos((prev) => prev.filter((_, i) => i !== index));
   };
 
-  useEffect(() => {
-    if (!vision || !photos[0]?.preview) return;
-
-    let cancelled = false;
-    setImageLoading(true);
-    setImageWarning(null);
-
-    applyStylingToImage(photos[0].preview, {
-      colorPalette: vision.colorPalette,
-      keyChanges: vision.keyChanges,
-      roomType: brief?.roomType,
-    })
-      .then((url) => {
-        if (!cancelled) {
-          setAfterImageUrl(url);
-          setImageLoading(false);
-        }
-      })
-      .catch(() => {
-        if (!cancelled) {
-          setImageWarning(
-            "Could not apply styling preview on your photo. Your plan below is still valid.",
-          );
-          setImageLoading(false);
-        }
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [vision, photos, brief?.roomType]);
-
   const runAnalysis = async () => {
     if (!brief) return;
     setStep("analyzing");
@@ -238,6 +205,8 @@ export function RevampFlow() {
 
       const data = await parseJsonResponse<{
         vision?: RevampVision;
+        afterImageUrl?: string | null;
+        imageWarning?: string;
         error?: string;
       }>(res);
       if (!res.ok) throw new Error(data.error || "Analysis failed");
@@ -247,9 +216,9 @@ export function RevampFlow() {
       }
 
       setVision(data.vision);
-      setAfterImageUrl(null);
-      setImageWarning(null);
-      setImageLoading(true);
+      setAfterImageUrl(data.afterImageUrl ?? null);
+      setImageWarning(data.imageWarning ?? null);
+      setImageLoading(!data.afterImageUrl);
       setStep("results");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
@@ -623,7 +592,9 @@ export function RevampFlow() {
               Designing your makeover
             </h1>
             <p className="mt-4 max-w-sm text-ink-soft">
-              Belvie is planning your Bangalore revamp — usually under a minute.
+              Analyzing your room structure, fixtures & dimensions — then
+              generating a photorealistic revamp preview. Usually under 2
+              minutes.
             </p>
           </section>
         ) : null}
@@ -640,14 +611,30 @@ export function RevampFlow() {
             {photos[0] ? (
               <div className="mt-8">
                 <p className="mb-3 text-sm text-ink-soft">
-                  Same room structure — cosmetic makeover preview with
-                  wallpaper, panels, carpet & furniture on your exact photo.
+                  We analyze your room&apos;s size, fixtures & camera angle,
+                  then generate a new photorealistic after image — same
+                  dimensions, doors, windows & built-ins locked.
                 </p>
                 <BeforeAfter
                   beforeSrc={photos[0].preview}
                   afterSrc={afterImageUrl}
                   afterLoading={imageLoading && !afterImageUrl}
                 />
+                {afterImageUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={afterImageUrl}
+                    alt=""
+                    className="hidden"
+                    onLoad={() => setImageLoading(false)}
+                    onError={() => {
+                      setImageLoading(false);
+                      setImageWarning(
+                        "After-image preview failed to load. Your plan below is still valid.",
+                      );
+                    }}
+                  />
+                ) : null}
                 {imageWarning ? (
                   <p className="mt-3 border border-terracotta/30 bg-terracotta/8 px-4 py-3 text-sm text-terracotta">
                     {imageWarning}
