@@ -1,6 +1,6 @@
-import Image from "next/image";
 import Link from "next/link";
 import { DEMO_TRANSFORMATIONS } from "@/lib/demo-transformations";
+import { RealisticRoomPair } from "@/components/RealisticRoomPair";
 
 export function DemoTransformations() {
   return (
@@ -8,69 +8,72 @@ export function DemoTransformations() {
       <div className="mx-auto max-w-6xl">
         <div className="text-center">
           <p className="text-xs font-medium uppercase tracking-[0.22em] text-sage">
-            Real-style makeovers
+            What we actually deliver
           </p>
           <h2 className="mt-4 font-display text-4xl tracking-wide text-ink md:text-5xl">
-            See what Belvie can do
+            Same room. Better styling.
           </h2>
-          <p className="mx-auto mt-4 max-w-lg text-ink-soft">
-            Dull room in → stunning room out. Same-day revamps, Bangalore
-            pricing — no shifting out.
+          <p className="mx-auto mt-4 max-w-xl text-ink-soft">
+            No demolition, no layout change. We keep your walls, windows & furniture
+            frame — and add decor, textiles, lighting & storage. Done in ~4 hours.
           </p>
         </div>
 
-        <div className="mt-14 space-y-12">
+        <div className="mt-14 space-y-14">
           {DEMO_TRANSFORMATIONS.map((demo) => (
             <article
               key={demo.id}
               className="border border-line bg-paper shadow-sm"
             >
-              <div className="grid md:grid-cols-2">
-                <div className="relative aspect-[4/3] md:aspect-auto md:min-h-[280px]">
-                  <Image
-                    src={demo.before.src}
-                    alt={demo.before.alt}
-                    fill
-                    className="object-cover brightness-90 saturate-75"
-                    sizes="(max-width: 768px) 100vw, 50vw"
-                  />
-                  <span className="absolute left-3 top-3 bg-ink/80 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-paper">
-                    Before
-                  </span>
-                  <span className="absolute bottom-3 left-3 bg-ink/70 px-2 py-1 text-xs text-paper/90">
-                    Dated · Cluttered · Dull
-                  </span>
-                </div>
-                <div className="relative aspect-[4/3] md:aspect-auto md:min-h-[280px]">
-                  <Image
-                    src={demo.after.src}
-                    alt={demo.after.alt}
-                    fill
-                    className="object-cover"
-                    sizes="(max-width: 768px) 100vw, 50vw"
-                  />
-                  <span className="absolute left-3 top-3 bg-saffron px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-paper">
-                    After Belvie
-                  </span>
-                  <span className="absolute bottom-3 left-3 bg-saffron/90 px-2 py-1 text-xs font-medium text-paper">
-                    Styled · Fresh · Done in ~4 hrs
-                  </span>
-                </div>
-              </div>
+              <RealisticRoomPair
+                image={demo.image}
+                alt={demo.alt}
+                beforeCaption={demo.beforeCaption}
+                afterCaption={demo.afterCaption}
+              />
 
-              <div className="flex flex-col gap-4 border-t border-line px-5 py-5 sm:flex-row sm:items-center sm:justify-between">
+              <div className="grid gap-6 border-t border-line px-5 py-6 md:grid-cols-3">
                 <div>
-                  <p className="font-medium text-ink">
+                  <p className="text-xs font-medium uppercase tracking-wider text-sage">
+                    Room
+                  </p>
+                  <p className="mt-1 font-medium text-ink">
                     {demo.room} · {demo.location}
                   </p>
-                  <p className="mt-1 text-sm text-ink-soft">{demo.budgetNote}</p>
-                </div>
-                <div className="text-left sm:text-right">
-                  <p className="text-xs uppercase tracking-wider text-stone">
-                    Approx. budget
+                  <p className="mt-3 text-xs font-medium uppercase tracking-wider text-sage">
+                    Unchanged
                   </p>
-                  <p className="font-display text-2xl text-saffron">
+                  <ul className="mt-2 space-y-1">
+                    {demo.unchanged.map((item) => (
+                      <li key={item} className="text-sm text-ink-soft">
+                        ✓ {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                <div>
+                  <p className="text-xs font-medium uppercase tracking-wider text-sage">
+                    What Belvie adds
+                  </p>
+                  <ul className="mt-2 space-y-1.5">
+                    {demo.itemsAdded.map((item) => (
+                      <li key={item} className="text-sm text-ink">
+                        + {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                <div className="md:text-right">
+                  <p className="text-xs font-medium uppercase tracking-wider text-sage">
+                    Total styling budget
+                  </p>
+                  <p className="mt-1 font-display text-3xl text-saffron">
                     {demo.budget}
+                  </p>
+                  <p className="mt-2 text-xs text-stone">
+                    Incl. sourcing from Bangalore markets
                   </p>
                 </div>
               </div>
@@ -78,13 +81,15 @@ export function DemoTransformations() {
           ))}
         </div>
 
-        <div className="mt-12 text-center">
-          <p className="text-sm text-ink-soft">
-            Your room could be next — upload a photo and get your own plan.
-          </p>
+        <p className="mt-10 text-center text-xs text-stone">
+          Before previews are simulated from the same room photo to show typical
+          unstyled state. After shows the deliverable styling result.
+        </p>
+
+        <div className="mt-8 text-center">
           <Link
             href="/revamp"
-            className="mt-5 inline-block bg-saffron px-10 py-4 text-sm font-semibold text-paper transition-colors hover:bg-terracotta"
+            className="inline-block bg-saffron px-10 py-4 text-sm font-semibold text-paper transition-colors hover:bg-terracotta"
           >
             Preview my room →
           </Link>

@@ -14,7 +14,7 @@ const steps = [
   {
     num: "3",
     title: "See before & after",
-    body: "Before/after preview + budget + item list for Bangalore.",
+    body: "Same room preview + budget + shoppable item list for Bangalore.",
   },
 ];
 

@@ -597,6 +597,10 @@ export function RevampFlow() {
 
             {photos[0] ? (
               <div className="mt-8">
+                <p className="mb-3 text-sm text-ink-soft">
+                  Styling preview — same room layout, decor & textiles updated.
+                  Not a renovation or layout change.
+                </p>
                 <BeforeAfter
                   beforeSrc={photos[0].preview}
                   afterSrc={afterImageUrl}

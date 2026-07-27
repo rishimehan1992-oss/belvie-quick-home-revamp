@@ -16,12 +16,12 @@ export function buildAfterImagePrompt(
   const style = labelFor(DESIGN_STYLES, brief.designStyle);
 
   return [
-    `Photorealistic interior design photograph of a beautifully renovated ${room} in an Indian apartment in Bangalore.`,
-    `Style: ${style}.`,
+    `Photorealistic interior photograph of the exact same ${room} shown in the reference — identical room dimensions, same walls, windows, doors, ceiling height and furniture placement.`,
+    `ONLY styling changes allowed: ${vision.keyChanges.slice(0, 4).join(", ")}.`,
+    `Style: ${style}. Colors: ${vision.colorPalette.join(", ")}.`,
     vision.designDirection,
-    `Color palette: ${vision.colorPalette.join(", ")}.`,
-    `Key features: ${vision.keyChanges.slice(0, 4).join(", ")}.`,
-    "Warm natural daylight, premium home decor, clean composition, wide angle, magazine quality, no people, no text.",
+    "Do NOT change room layout, wall structure, window size, or floor plan. Decor, textiles, lighting and soft furnishings only.",
+    "Natural daylight, realistic Indian apartment in Bangalore, achievable home styling, no luxury renovation, no people, no text.",
   ].join(" ");
 }
 

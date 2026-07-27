@@ -33,7 +33,9 @@ Customer brief:
 Belvie USPs to weave in:
 - No room vacation — customer stays at home during revamp
 - Most revamps completed in under 4 hours
-- Items and pricing for Bangalore (mention local markets/stores like IKEA Bangalore, Home Centre, Decathlon Home, local carpenters, upholstery vendors in areas like Indiranagar, Koramangala, HSR)
+- STYLING ONLY — same room layout, walls, windows unchanged. No demolition, no civil work.
+- Only add/change: decor, textiles, lighting, soft furnishings, organisers, wall art, curtains, sofa covers
+- Items and pricing for Bangalore (IKEA Bangalore, Home Centre, local markets in Koramangala, HSR, Indiranagar)
 
 Return ONLY valid JSON (no markdown, no extra text) in this exact shape:
 {
