@@ -183,17 +183,19 @@ export function RevampFlow() {
   };
 
   useEffect(() => {
-    if (!vision || !photos[0]?.preview) return;
-
-    // Flux (or prior markup) already produced an after image
-    if (afterImageUrl) {
-      setImageLoading(false);
-      return;
-    }
+    if (!vision || !photos[0]?.preview || !brief) return;
 
     let cancelled = false;
     setImageLoading(true);
+    setImageWarning(null);
 
+    const refIndex = Math.min(
+      vision.roomStructure?.referencePhotoIndex ?? 0,
+      photos.length - 1,
+    );
+    const referencePhoto = photos[refIndex] ?? photos[0];
+
+    // Fast fallback so user never waits staring at a spinner.
     applyStylingToImage(photos[0].preview, {
       colorPalette: vision.colorPalette,
       keyChanges: vision.keyChanges,
@@ -215,10 +217,46 @@ export function RevampFlow() {
         }
       });
 
+    // Photorealistic image runs in parallel, outside /api/analyze timeout path.
+    void (async () => {
+      try {
+        const referenceImage = await fileToBase64(referencePhoto.file);
+        const res = await fetch("/api/after-image", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            brief,
+            vision,
+            referenceImage,
+          }),
+        });
+
+        const data = await parseJsonResponse<{
+          afterImageUrl?: string;
+          error?: string;
+        }>(res);
+
+        if (!res.ok || !data.afterImageUrl) {
+          throw new Error(data.error || "Photorealistic preview unavailable");
+        }
+
+        if (!cancelled) {
+          setAfterImageUrl(data.afterImageUrl);
+          setImageLoading(false);
+        }
+      } catch {
+        if (!cancelled) {
+          setImageWarning(
+            "Photorealistic preview is taking longer than expected. Showing plan markers on your photo.",
+          );
+        }
+      }
+    })();
+
     return () => {
       cancelled = true;
     };
-  }, [vision, photos, brief?.roomType, afterImageUrl]);
+  }, [vision, photos, brief]);
 
   const runAnalysis = async () => {
     if (!brief) return;
@@ -244,9 +282,6 @@ export function RevampFlow() {
 
       const data = await parseJsonResponse<{
         vision?: RevampVision;
-        afterImageUrl?: string | null;
-        imageWarning?: string;
-        imageSource?: string;
         error?: string;
       }>(res);
       if (!res.ok) throw new Error(data.error || "Analysis failed");
@@ -256,10 +291,9 @@ export function RevampFlow() {
       }
 
       setVision(data.vision);
-      setAfterImageUrl(data.afterImageUrl ?? null);
-      setImageWarning(data.imageWarning ?? null);
-      // If Flux returned a URL, we're done loading; else markup effect will run
-      setImageLoading(!data.afterImageUrl);
+      setAfterImageUrl(null);
+      setImageWarning(null);
+      setImageLoading(true);
       setStep("results");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
@@ -633,8 +667,8 @@ export function RevampFlow() {
               Designing your makeover
             </h1>
             <p className="mt-4 max-w-sm text-ink-soft">
-              Building your plan and FLUX.1 Kontext after-preview — usually 1–2
-              minutes.
+              Building your plan first, then generating your preview in
+              parallel.
             </p>
           </section>
         ) : null}
@@ -652,8 +686,8 @@ export function RevampFlow() {
               <div className="mt-8">
                 <p className="mb-3 text-sm text-ink-soft">
                   {afterImageUrl?.startsWith("http")
-                    ? "FLUX.1 Kontext edit of your exact room — wallpaper, panels, carpet & decor, structure locked."
-                    : "Your exact room photo with numbered cosmetic changes marked. Add Replicate for photoreal FLUX.1 after-images."}
+                    ? "AI-edited preview of your exact room — layout and fixed fixtures stay locked."
+                    : "Your exact room photo with numbered cosmetic changes marked while high-fidelity preview loads."}
                 </p>
                 <BeforeAfter
                   beforeSrc={photos[0].preview}

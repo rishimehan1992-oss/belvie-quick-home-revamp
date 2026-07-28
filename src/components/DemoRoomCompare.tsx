@@ -41,7 +41,7 @@ export function DemoRoomCompare({ demo, compact = false }: DemoRoomCompareProps)
           After Belvie
         </span>
         <span className="absolute bottom-2 left-2 right-2 bg-ink/70 px-2 py-1 text-[10px] text-paper/90">
-          FLUX.1 Kontext · same room edit
+          AI-edited demo · same room structure
         </span>
       </div>
     </div>

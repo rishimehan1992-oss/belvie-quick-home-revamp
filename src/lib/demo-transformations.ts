@@ -42,7 +42,7 @@ export const DEMO_TRANSFORMATIONS: DemoTransformation[] = [
     },
     after: {
       src: LIVING_AFTER,
-      alt: "Flux Kontext living room revamp with same layout and fixtures",
+      alt: "AI living room revamp with same layout and fixtures",
     },
     afterAlt: "Photorealistic revamped living room — same layout and fixtures",
     afterImageBrief:
@@ -117,7 +117,7 @@ export const DEMO_TRANSFORMATIONS: DemoTransformation[] = [
     },
     after: {
       src: BEDROOM_AFTER,
-      alt: "Flux Kontext bedroom revamp with same layout and fixtures",
+      alt: "AI bedroom revamp with same layout and fixtures",
     },
     afterAlt: "Photorealistic revamped bedroom — same bed position and windows",
     afterImageBrief:
@@ -192,7 +192,7 @@ export const DEMO_TRANSFORMATIONS: DemoTransformation[] = [
     },
     after: {
       src: STUDY_AFTER,
-      alt: "Flux Kontext study revamp with same layout and fixtures",
+      alt: "AI study revamp with same layout and fixtures",
     },
     afterAlt: "Photorealistic revamped study — same desk position and windows",
     afterImageBrief:
