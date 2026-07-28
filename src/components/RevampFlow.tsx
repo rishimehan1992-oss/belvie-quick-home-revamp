@@ -185,9 +185,14 @@ export function RevampFlow() {
   useEffect(() => {
     if (!vision || !photos[0]?.preview) return;
 
+    // Flux (or prior markup) already produced an after image
+    if (afterImageUrl) {
+      setImageLoading(false);
+      return;
+    }
+
     let cancelled = false;
     setImageLoading(true);
-    setImageWarning(null);
 
     applyStylingToImage(photos[0].preview, {
       colorPalette: vision.colorPalette,
@@ -213,7 +218,7 @@ export function RevampFlow() {
     return () => {
       cancelled = true;
     };
-  }, [vision, photos, brief?.roomType]);
+  }, [vision, photos, brief?.roomType, afterImageUrl]);
 
   const runAnalysis = async () => {
     if (!brief) return;
@@ -239,6 +244,9 @@ export function RevampFlow() {
 
       const data = await parseJsonResponse<{
         vision?: RevampVision;
+        afterImageUrl?: string | null;
+        imageWarning?: string;
+        imageSource?: string;
         error?: string;
       }>(res);
       if (!res.ok) throw new Error(data.error || "Analysis failed");
@@ -248,9 +256,10 @@ export function RevampFlow() {
       }
 
       setVision(data.vision);
-      setAfterImageUrl(null);
-      setImageWarning(null);
-      setImageLoading(true);
+      setAfterImageUrl(data.afterImageUrl ?? null);
+      setImageWarning(data.imageWarning ?? null);
+      // If Flux returned a URL, we're done loading; else markup effect will run
+      setImageLoading(!data.afterImageUrl);
       setStep("results");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
@@ -624,8 +633,8 @@ export function RevampFlow() {
               Designing your makeover
             </h1>
             <p className="mt-4 max-w-sm text-ink-soft">
-              Building your Bengaluru cosmetic plan from the room photos —
-              usually under a minute.
+              Building your plan and FLUX.1 Kontext after-preview — usually 1–2
+              minutes.
             </p>
           </section>
         ) : null}
@@ -642,9 +651,9 @@ export function RevampFlow() {
             {photos[0] ? (
               <div className="mt-8">
                 <p className="mb-3 text-sm text-ink-soft">
-                  Your exact room photo with numbered cosmetic changes marked —
-                  wallpaper, panels, carpet, furniture. Doors, windows &
-                  built-ins stay as they are.
+                  {afterImageUrl?.startsWith("http")
+                    ? "FLUX.1 Kontext edit of your exact room — wallpaper, panels, carpet & decor, structure locked."
+                    : "Your exact room photo with numbered cosmetic changes marked. Add Replicate for photoreal FLUX.1 after-images."}
                 </p>
                 <BeforeAfter
                   beforeSrc={photos[0].preview}

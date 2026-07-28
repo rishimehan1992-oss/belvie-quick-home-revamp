@@ -18,7 +18,7 @@ export function BeforeAfter({ beforeSrc, afterSrc, afterLoading }: BeforeAfterPr
           {afterLoading ? (
             <div className="flex h-full flex-col items-center justify-center gap-3 bg-ink/85 text-paper">
               <div className="h-8 w-8 animate-spin rounded-full border-2 border-paper border-t-transparent" />
-              <p className="text-sm">Marking cosmetic plan on your photo…</p>
+              <p className="text-sm">Generating FLUX.1 room revamp…</p>
             </div>
           ) : afterSrc ? (
             // eslint-disable-next-line @next/next/no-img-element
@@ -74,8 +74,8 @@ export function BeforeAfter({ beforeSrc, afterSrc, afterLoading }: BeforeAfterPr
         </span>
       </div>
       <p className="bg-paper px-4 py-2 text-center text-xs text-stone">
-        Drag — right side is your exact photo with numbered cosmetic changes
-        (no fake green overlays)
+        Drag — after is your room edited with FLUX.1 Kontext (or plan markers if
+        Flux is offline)
       </p>
     </div>
   );

@@ -9,11 +9,11 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
-        hostname: "image.pollinations.ai",
+        hostname: "replicate.delivery",
       },
       {
         protocol: "https",
-        hostname: "tmpfiles.org",
+        hostname: "pbxt.replicate.delivery",
       },
     ],
   },

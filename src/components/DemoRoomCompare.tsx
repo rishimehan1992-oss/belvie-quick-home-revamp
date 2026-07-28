@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import type { DemoTransformation } from "@/lib/demo-transformations";
 import { applyStylingToImage } from "@/lib/same-image-revamp";
+import { parseJsonResponse } from "@/lib/api";
 
 type DemoRoomCompareProps = {
   demo: DemoTransformation;
@@ -13,28 +14,65 @@ type DemoRoomCompareProps = {
 export function DemoRoomCompare({ demo, compact = false }: DemoRoomCompareProps) {
   const [afterSrc, setAfterSrc] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [mode, setMode] = useState<"flux" | "markup">("markup");
 
   useEffect(() => {
     let cancelled = false;
 
-    applyStylingToImage(demo.before.src, {
-      colorPalette: demo.colorPalette,
-      keyChanges: demo.keyChanges,
-      roomType: demo.brief.roomType,
-      primaryTheme: demo.room,
-    })
-      .then((url) => {
+    async function run() {
+      setLoading(true);
+
+      try {
+        const res = await fetch("/api/demo-flux", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            beforeImageUrl: demo.before.src,
+            brief: demo.brief,
+            vision: {
+              roomStructure: demo.roomStructure,
+              afterImageBrief: demo.afterImageBrief,
+              keyChanges: demo.keyChanges,
+              colorPalette: demo.colorPalette,
+              primaryTheme: demo.room,
+            },
+          }),
+        });
+
+        if (res.ok) {
+          const data = await parseJsonResponse<{ afterImageUrl?: string }>(res);
+          if (!cancelled && data.afterImageUrl) {
+            setAfterSrc(data.afterImageUrl);
+            setMode("flux");
+            setLoading(false);
+            return;
+          }
+        }
+      } catch {
+        // fall through to markup
+      }
+
+      try {
+        const url = await applyStylingToImage(demo.before.src, {
+          colorPalette: demo.colorPalette,
+          keyChanges: demo.keyChanges,
+          roomType: demo.brief.roomType,
+          primaryTheme: demo.room,
+        });
         if (!cancelled) {
           setAfterSrc(url);
+          setMode("markup");
           setLoading(false);
         }
-      })
-      .catch(() => {
+      } catch {
         if (!cancelled) {
           setAfterSrc(demo.before.src);
           setLoading(false);
         }
-      });
+      }
+    }
+
+    void run();
 
     return () => {
       cancelled = true;
@@ -66,7 +104,9 @@ export function DemoRoomCompare({ demo, compact = false }: DemoRoomCompareProps)
         {loading || !afterSrc ? (
           <div className="flex h-full flex-col items-center justify-center gap-2 bg-ink/80 px-4 text-center text-paper">
             <div className="h-6 w-6 animate-spin rounded-full border-2 border-paper border-t-transparent" />
-            <p className="text-xs">Marking revamp plan on your room…</p>
+            <p className="text-xs">
+              Generating FLUX.1 Kontext revamp…
+            </p>
           </div>
         ) : (
           // eslint-disable-next-line @next/next/no-img-element
@@ -77,10 +117,12 @@ export function DemoRoomCompare({ demo, compact = false }: DemoRoomCompareProps)
           />
         )}
         <span className="absolute left-2 top-2 bg-saffron px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-paper">
-          Planned changes
+          {mode === "flux" ? "After Belvie" : "Planned changes"}
         </span>
         <span className="absolute bottom-2 left-2 right-2 bg-ink/70 px-2 py-1 text-[10px] text-paper/90">
-          Same photo · numbered cosmetic plan (not a fake render)
+          {mode === "flux"
+            ? "FLUX.1 Kontext · same room edit"
+            : "Plan markers · add Replicate token for photoreal after"}
         </span>
       </div>
     </div>
