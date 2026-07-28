@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { generateFluxKontextAfterImage, isFluxConfigured } from "@/lib/flux-kontext";
+import { isFluxConfigured, startAfterImagePrediction } from "@/lib/flux-kontext";
 import type { RevampBrief, RevampVision } from "@/lib/types";
 
 export const maxDuration = 120;
@@ -26,13 +26,13 @@ export async function POST(request: Request) {
       );
     }
 
-    const afterImageUrl = await generateFluxKontextAfterImage(
+    const predictionId = await startAfterImagePrediction(
       body.referenceImage,
       body.brief,
       body.vision,
     );
 
-    return NextResponse.json({ afterImageUrl });
+    return NextResponse.json({ predictionId });
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "After-image generation failed";

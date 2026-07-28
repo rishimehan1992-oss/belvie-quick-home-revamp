@@ -24,12 +24,12 @@ export function BeforeAfter({ beforeSrc, afterSrc, afterLoading }: BeforeAfterPr
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={afterSrc}
-              alt="Your room with Belvie cosmetic plan marked"
+              alt="Your room after the AI revamp preview"
               className="h-full w-full object-cover"
             />
           ) : (
             <div className="flex h-full items-center justify-center text-sm text-ink-soft">
-              Plan preview loading…
+              Preview loading…
             </div>
           )}
         </div>
@@ -70,12 +70,11 @@ export function BeforeAfter({ beforeSrc, afterSrc, afterLoading }: BeforeAfterPr
           Before
         </span>
         <span className="absolute right-3 top-3 bg-saffron px-2 py-1 text-xs font-medium text-paper">
-          Planned
+          After
         </span>
       </div>
       <p className="bg-paper px-4 py-2 text-center text-xs text-stone">
-        Drag — after shows your room preview (or plan markers while the preview
-        is still loading)
+        Drag — compare your current room with the generated preview
       </p>
     </div>
   );

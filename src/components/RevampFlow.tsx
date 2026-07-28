@@ -19,7 +19,6 @@ import type {
 import { parseJsonResponse } from "@/lib/api";
 import { BeforeAfter } from "@/components/BeforeAfter";
 import { VisionResults } from "@/components/VisionResults";
-import { applyStylingToImage } from "@/lib/same-image-revamp";
 
 type Step =
   | "upload"
@@ -122,6 +121,7 @@ export function RevampFlow() {
   const [revampNotes, setRevampNotes] = useState("");
   const [vision, setVision] = useState<RevampVision | null>(null);
   const [afterImageUrl, setAfterImageUrl] = useState<string | null>(null);
+  const [predictionId, setPredictionId] = useState<string | null>(null);
   const [imageWarning, setImageWarning] = useState<string | null>(null);
   const [imageLoading, setImageLoading] = useState(false);
   const [error, setError] = useState("");
@@ -183,44 +183,23 @@ export function RevampFlow() {
   };
 
   useEffect(() => {
-    if (!vision || !photos[0]?.preview || !brief) return;
+    if (!vision || !photos[0]?.preview || !brief || predictionId || afterImageUrl) {
+      return;
+    }
 
     let cancelled = false;
     setImageLoading(true);
     setImageWarning(null);
 
-    const refIndex = Math.min(
-      vision.roomStructure?.referencePhotoIndex ?? 0,
-      photos.length - 1,
-    );
-    const referencePhoto = photos[refIndex] ?? photos[0];
-
-    // Fast fallback so user never waits staring at a spinner.
-    applyStylingToImage(photos[0].preview, {
-      colorPalette: vision.colorPalette,
-      keyChanges: vision.keyChanges,
-      roomType: brief?.roomType,
-      primaryTheme: vision.primaryTheme,
-    })
-      .then((url) => {
-        if (!cancelled) {
-          setAfterImageUrl(url);
-          setImageLoading(false);
-        }
-      })
-      .catch(() => {
-        if (!cancelled) {
-          setImageWarning(
-            "Could not mark the plan on your photo. Your written plan below is still valid.",
-          );
-          setImageLoading(false);
-        }
-      });
-
-    // Photorealistic image runs in parallel, outside /api/analyze timeout path.
     void (async () => {
       try {
+        const refIndex = Math.min(
+          vision.roomStructure?.referencePhotoIndex ?? 0,
+          photos.length - 1,
+        );
+        const referencePhoto = photos[refIndex] ?? photos[0];
         const referenceImage = await fileToBase64(referencePhoto.file);
+
         const res = await fetch("/api/after-image", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -232,23 +211,23 @@ export function RevampFlow() {
         });
 
         const data = await parseJsonResponse<{
-          afterImageUrl?: string;
+          predictionId?: string;
           error?: string;
         }>(res);
 
-        if (!res.ok || !data.afterImageUrl) {
-          throw new Error(data.error || "Photorealistic preview unavailable");
+        if (!res.ok || !data.predictionId) {
+          throw new Error(data.error || "Preview generation could not start");
         }
 
         if (!cancelled) {
-          setAfterImageUrl(data.afterImageUrl);
-          setImageLoading(false);
+          setPredictionId(data.predictionId);
         }
       } catch {
         if (!cancelled) {
           setImageWarning(
-            "Photorealistic preview is taking longer than expected. Showing plan markers on your photo.",
+            "Preview generation is temporarily unavailable. You can still use the full plan below.",
           );
+          setImageLoading(false);
         }
       }
     })();
@@ -256,13 +235,75 @@ export function RevampFlow() {
     return () => {
       cancelled = true;
     };
-  }, [vision, photos, brief]);
+  }, [vision, photos, brief, predictionId, afterImageUrl]);
+
+  useEffect(() => {
+    if (!predictionId || afterImageUrl) return;
+
+    let cancelled = false;
+    const startedAt = Date.now();
+
+    const tick = async () => {
+      try {
+        const res = await fetch(
+          `/api/after-image/status?predictionId=${encodeURIComponent(predictionId)}`,
+        );
+        const data = await parseJsonResponse<{
+          status?: string;
+          outputUrl?: string;
+          error?: string;
+        }>(res);
+
+        if (!res.ok) {
+          throw new Error(data.error || "Preview status failed");
+        }
+        if (cancelled) return;
+
+        if (data.status === "succeeded" && data.outputUrl) {
+          setAfterImageUrl(data.outputUrl);
+          setImageLoading(false);
+          return;
+        }
+
+        if (data.status === "failed" || data.status === "canceled") {
+          setImageWarning(
+            "Preview generation failed this time. Please retry in a few moments.",
+          );
+          setImageLoading(false);
+          return;
+        }
+
+        if (Date.now() - startedAt > 150000) {
+          setImageWarning(
+            "Preview is taking longer than expected. Your plan is ready; try again shortly.",
+          );
+          setImageLoading(false);
+          return;
+        }
+
+        setTimeout(tick, 2500);
+      } catch {
+        if (!cancelled) {
+          setImageWarning(
+            "Could not fetch preview status right now. Your plan is still ready below.",
+          );
+          setImageLoading(false);
+        }
+      }
+    };
+
+    void tick();
+    return () => {
+      cancelled = true;
+    };
+  }, [predictionId, afterImageUrl]);
 
   const runAnalysis = async () => {
     if (!brief) return;
     setStep("analyzing");
     setError("");
     setAfterImageUrl(null);
+    setPredictionId(null);
     setImageWarning(null);
     setImageLoading(true);
 
@@ -667,8 +708,7 @@ export function RevampFlow() {
               Designing your makeover
             </h1>
             <p className="mt-4 max-w-sm text-ink-soft">
-              Building your plan first, then generating your preview in
-              parallel.
+              Building your plan and starting your room preview in parallel.
             </p>
           </section>
         ) : null}
@@ -685,9 +725,8 @@ export function RevampFlow() {
             {photos[0] ? (
               <div className="mt-8">
                 <p className="mb-3 text-sm text-ink-soft">
-                  {afterImageUrl?.startsWith("http")
-                    ? "AI-edited preview of your exact room — layout and fixed fixtures stay locked."
-                    : "Your exact room photo with numbered cosmetic changes marked while high-fidelity preview loads."}
+                  AI-edited preview of your exact room — layout and fixed
+                  fixtures stay locked.
                 </p>
                 <BeforeAfter
                   beforeSrc={photos[0].preview}

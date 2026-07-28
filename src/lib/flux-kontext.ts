@@ -4,6 +4,7 @@ import { DESIGN_STYLES, ROOM_TYPES } from "./constants";
 import { sanitizeKeyChanges } from "./styling-rules";
 
 const MODEL = "black-forest-labs/flux-kontext-pro";
+const QUICK_MODEL = "black-forest-labs/flux-kontext-pro";
 
 function labelFor<T extends { id: string; label: string }>(
   list: readonly T[],
@@ -102,6 +103,86 @@ export async function generateFluxKontextAfterImage(
   });
 
   return outputToUrl(output);
+}
+
+export type AfterImagePredictionStatus = {
+  id: string;
+  status:
+    | "starting"
+    | "processing"
+    | "succeeded"
+    | "failed"
+    | "canceled"
+    | "unknown";
+  outputUrl?: string;
+  error?: string;
+};
+
+function getReplicateClient(): Replicate {
+  const token = process.env.REPLICATE_API_TOKEN;
+  if (!token) {
+    throw new Error("REPLICATE_API_TOKEN is not configured");
+  }
+  return new Replicate({ auth: token });
+}
+
+export async function startAfterImagePrediction(
+  inputImage: string,
+  brief: RevampBrief,
+  vision: RevampVision,
+): Promise<string> {
+  const replicate = getReplicateClient();
+  const prompt = buildFluxKontextPrompt(brief, vision);
+
+  const prediction = await replicate.predictions.create({
+    model: QUICK_MODEL,
+    input: {
+      prompt,
+      input_image: inputImage,
+      aspect_ratio: "match_input_image",
+      output_format: "jpg",
+      safety_tolerance: 2,
+      prompt_upsampling: false,
+    },
+  });
+
+  return prediction.id;
+}
+
+export async function getAfterImagePredictionStatus(
+  predictionId: string,
+): Promise<AfterImagePredictionStatus> {
+  const replicate = getReplicateClient();
+  const prediction = await replicate.predictions.get(predictionId);
+
+  if (prediction.status === "succeeded") {
+    try {
+      return {
+        id: prediction.id,
+        status: "succeeded",
+        outputUrl: outputToUrl(prediction.output),
+      };
+    } catch {
+      return {
+        id: prediction.id,
+        status: "failed",
+        error: "Image output format was invalid",
+      };
+    }
+  }
+
+  return {
+    id: prediction.id,
+    status:
+      prediction.status === "starting" ||
+      prediction.status === "processing" ||
+      prediction.status === "failed" ||
+      prediction.status === "canceled"
+        ? prediction.status
+        : "unknown",
+    error:
+      typeof prediction.error === "string" ? prediction.error : undefined,
+  };
 }
 
 export function isFluxConfigured(): boolean {
