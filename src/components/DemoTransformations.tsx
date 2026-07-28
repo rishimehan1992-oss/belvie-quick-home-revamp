@@ -77,8 +77,8 @@ export function DemoTransformations() {
         </div>
 
         <p className="mt-10 text-center text-xs text-stone">
-          Right side shows your exact room photo with numbered cosmetic changes
-          marked — wallpaper, panels, carpet, furniture — structure untouched.
+          Right side shows FLUX.1 Kontext after-edits of the same room photo
+          with structure and fixtures preserved.
         </p>
 
         <div className="mt-8 text-center">

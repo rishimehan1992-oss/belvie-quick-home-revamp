@@ -6,6 +6,7 @@ export type DemoTransformation = {
   location: string;
   budget: string;
   before: { src: string; alt: string };
+  after: { src: string; alt: string };
   afterAlt: string;
   afterImageBrief: string;
   roomStructure: RoomStructure;
@@ -22,6 +23,12 @@ const BEDROOM_BEFORE =
   "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?auto=format&fit=crop&w=1200&q=85";
 const STUDY_BEFORE =
   "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1200&q=85";
+const LIVING_AFTER =
+  "https://replicate.delivery/xezq/Kj8R3eeQkfD7coq96LJPOaDSYDteUXahZRwLUPusWYFSdE2bB/tmpzfo9qmsy.jpg";
+const BEDROOM_AFTER =
+  "https://replicate.delivery/xezq/4qzUFbllWiYfNyVIsh1EilEEDFckef781OrMfJmt2Uq8dE2bB/tmp4s4jtcx7.jpg";
+const STUDY_AFTER =
+  "https://replicate.delivery/xezq/ab63Q5Vx2cb1A5Ks9RMYSHNn9yG5pZ0zeBW7IzI3uhV2jweWA/tmp319yp59d.jpg";
 
 export const DEMO_TRANSFORMATIONS: DemoTransformation[] = [
   {
@@ -32,6 +39,10 @@ export const DEMO_TRANSFORMATIONS: DemoTransformation[] = [
     before: {
       src: LIVING_BEFORE,
       alt: "Plain Bangalore apartment living room before Belvie revamp",
+    },
+    after: {
+      src: LIVING_AFTER,
+      alt: "Flux Kontext living room revamp with same layout and fixtures",
     },
     afterAlt: "Photorealistic revamped living room — same layout and fixtures",
     afterImageBrief:
@@ -104,6 +115,10 @@ export const DEMO_TRANSFORMATIONS: DemoTransformation[] = [
       src: BEDROOM_BEFORE,
       alt: "Simple bedroom before curtains, bedding and decor revamp",
     },
+    after: {
+      src: BEDROOM_AFTER,
+      alt: "Flux Kontext bedroom revamp with same layout and fixtures",
+    },
     afterAlt: "Photorealistic revamped bedroom — same bed position and windows",
     afterImageBrief:
       "Same bedroom angle. Add linen bedding, sage and blush cushions, blackout curtains on window, area rug at foot of bed, plug-in bedside lamps, wall mirror. Wardrobe, door, window positions unchanged.",
@@ -174,6 +189,10 @@ export const DEMO_TRANSFORMATIONS: DemoTransformation[] = [
     before: {
       src: STUDY_BEFORE,
       alt: "Home office before wallpaper panels and desk styling",
+    },
+    after: {
+      src: STUDY_AFTER,
+      alt: "Flux Kontext study revamp with same layout and fixtures",
     },
     afterAlt: "Photorealistic revamped study — same desk position and windows",
     afterImageBrief:
