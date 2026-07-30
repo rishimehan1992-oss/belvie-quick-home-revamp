@@ -5,14 +5,14 @@ import {
 } from "./stylist-agent";
 
 const CLAUDE_URL = "https://api.anthropic.com/v1/messages";
-/** Prefer pinned ID; aliases as fallbacks if account/model access differs */
+/**
+ * Haiku first for speed (target <30s on Vercel), then Sonnet if Haiku fails.
+ */
 const MODEL_CANDIDATES = [
-  "claude-sonnet-4-5-20250929",
-  "claude-sonnet-4-5",
   "claude-haiku-4-5-20251001",
+  "claude-sonnet-4-5-20250929",
 ] as const;
-/** Keep payload small on Vercel — 2 angles is enough for structure analysis */
-const MAX_PHOTOS = 2;
+const MAX_PHOTOS = 1;
 
 type ClaudeMediaType = "image/jpeg" | "image/png" | "image/webp" | "image/gif";
 
@@ -43,8 +43,8 @@ function parseDataUrl(dataUrl: string): ClaudeContentBlock | null {
   const mediaType = normalizeMediaType(match[1]);
   if (!mediaType) return null;
 
-  // Drop oversized images — Claude + Vercel choke on multi-MB base64
-  if (match[2].length > 1_800_000) return null;
+  // ~500KB base64 ≈ ~375KB binary — keep Claude + Vercel fast
+  if (match[2].length > 700_000) return null;
 
   return {
     type: "image",
@@ -83,7 +83,7 @@ async function callClaudeOnce(
     },
     body: JSON.stringify({
       model,
-      max_tokens: 8192,
+      max_tokens: 3500,
       messages: [{ role: "user", content }],
     }),
   });
@@ -112,7 +112,6 @@ async function callClaudeOnce(
   }
 
   if (data.stop_reason === "max_tokens") {
-    // Still try to parse — often JSON is complete enough after normalize
     console.warn("[claude] response truncated at max_tokens");
   }
 
@@ -141,7 +140,9 @@ async function callClaude(
         msg.includes("(404)") ||
         msg.includes("not_found") ||
         msg.includes("model:") ||
-        msg.includes("invalid model");
+        msg.includes("invalid model") ||
+        msg.includes("(529)") ||
+        msg.includes("overloaded");
       if (!tryNext) throw lastError;
       console.warn(`[claude] model ${model} failed, trying next:`, msg);
     }

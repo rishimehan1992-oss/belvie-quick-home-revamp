@@ -52,7 +52,8 @@ async function fileToBase64(file: File): Promise<string> {
   });
 }
 
-async function compressImage(file: File, maxSize = 800): Promise<File> {
+/** 640px / ~0.55 JPEG keeps analyze + Flux under typical Vercel limits (~1 min). */
+async function compressImage(file: File, maxSize = 640): Promise<File> {
   if (!file.type.startsWith("image/")) return file;
 
   const bitmap = await createImageBitmap(file);
@@ -71,7 +72,7 @@ async function compressImage(file: File, maxSize = 800): Promise<File> {
   bitmap.close();
 
   const blob = await new Promise<Blob | null>((resolve) => {
-    canvas.toBlob(resolve, "image/jpeg", 0.7);
+    canvas.toBlob(resolve, "image/jpeg", 0.55);
   });
 
   if (!blob) return file;
@@ -122,6 +123,7 @@ export function RevampFlow() {
   const [vision, setVision] = useState<RevampVision | null>(null);
   const [afterImageUrl, setAfterImageUrl] = useState<string | null>(null);
   const [predictionId, setPredictionId] = useState<string | null>(null);
+  const [previewAttempt, setPreviewAttempt] = useState(0);
   const [imageWarning, setImageWarning] = useState<string | null>(null);
   const [imageLoading, setImageLoading] = useState(false);
   const [error, setError] = useState("");
@@ -198,7 +200,9 @@ export function RevampFlow() {
           photos.length - 1,
         );
         const referencePhoto = photos[refIndex] ?? photos[0];
-        const referenceImage = await fileToBase64(referencePhoto.file);
+        // Re-compress at 512px so Flux create stays fast even if upload was larger
+        const slimFile = await compressImage(referencePhoto.file, 512);
+        const referenceImage = await fileToBase64(slimFile);
 
         const res = await fetch("/api/after-image", {
           method: "POST",
@@ -222,10 +226,12 @@ export function RevampFlow() {
         if (!cancelled) {
           setPredictionId(data.predictionId);
         }
-      } catch {
+      } catch (err) {
         if (!cancelled) {
+          const detail =
+            err instanceof Error ? err.message : "Preview unavailable";
           setImageWarning(
-            "Preview generation is temporarily unavailable. You can still use the full plan below.",
+            `${detail} Your written plan below is still ready.`,
           );
           setImageLoading(false);
         }
@@ -235,7 +241,7 @@ export function RevampFlow() {
     return () => {
       cancelled = true;
     };
-  }, [vision, photos, brief, predictionId, afterImageUrl]);
+  }, [vision, photos, brief, predictionId, afterImageUrl, previewAttempt]);
 
   useEffect(() => {
     if (!predictionId || afterImageUrl) return;
@@ -267,26 +273,27 @@ export function RevampFlow() {
 
         if (data.status === "failed" || data.status === "canceled") {
           setImageWarning(
-            "Preview generation failed this time. Please retry in a few moments.",
+            data.error ||
+              "Preview generation failed this time. Tap retry below.",
           );
           setImageLoading(false);
           return;
         }
 
-        if (Date.now() - startedAt > 150000) {
+        if (Date.now() - startedAt > 90000) {
           setImageWarning(
-            "Preview is taking longer than expected. Your plan is ready; try again shortly.",
+            "Preview is taking longer than expected. Your plan is ready — tap retry.",
           );
           setImageLoading(false);
           return;
         }
 
-        setTimeout(tick, 2500);
-      } catch {
+        setTimeout(tick, 1500);
+      } catch (err) {
         if (!cancelled) {
-          setImageWarning(
-            "Could not fetch preview status right now. Your plan is still ready below.",
-          );
+          const detail =
+            err instanceof Error ? err.message : "Could not fetch preview";
+          setImageWarning(`${detail}. Your plan is still ready below.`);
           setImageLoading(false);
         }
       }
@@ -298,18 +305,28 @@ export function RevampFlow() {
     };
   }, [predictionId, afterImageUrl]);
 
+  const retryPreview = () => {
+    setAfterImageUrl(null);
+    setPredictionId(null);
+    setImageWarning(null);
+    setImageLoading(true);
+    setPreviewAttempt((n) => n + 1);
+  };
+
   const runAnalysis = async () => {
     if (!brief) return;
     setStep("analyzing");
     setError("");
     setAfterImageUrl(null);
     setPredictionId(null);
+    setPreviewAttempt(0);
     setImageWarning(null);
     setImageLoading(true);
 
     try {
+      // One small photo only — faster analyze, under Vercel time limits
       const images = await Promise.all(
-        photos.slice(0, 2).map((p) => fileToBase64(p.file)),
+        photos.slice(0, 1).map((p) => fileToBase64(p.file)),
       );
 
       const res = await fetch("/api/analyze", {
@@ -708,7 +725,7 @@ export function RevampFlow() {
               Designing your makeover
             </h1>
             <p className="mt-4 max-w-sm text-ink-soft">
-              Building your plan and starting your room preview in parallel.
+              Usually under a minute — plan first, then your room preview.
             </p>
           </section>
         ) : null}
@@ -734,9 +751,16 @@ export function RevampFlow() {
                   afterLoading={imageLoading && !afterImageUrl}
                 />
                 {imageWarning ? (
-                  <p className="mt-3 border border-terracotta/30 bg-terracotta/8 px-4 py-3 text-sm text-terracotta">
-                    {imageWarning}
-                  </p>
+                  <div className="mt-3 border border-terracotta/30 bg-terracotta/8 px-4 py-3 text-sm text-terracotta">
+                    <p>{imageWarning}</p>
+                    <button
+                      type="button"
+                      onClick={retryPreview}
+                      className="mt-2 font-medium underline underline-offset-2"
+                    >
+                      Retry preview
+                    </button>
+                  </div>
                 ) : null}
               </div>
             ) : null}

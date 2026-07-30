@@ -18,7 +18,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const images = (body.images ?? []).slice(0, 2);
+    const images = (body.images ?? []).slice(0, 1);
 
     if (!images.length) {
       return NextResponse.json(

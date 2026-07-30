@@ -177,13 +177,14 @@ Return ONLY valid JSON (no markdown fences, no extra text) in this exact shape:
   "noVacationNote": "how revamp happens without customer leaving home"
 }
 
-Rules:
-- Include 8–14 costLineItems covering wallpaper, panels or paint, carpet/rug, furniture, curtains, cushions, lamps, wall art, plants, and labor lines where needed.
-- Mirror costLineItems into items[] (name + estimatedTotal as estimatedCost) for compatibility.
-- estimatedBudget min/max should align with costTotals grandTotal (use a tight range).
-- keyChanges must ONLY list allowed cosmetic layers — never structural or civil work.
-- roomStructure must be detailed — list every visible door, window, fan, switch, and built-in with wall position. This feeds image generation.
-- All amounts in INR integers.`;
+Rules (keep response compact for speed):
+- Include 6–8 costLineItems covering wallpaper/panels, carpet, furniture/textiles, lighting, decor, and labor where needed.
+- Mirror costLineItems into items[] (name + estimatedTotal as estimatedCost).
+- estimatedBudget min/max should align with costTotals grandTotal.
+- keyChanges: max 5 cosmetic items only — never structural/civil work.
+- roomStructure: short but include doors/windows/built-ins with wall side (feeds image edit).
+- afterImageBrief: 1–2 sentences max, concrete visual edits only.
+- All amounts in INR integers. Keep JSON compact — no long essays.`;
 }
 
 function normalizeRoomStructure(

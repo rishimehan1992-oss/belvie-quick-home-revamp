@@ -4,7 +4,8 @@ import { DESIGN_STYLES, ROOM_TYPES } from "./constants";
 import { sanitizeKeyChanges } from "./styling-rules";
 
 const MODEL = "black-forest-labs/flux-kontext-pro";
-const QUICK_MODEL = "black-forest-labs/flux-kontext-pro";
+/** Soft cap ~120KB binary ≈ ~160KB base64 — keeps Replicate create under a few seconds */
+const MAX_DATA_URI_CHARS = 220_000;
 
 function labelFor<T extends { id: string; label: string }>(
   list: readonly T[],
@@ -14,8 +15,7 @@ function labelFor<T extends { id: string; label: string }>(
 }
 
 /**
- * Short, instruction-style prompt for FLUX.1 Kontext.
- * Kontext works best with clear "keep X / change Y" language — not essay prompts.
+ * Short instruction prompt — Kontext responds best to keep/change language.
  */
 export function buildFluxKontextPrompt(
   brief: RevampBrief,
@@ -23,72 +23,84 @@ export function buildFluxKontextPrompt(
 ): string {
   const room = labelFor(ROOM_TYPES, brief.roomType);
   const style = labelFor(DESIGN_STYLES, brief.designStyle);
-  const changes = sanitizeKeyChanges(vision.keyChanges).slice(0, 5);
+  const changes = sanitizeKeyChanges(vision.keyChanges).slice(0, 4);
   const structure = vision.roomStructure;
 
-  const keepBits = [
-    "same camera angle and framing",
-    "same room dimensions and perspective",
-    "same doors, windows, window grills",
-    "same built-in wardrobes/almirahs and cabinets",
-    "same ceiling fan, switches, AC, fixed light fixtures",
-    "same flooring structure (rugs may be added on top)",
-  ];
-
-  if (structure.fixtures?.length) {
-    keepBits.push(
-      ...structure.fixtures.slice(0, 4).map(
-        (f) => `${f.type} at ${f.position} stays exact`,
-      ),
-    );
-  }
+  const fixtures = (structure.fixtures ?? [])
+    .slice(0, 3)
+    .map((f) => `${f.type} (${f.position})`)
+    .join(", ");
 
   const changeBits =
     changes.length > 0
       ? changes.join("; ")
-      : vision.afterImageBrief.slice(0, 280);
+      : (vision.afterImageBrief || "add wallpaper, rug, cushions, lamp").slice(
+          0,
+          200,
+        );
 
   return [
-    `Edit this exact ${room} photograph.`,
-    `Theme: ${vision.primaryTheme || style}.`,
-    `KEEP UNCHANGED: ${keepBits.join("; ")}.`,
-    `COSMETIC CHANGES ONLY: ${changeBits}.`,
-    `Colours: ${vision.colorPalette.slice(0, 4).join(", ")}.`,
-    "Photorealistic interior photo. No civil work, no layout change, no new doors or windows.",
+    `Edit this exact ${room} photo. Theme: ${vision.primaryTheme || style}.`,
+    `KEEP: same camera angle, room shape, doors, windows, built-ins, ceiling fan/fixtures${fixtures ? `, especially ${fixtures}` : ""}.`,
+    `CHANGE ONLY: ${changeBits}. Palette: ${vision.colorPalette.slice(0, 3).join(", ")}.`,
+    "Photorealistic interior. No civil work, no layout change.",
   ].join(" ");
 }
 
 function outputToUrl(output: unknown): string {
   if (typeof output === "string") return output;
   if (output && typeof output === "object") {
-    if ("url" in output && typeof (output as { url: unknown }).url === "function") {
+    if (
+      "url" in output &&
+      typeof (output as { url: unknown }).url === "function"
+    ) {
       return (output as { url: () => string }).url();
     }
-    if ("href" in output && typeof (output as { href: unknown }).href === "string") {
+    if (
+      "href" in output &&
+      typeof (output as { href: unknown }).href === "string"
+    ) {
       return (output as { href: string }).href;
     }
   }
   if (Array.isArray(output) && typeof output[0] === "string") {
     return output[0];
   }
-  throw new Error("Unexpected Flux Kontext output format");
+  throw new Error("Unexpected image output format");
+}
+
+function assertUsableInputImage(inputImage: string) {
+  if (inputImage.startsWith("data:")) {
+    if (inputImage.length > MAX_DATA_URI_CHARS) {
+      throw new Error(
+        "Room photo is too large for fast preview. Please re-upload a clearer, smaller photo.",
+      );
+    }
+    return;
+  }
+  if (!/^https?:\/\//i.test(inputImage)) {
+    throw new Error("Invalid room photo for preview generation");
+  }
+}
+
+function getReplicateClient(): Replicate {
+  const token = process.env.REPLICATE_API_TOKEN;
+  if (!token) {
+    throw new Error("REPLICATE_API_TOKEN is not configured");
+  }
+  return new Replicate({ auth: token });
 }
 
 /**
- * Run FLUX.1 Kontext [pro] via Replicate to edit the room photo in place.
- * `inputImage` can be a public URL or a data:image/...;base64,... URI.
+ * Run image edit synchronously (used by demos / scripts).
  */
 export async function generateFluxKontextAfterImage(
   inputImage: string,
   brief: RevampBrief,
   vision: RevampVision,
 ): Promise<string> {
-  const token = process.env.REPLICATE_API_TOKEN;
-  if (!token) {
-    throw new Error("REPLICATE_API_TOKEN is not configured");
-  }
-
-  const replicate = new Replicate({ auth: token });
+  assertUsableInputImage(inputImage);
+  const replicate = getReplicateClient();
   const prompt = buildFluxKontextPrompt(brief, vision);
 
   const output = await replicate.run(MODEL, {
@@ -118,24 +130,17 @@ export type AfterImagePredictionStatus = {
   error?: string;
 };
 
-function getReplicateClient(): Replicate {
-  const token = process.env.REPLICATE_API_TOKEN;
-  if (!token) {
-    throw new Error("REPLICATE_API_TOKEN is not configured");
-  }
-  return new Replicate({ auth: token });
-}
-
 export async function startAfterImagePrediction(
   inputImage: string,
   brief: RevampBrief,
   vision: RevampVision,
 ): Promise<string> {
+  assertUsableInputImage(inputImage);
   const replicate = getReplicateClient();
   const prompt = buildFluxKontextPrompt(brief, vision);
 
   const prediction = await replicate.predictions.create({
-    model: QUICK_MODEL,
+    model: MODEL,
     input: {
       prompt,
       input_image: inputImage,
@@ -145,6 +150,10 @@ export async function startAfterImagePrediction(
       prompt_upsampling: false,
     },
   });
+
+  if (!prediction?.id) {
+    throw new Error("Image service did not return a prediction id");
+  }
 
   return prediction.id;
 }
@@ -180,8 +189,7 @@ export async function getAfterImagePredictionStatus(
       prediction.status === "canceled"
         ? prediction.status
         : "unknown",
-    error:
-      typeof prediction.error === "string" ? prediction.error : undefined,
+    error: typeof prediction.error === "string" ? prediction.error : undefined,
   };
 }
 
