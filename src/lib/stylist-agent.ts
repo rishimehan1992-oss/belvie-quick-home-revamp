@@ -96,7 +96,9 @@ Belvie service context (weave in naturally):
 - No room vacation — customer stays home during revamp
 - Most cosmetic revamps completed in under 4 hours for styling/install items
 
-Return ONLY valid JSON (no markdown fences, no extra text) in this exact shape:
+Keep every string field SHORT (1–3 sentences max). Prefer compact values so the response finishes cleanly.
+
+Return ONLY valid JSON (no markdown fences, no extra text) in this exact shape — or call submit_revamp_plan with the same fields:
 {
   "roomAnalysis": "Step 1 paragraph — room size, current style, strengths, weaknesses, explicit assumptions",
   "primaryTheme": "e.g. Warm Minimalist",
@@ -333,31 +335,90 @@ export function normalizeVision(raw: Partial<RevampVision>): RevampVision {
   return vision;
 }
 
-export function parseVisionJson(content: string): RevampVision {
-  const cleaned = content
+/** Fix common LLM JSON glitches: fences, trailing commas, truncated tails. */
+function repairJsonText(text: string): string {
+  let s = text
     .replace(/^```json\s*/i, "")
     .replace(/^```\s*/i, "")
     .replace(/\s*```$/i, "")
     .trim();
 
-  const tryParse = (text: string) => {
-    const parsed = JSON.parse(text) as Partial<RevampVision>;
-    if (!parsed.roomAnalysis && !parsed.visionSummary) {
-      throw new Error("Incomplete vision response");
-    }
-    if (!parsed.items?.length && !parsed.costLineItems?.length) {
-      throw new Error("Incomplete vision response");
-    }
-    return normalizeVision(parsed);
-  };
+  const start = s.indexOf("{");
+  if (start > 0) s = s.slice(start);
 
-  try {
-    return tryParse(cleaned);
-  } catch {
-    const match = cleaned.match(/\{[\s\S]*\}/);
-    if (!match) {
-      throw new Error("Could not parse AI response. Please try again.");
+  // Remove trailing commas before } or ]
+  s = s.replace(/,\s*([}\]])/g, "$1");
+
+  // If truncated mid-structure, close open braces/brackets
+  const opens: string[] = [];
+  let inString = false;
+  let escape = false;
+  for (let i = 0; i < s.length; i++) {
+    const ch = s[i];
+    if (inString) {
+      if (escape) {
+        escape = false;
+      } else if (ch === "\\") {
+        escape = true;
+      } else if (ch === '"') {
+        inString = false;
+      }
+      continue;
     }
-    return tryParse(match[0]);
+    if (ch === '"') {
+      inString = true;
+    } else if (ch === "{" || ch === "[") {
+      opens.push(ch);
+    } else if (ch === "}" || ch === "]") {
+      opens.pop();
+    }
   }
+
+  if (inString) s += '"';
+  // Drop a dangling incomplete key/value after last comma
+  s = s.replace(/,\s*"[^"]*$/, "");
+  s = s.replace(/,\s*$/, "");
+
+  while (opens.length) {
+    const open = opens.pop();
+    s += open === "{" ? "}" : "]";
+  }
+
+  s = s.replace(/,\s*([}\]])/g, "$1");
+  return s;
+}
+
+export function parseVisionJson(content: string): RevampVision {
+  const candidates = [
+    content.trim(),
+    repairJsonText(content),
+  ];
+
+  const match = content.match(/\{[\s\S]*\}/);
+  if (match) {
+    candidates.push(match[0], repairJsonText(match[0]));
+  }
+
+  let lastError: Error | null = null;
+
+  for (const text of candidates) {
+    try {
+      const parsed = JSON.parse(text) as Partial<RevampVision>;
+      if (!parsed.roomAnalysis && !parsed.visionSummary) {
+        throw new Error("Incomplete vision response");
+      }
+      if (!parsed.items?.length && !parsed.costLineItems?.length) {
+        throw new Error("Incomplete vision response");
+      }
+      return normalizeVision(parsed);
+    } catch (error) {
+      lastError = error instanceof Error ? error : new Error(String(error));
+    }
+  }
+
+  throw new Error(
+    lastError?.message?.includes("JSON")
+      ? lastError.message
+      : "Could not parse AI response. Please try again.",
+  );
 }

@@ -26,13 +26,12 @@ export async function analyzeRoom(
       );
     }
 
-    // JSON parse / incomplete responses — still try DeepSeek so the flow works
-    if (
-      process.env.DEEPSEEK_API_KEY &&
-      (message.includes("parse") ||
-        message.includes("Incomplete") ||
-        message.includes("Empty response"))
-    ) {
+    // JSON / truncated / incomplete responses — still try DeepSeek so the flow works
+    const unusable =
+      /parse|incomplete|empty response|expected|position|syntax|json|truncated|tool_use/i.test(
+        message,
+      );
+    if (process.env.DEEPSEEK_API_KEY && unusable) {
       console.warn("[analyze] Claude response unusable, falling back to DeepSeek");
       return analyzeRoomWithDeepSeek(brief, images.length);
     }

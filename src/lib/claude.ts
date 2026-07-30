@@ -1,8 +1,10 @@
 import type { RevampBrief, RevampVision } from "./types";
 import {
   buildStylistAgentPrompt,
+  normalizeVision,
   parseVisionJson,
 } from "./stylist-agent";
+import { SUBMIT_REVAMP_PLAN_TOOL } from "./vision-schema";
 
 const CLAUDE_URL = "https://api.anthropic.com/v1/messages";
 /**
@@ -68,10 +70,15 @@ async function callClaudeOnce(
   model: string,
   prompt: string,
   imageBlocks: ClaudeContentBlock[],
-): Promise<string> {
+): Promise<RevampVision> {
   const content: ClaudeContentBlock[] = [
     ...imageBlocks,
-    { type: "text", text: prompt },
+    {
+      type: "text",
+      text:
+        prompt +
+        "\n\nCall submit_revamp_plan with the full plan. Keep string fields short. Do not write freeform JSON outside the tool.",
+    },
   ];
 
   const response = await fetch(CLAUDE_URL, {
@@ -83,7 +90,12 @@ async function callClaudeOnce(
     },
     body: JSON.stringify({
       model,
-      max_tokens: 3500,
+      max_tokens: 4500,
+      tools: [SUBMIT_REVAMP_PLAN_TOOL],
+      tool_choice: {
+        type: "tool",
+        name: "submit_revamp_plan",
+      },
       messages: [{ role: "user", content }],
     }),
   });
@@ -97,7 +109,12 @@ async function callClaudeOnce(
   }
 
   let data: {
-    content?: { type: string; text?: string }[];
+    content?: {
+      type: string;
+      text?: string;
+      name?: string;
+      input?: Partial<RevampVision>;
+    }[];
     stop_reason?: string;
   };
   try {
@@ -106,23 +123,33 @@ async function callClaudeOnce(
     throw new Error("Invalid response from Claude. Please try again.");
   }
 
-  const text = data.content?.find((block) => block.type === "text")?.text;
-  if (!text) {
-    throw new Error("Empty response from Claude");
-  }
-
   if (data.stop_reason === "max_tokens") {
     console.warn("[claude] response truncated at max_tokens");
   }
 
-  return text;
+  const toolBlock = data.content?.find(
+    (block) =>
+      block.type === "tool_use" && block.name === "submit_revamp_plan",
+  );
+
+  if (toolBlock?.input && typeof toolBlock.input === "object") {
+    return normalizeVision(toolBlock.input);
+  }
+
+  // Rare fallback if model returned text JSON instead of tool_use
+  const text = data.content?.find((block) => block.type === "text")?.text;
+  if (text) {
+    return parseVisionJson(text);
+  }
+
+  throw new Error("Empty response from Claude");
 }
 
 async function callClaude(
   apiKey: string,
   prompt: string,
   images: string[],
-): Promise<string> {
+): Promise<RevampVision> {
   const imageBlocks = images
     .slice(0, MAX_PHOTOS)
     .map(parseDataUrl)
@@ -161,8 +188,7 @@ export async function analyzeRoom(
   }
 
   const prompt = buildStylistAgentPrompt(brief, images.length, images.length > 0);
-  const content = await callClaude(apiKey, prompt, images);
-  return parseVisionJson(content);
+  return callClaude(apiKey, prompt, images);
 }
 
 export function isClaudeFallbackableError(message: string): boolean {
