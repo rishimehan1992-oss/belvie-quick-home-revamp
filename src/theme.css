@@ -9,6 +9,7 @@
   --delivery: #c9beb6;
   --capex: #8c9a8e;
   --bad: #b03a2e;
+  --good: #4a7a5c;
   --belvie-serif: Georgia, "Times New Roman", serif;
   --belvie-sans: Calibri, "Segoe UI", system-ui, sans-serif;
 }
@@ -24,6 +25,7 @@
   --color-delivery: var(--delivery);
   --color-capex: var(--capex);
   --color-bad: var(--bad);
+  --color-good: var(--good);
   --font-serif: var(--belvie-serif);
   --font-sans: var(--belvie-sans);
 }

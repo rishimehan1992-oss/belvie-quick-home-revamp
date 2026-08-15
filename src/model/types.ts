@@ -83,3 +83,27 @@ export type PresetName = "base" | "worst" | "fixed";
 export type ParamsAction =
   | { type: "set"; key: keyof Params; value: number | boolean }
   | { type: "preset"; name: PresetName };
+
+export interface CommercialParams {
+  consults: number;
+  visitCost: number;
+  aov: number;
+  conversion: number;
+  gm: number;
+}
+
+export interface PnlPoint {
+  consults: number;
+  orders: number;
+  revenue: number;
+  cogs: number;
+  grossProfit: number;
+  visitAcq: number;
+  network: number;
+  networkCpo: number;
+  S: number | null;
+  N: number | null;
+  pnl: number;
+  pnlPerConsult: number;
+  feasible: boolean;
+}

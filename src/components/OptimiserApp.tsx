@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useReducer, useState } from "react";
+import { AppNav } from "@/components/AppNav";
 import { CostBySpokeChart } from "@/components/CostBySpokeChart";
 import { HeroStats } from "@/components/HeroStats";
 import { InputPanel } from "@/components/InputPanel";
@@ -49,13 +50,16 @@ export function OptimiserApp() {
             Change any input; the model re-solves.
           </p>
         </div>
-        <button
-          type="button"
-          onClick={() => setMethodOpen(true)}
-          className="rounded-full border border-line bg-white px-3 py-1.5 text-[12.5px] text-gray hover:border-terracotta hover:text-terracotta"
-        >
-          Methodology
-        </button>
+        <div className="flex flex-wrap items-center gap-1.5">
+          <AppNav active="network" />
+          <button
+            type="button"
+            onClick={() => setMethodOpen(true)}
+            className="rounded-full border border-line bg-white px-3 py-1.5 text-[12.5px] text-gray hover:border-terracotta hover:text-terracotta"
+          >
+            Methodology
+          </button>
+        </div>
       </header>
 
       <div className="grid items-start gap-5 min-[900px]:grid-cols-[308px_1fr]">
