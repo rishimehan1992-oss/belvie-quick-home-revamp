@@ -6,9 +6,14 @@ const TABS = [
   { id: "pnl" as const, href: "/", n: "1", label: "P&L" },
   { id: "network" as const, href: "/network", n: "2", label: "Network" },
   { id: "sensitivity" as const, href: "/sensitivity", n: "3", label: "Sensitivity" },
+  { id: "glossary" as const, href: "/glossary", n: "4", label: "Line items" },
 ];
 
-export function AppNav({ active }: { active: "network" | "pnl" | "sensitivity" }) {
+export function AppNav({
+  active,
+}: {
+  active: "network" | "pnl" | "sensitivity" | "glossary";
+}) {
   const tab =
     "rounded-full border px-3 py-1.5 text-[12.5px] no-underline transition-colors";
   const on = "border-charcoal bg-charcoal text-white";
