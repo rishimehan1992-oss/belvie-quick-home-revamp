@@ -28,7 +28,7 @@ describe("ordersFromConsults", () => {
 describe("solvePnl", () => {
   it("computes visit unit economics before network cost", () => {
     const row = solvePnl(
-      { consults: 1, visitCost: 400, aov: 4000, nonConsultAov: 4000, conversion: 60, gm: 35 },
+      { consults: 1, visitCost: 400, samplingCost: 0, aov: 4000, nonConsultAov: 4000, conversion: 60, gm: 35 },
       { ...DEFAULTS, rho: 0, incCap: false },
     );
     expect(row.orders).toBeCloseTo(0.6, 6);
@@ -38,10 +38,11 @@ describe("solvePnl", () => {
     expect(row.grossProfit - row.visitAcq).toBeCloseTo(440, 6);
   });
 
-  it("P&L equals gross profit minus visit acquisition minus network", () => {
+  it("P&L equals gross profit minus visit acquisition, sampling, and network", () => {
     const row = solvePnl(COMMERCIAL_DEFAULTS, { ...DEFAULTS, incCap: false });
     expect(row.feasible).toBe(true);
-    expect(row.pnl).toBeCloseTo(row.grossProfit - row.visitAcq - row.network, 4);
+    expect(row.sampling).toBeCloseTo(COMMERCIAL_DEFAULTS.consults * COMMERCIAL_DEFAULTS.samplingCost, 4);
+    expect(row.pnl).toBeCloseTo(row.grossProfit - row.visitAcq - row.sampling - row.network, 4);
   });
 
   it("improves when k rises from 1 to 3, holding consults fixed", () => {
@@ -108,6 +109,8 @@ describe("customer economics", () => {
     expect(eco.customersPerMonth).toBeCloseTo(25000 * 0.65, 4);
     expect(eco.nonConsultOrdersPerMonth).toBeCloseTo(25000 * 0.35, 4);
     expect(eco.paybackOrders).toBeCloseTo(eco.cac / (4000 * 0.35), 6);
+    expect(eco.samplingPerVisit).toBe(COMMERCIAL_DEFAULTS.samplingCost);
+    expect(eco.samplingPerCustomer).toBeCloseTo(COMMERCIAL_DEFAULTS.samplingCost / 0.6, 4);
   });
 });
 

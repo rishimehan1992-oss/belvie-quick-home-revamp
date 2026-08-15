@@ -6,14 +6,15 @@ const TABS = [
   { id: "pnl" as const, href: "/", n: "1", label: "P&L" },
   { id: "network" as const, href: "/network", n: "2", label: "Network" },
   { id: "sensitivity" as const, href: "/sensitivity", n: "3", label: "Sensitivity" },
-  { id: "growth" as const, href: "/growth", n: "4", label: "Growth" },
-  { id: "glossary" as const, href: "/glossary", n: "5", label: "Line items" },
+  { id: "favorable" as const, href: "/favorable", n: "4", label: "Favorable" },
+  { id: "growth" as const, href: "/growth", n: "5", label: "Growth" },
+  { id: "glossary" as const, href: "/glossary", n: "6", label: "Line items" },
 ];
 
 export function AppNav({
   active,
 }: {
-  active: "network" | "pnl" | "sensitivity" | "growth" | "glossary";
+  active: "network" | "pnl" | "sensitivity" | "favorable" | "growth" | "glossary";
 }) {
   const tab =
     "rounded-full border px-3 py-1.5 text-[12.5px] no-underline transition-colors";

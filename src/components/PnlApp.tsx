@@ -126,6 +126,10 @@ export function PnlApp() {
                 sensitivity
               </Link>
               {" · "}
+              <Link href="/favorable" className="text-terracotta no-underline hover:underline">
+                favorable zones
+              </Link>
+              {" · "}
               <Link href="/growth" className="text-terracotta no-underline hover:underline">
                 growth
               </Link>
@@ -185,6 +189,11 @@ export function PnlApp() {
                   per={-eco.cac}
                 />
                 <Row
+                  label="Sampling"
+                  month={-point.sampling}
+                  per={-eco.samplingPerCustomer}
+                />
+                <Row
                   label="Network (optimum)"
                   month={point.feasible ? -point.network : NaN}
                   per={point.feasible ? -eco.networkPerCustomer : NaN}
@@ -203,10 +212,12 @@ export function PnlApp() {
             <b className="text-charcoal">Flow:</b> P&L inputs set consults, conversion and
             non-consults per consult, which become order volume for the network. Network ₹ is that
             model’s cost-optimal S*.{" "}
-            <b className="text-charcoal">Customer:</b> CAC = visit cost / conversion. Each acquired
-            customer places 1 consult order plus N non-consult orders. Consult LTV uses consult AOV;
-            non-consult LTV uses non-consult AOV. Contribution / customer = GP LTV − CAC − network
-            ₹/order × her orders. All figures are planning estimates.{" "}
+            <b className="text-charcoal">Customer:</b> CAC = visit cost / conversion. Sampling is
+            testers given on the visit, ₹{commercial.samplingCost} each, so ₹
+            {Math.round(eco.samplingPerCustomer).toLocaleString("en-IN")} per acquired customer.
+            Each acquired customer places 1 consult order plus N non-consult orders. Contribution /
+            customer = GP LTV − CAC − sampling − network ₹/order × her orders. All figures are
+            planning estimates.{" "}
             {breakEven
               ? `Break-even is about ${integer(breakEven)} consults / month at these settings.`
               : null}{" "}

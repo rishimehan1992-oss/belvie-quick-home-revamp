@@ -38,6 +38,7 @@ export function ModelProvider({ children }: { children: ReactNode }) {
   const [params, dispatch] = useReducer(reducer, DEFAULTS);
   const [commercial, setCommercialState] = useState<CommercialLevers>({
     visitCost: COMMERCIAL_DEFAULTS.visitCost,
+    samplingCost: COMMERCIAL_DEFAULTS.samplingCost,
     aov: COMMERCIAL_DEFAULTS.aov,
     nonConsultAov: COMMERCIAL_DEFAULTS.nonConsultAov,
     gm: COMMERCIAL_DEFAULTS.gm,

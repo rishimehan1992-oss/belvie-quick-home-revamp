@@ -219,11 +219,12 @@ export function evaluateGrowth(
   const revenue = live.reduce((s, r) => s + (r.pnl?.revenue ?? 0), 0);
   const grossProfit = live.reduce((s, r) => s + (r.pnl?.grossProfit ?? 0), 0);
   const visitAcq = live.reduce((s, r) => s + (r.pnl?.visitAcq ?? 0), 0);
+  const sampling = live.reduce((s, r) => s + (r.pnl?.sampling ?? 0), 0);
   const network = live.reduce((s, r) => s + (r.pnl?.feasible ? r.pnl.network : 0), 0);
   const S = live.reduce((s, r) => s + (r.pnl?.S ?? 0), 0);
   const N = live.reduce((s, r) => s + (r.pnl?.N ?? 0), 0);
   const H = live.reduce((s, r) => s + (r.pnl?.H ?? 0), 0);
-  const pnl = feasible ? grossProfit - visitAcq - network : NaN;
+  const pnl = feasible ? grossProfit - visitAcq - sampling - network : NaN;
 
   return {
     ordersDay,

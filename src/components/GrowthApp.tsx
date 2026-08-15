@@ -42,7 +42,7 @@ export function GrowthApp() {
             Growth
           </h1>
           <p className="mt-0.5 text-[13.5px] text-gray">
-            Step 4 — 100 orders a day in Bengaluru, then 2,500 a day in each of ten cities:
+            Step 5 — 100 orders a day in Bengaluru, then 2,500 a day in each of ten cities:
             five major metros, then five more, to 25,000 a day.
           </p>
         </div>

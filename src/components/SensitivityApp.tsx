@@ -16,6 +16,7 @@ import {
   pnlVsK,
   pnlVsNonConsultAov,
   pnlVsNonConsultsPerConsult,
+  pnlVsSamplingCost,
   pnlVsVisitCost,
 } from "@/model/pnl";
 import type { SweepPoint } from "@/model/pnl";
@@ -39,6 +40,7 @@ export function SensitivityApp() {
   const vsN = useMemo(() => pnlVsNonConsultsPerConsult(linked, params), [linked, params]);
   const vsConv = useMemo(() => pnlVsConversion(linked, params), [linked, params]);
   const vsVisit = useMemo(() => pnlVsVisitCost(linked, params), [linked, params]);
+  const vsSampling = useMemo(() => pnlVsSamplingCost(linked, params), [linked, params]);
   const vsGm = useMemo(() => pnlVsGm(linked, params), [linked, params]);
   const vsK = useMemo(() => kSeries(linked, params), [linked, params]);
 
@@ -76,8 +78,8 @@ export function SensitivityApp() {
         </span>
         <div className="mt-1 font-serif text-[17px]">
           Consult AOV {rupee(commercial.aov)} · non-consult AOV {rupee(commercial.nonConsultAov)} ·{" "}
-          {n.toFixed(2)} non-consults / consult · φ {params.phi}% · visit ₹{commercial.visitCost} · GM{" "}
-          {commercial.gm}% · k={params.k}
+          {n.toFixed(2)} non-consults / consult · φ {params.phi}% · visit ₹{commercial.visitCost} ·
+          sampling ₹{commercial.samplingCost} · GM {commercial.gm}% · k={params.k}
         </div>
         <div className="mt-0.5 text-[11.5px] text-gray">
           {integer(params.D)} orders / month from the P&L inputs. Dashed line is the current
@@ -126,6 +128,14 @@ export function SensitivityApp() {
           xFormat={rupee}
         />
         <SweepChart
+          title="Sensitivity to sampling cost"
+          caption="Testers given on each visit. Network is unchanged; P&L falls with consults × sampling."
+          xLabel="sampling / visit · ₹"
+          pts={vsSampling}
+          markX={commercial.samplingCost}
+          xFormat={rupee}
+        />
+        <SweepChart
           title="Sensitivity to gross margin"
           caption="After COGS, before network and visit cost."
           xLabel="gross margin · %"
@@ -150,7 +160,11 @@ export function SensitivityApp() {
         <Link href="/growth" className="text-terracotta no-underline hover:underline">
           Growth
         </Link>{" "}
-        copies the city model across ten metros. All figures are planning estimates.
+        copies the city model across ten metros.{" "}
+        <Link href="/favorable" className="text-terracotta no-underline hover:underline">
+          Favorable
+        </Link>{" "}
+        maps AOV, reorders and k into green and red zones. All figures are planning estimates.
       </p>
 
       <MethodologyDrawer open={methodOpen} onClose={() => setMethodOpen(false)} />

@@ -73,6 +73,7 @@ describe("growthPhase", () => {
 describe("evaluateGrowth", () => {
   const levers = {
     visitCost: COMMERCIAL_DEFAULTS.visitCost,
+    samplingCost: COMMERCIAL_DEFAULTS.samplingCost,
     aov: COMMERCIAL_DEFAULTS.aov,
     nonConsultAov: COMMERCIAL_DEFAULTS.nonConsultAov,
     gm: COMMERCIAL_DEFAULTS.gm,
@@ -92,7 +93,7 @@ describe("evaluateGrowth", () => {
       live.reduce((s, r) => s + (r.pnl?.network ?? 0), 0),
       4,
     );
-    expect(snap.pnl).toBeCloseTo(snap.grossProfit - snap.visitAcq - snap.network, 4);
+    expect(snap.pnl).toBeCloseTo(snap.grossProfit - snap.visitAcq - snap.network - (snap.consults * levers.samplingCost), 0);
     expect(snap.orders).toBeCloseTo(twoCity * DEFAULTS.ddel, 4);
   });
 

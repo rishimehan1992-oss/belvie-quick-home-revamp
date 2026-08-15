@@ -97,6 +97,7 @@ export function PnlInputs({
   const [open, setOpen] = useState(false);
   const c = COMMERCIAL_META.consults;
   const v = COMMERCIAL_META.visitCost;
+  const s = COMMERCIAL_META.samplingCost;
   const a = COMMERCIAL_META.aov;
   const na = COMMERCIAL_META.nonConsultAov;
   const g = COMMERCIAL_META.gm;
@@ -118,7 +119,8 @@ export function PnlInputs({
       <div className={`${open ? "block" : "hidden"} min-[900px]:block`}>
         <p className="mb-3 text-[11.5px] leading-[1.4] text-gray">
           Start here. Consults, conversion and non-consults per consult set order volume for the
-          network. Visit cost, AOV and margin stay on this page; S* comes back from step 2.
+          network. Visit cost, sampling, AOV and margin stay on this page; S* comes back from
+          step 2.
         </p>
         <p className="mb-3 rounded-md bg-card px-2.5 py-2 text-[11.5px] text-charcoal">
           Feeds the network with{" "}
@@ -190,6 +192,18 @@ export function PnlInputs({
             unit="₹"
             format={(n) => n.toLocaleString("en-IN")}
             onChange={(value) => onCommercial("visitCost", value)}
+          />
+          <SliderField
+            id="samplingCost"
+            label="Sampling cost per visit"
+            hint="testers / kit given on the consult"
+            value={commercial.samplingCost}
+            min={s.min}
+            max={s.max}
+            step={s.step}
+            unit="₹"
+            format={(n) => n.toLocaleString("en-IN")}
+            onChange={(value) => onCommercial("samplingCost", value)}
           />
           <SliderField
             id="aov"

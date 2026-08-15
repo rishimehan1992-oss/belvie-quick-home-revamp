@@ -87,6 +87,7 @@ export type ParamsAction =
 export interface CommercialParams {
   consults: number;
   visitCost: number;
+  samplingCost: number;
   aov: number;
   nonConsultAov: number;
   conversion: number;
@@ -100,6 +101,7 @@ export interface PnlPoint {
   cogs: number;
   grossProfit: number;
   visitAcq: number;
+  sampling: number;
   network: number;
   networkCpo: number;
   S: number | null;
@@ -118,6 +120,8 @@ export interface CustomerEconomics {
   nonConsultOrdersPerCustomer: number;
   ordersPerCustomer: number;
   cac: number;
+  samplingPerVisit: number;
+  samplingPerCustomer: number;
   consultRevenueLtv: number;
   nonConsultRevenueLtv: number;
   revenueLtv: number;

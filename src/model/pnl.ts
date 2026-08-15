@@ -4,6 +4,7 @@ import { normalise, optimise } from "./solver";
 export const COMMERCIAL_DEFAULTS: CommercialParams = {
   consults: 27083,
   visitCost: 400,
+  samplingCost: 100,
   aov: 4000,
   nonConsultAov: 4000,
   conversion: 60,
@@ -16,6 +17,7 @@ export const COMMERCIAL_META: Record<
 > = {
   consults: { min: 1000, max: 150000, step: 500 },
   visitCost: { min: 0, max: 2000, step: 10 },
+  samplingCost: { min: 50, max: 250, step: 10 },
   aov: { min: 500, max: 15000, step: 50 },
   nonConsultAov: { min: 0, max: 15000, step: 50 },
   conversion: { min: 5, max: 100, step: 1 },
@@ -52,7 +54,7 @@ export function ordersFromConsults(
 
 export type CommercialLevers = Pick<
   CommercialParams,
-  "visitCost" | "aov" | "nonConsultAov" | "gm"
+  "visitCost" | "samplingCost" | "aov" | "nonConsultAov" | "gm"
 >;
 
 export function commercialFromNetwork(
@@ -63,6 +65,7 @@ export function commercialFromNetwork(
     consults: consultsFromNetwork(network),
     conversion: network.phi,
     visitCost: levers.visitCost,
+    samplingCost: levers.samplingCost,
     aov: levers.aov,
     nonConsultAov: levers.nonConsultAov,
     gm: levers.gm,
@@ -91,6 +94,7 @@ export function solvePnl(
   const grossProfit = revenue * gm;
   const cogs = revenue - grossProfit;
   const visitAcq = commercial.consults * commercial.visitCost;
+  const sampling = commercial.consults * commercial.samplingCost;
 
   const { best } = optimise(
     normalise({
@@ -103,7 +107,7 @@ export function solvePnl(
 
   const feasible = Boolean(best && Number.isFinite(best.total));
   const networkCost = feasible && best ? best.total : Infinity;
-  const pnl = grossProfit - visitAcq - networkCost;
+  const pnl = grossProfit - visitAcq - sampling - networkCost;
   const pnlPerConsult =
     commercial.consults > 0 && Number.isFinite(pnl) ? pnl / commercial.consults : NaN;
 
@@ -114,6 +118,7 @@ export function solvePnl(
     cogs,
     grossProfit,
     visitAcq,
+    sampling,
     network: networkCost,
     networkCpo: feasible && best ? best.cpo : Infinity,
     S: best?.S ?? null,
@@ -139,6 +144,8 @@ export function customerEconomics(
   const nonConsultOrdersPerCustomer = n;
   const visitsPerCustomer = conv > 0 ? 1 / conv : Infinity;
   const cac = conv > 0 ? commercial.visitCost / conv : Infinity;
+  const samplingPerVisit = commercial.samplingCost;
+  const samplingPerCustomer = conv > 0 ? commercial.samplingCost / conv : Infinity;
   const ncAov = Number.isFinite(commercial.nonConsultAov)
     ? commercial.nonConsultAov
     : commercial.aov;
@@ -154,7 +161,7 @@ export function customerEconomics(
   const networkPerCustomer = Number.isFinite(networkCpo)
     ? networkCpo * ordersPerCustomer
     : Infinity;
-  const contributionPerCustomer = gpLtv - cac - networkPerCustomer;
+  const contributionPerCustomer = gpLtv - cac - samplingPerCustomer - networkPerCustomer;
   const unitGp = commercial.aov * gm;
   const paybackOrders = unitGp > 0 && Number.isFinite(cac) ? cac / unitGp : Infinity;
 
@@ -166,6 +173,8 @@ export function customerEconomics(
     nonConsultOrdersPerCustomer,
     ordersPerCustomer,
     cac,
+    samplingPerVisit,
+    samplingPerCustomer,
     consultRevenueLtv,
     nonConsultRevenueLtv,
     revenueLtv,
@@ -205,6 +214,7 @@ export const AOV_SCALE = [1500, 2000, 2500, 3000, 3500, 4000, 4500, 5000, 6000, 
 export const N_SCALE = [0, 0.25, 0.5, 0.75, 1, 1.5, 2, 3, 4];
 export const CONV_SCALE = [20, 30, 40, 50, 60, 70, 80, 90];
 export const VISIT_COST_SCALE = [100, 200, 300, 400, 500, 600, 800, 1000, 1200];
+export const SAMPLING_SCALE = [50, 75, 100, 125, 150, 175, 200, 225, 250];
 export const GM_SCALE = [15, 20, 25, 30, 35, 40, 45, 50, 60];
 
 export type SweepPoint = PnlPoint & { x: number };
@@ -296,6 +306,18 @@ export function pnlVsVisitCost(
     commercial,
     network,
     (visitCost) => ({ commercial: { visitCost } }),
+  );
+}
+
+export function pnlVsSamplingCost(
+  commercial: CommercialParams,
+  network: Params,
+): SweepPoint[] {
+  return sweepPnl(
+    withCurrent(SAMPLING_SCALE, commercial.samplingCost),
+    commercial,
+    network,
+    (samplingCost) => ({ commercial: { samplingCost } }),
   );
 }
 

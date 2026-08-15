@@ -28,7 +28,7 @@ function toLakhs(pts: PnlPoint[]) {
     gpL: Number.isFinite(p.grossProfit) ? p.grossProfit / 1e5 : null,
     visitL: Number.isFinite(p.visitAcq) ? p.visitAcq / 1e5 : null,
     netL: p.feasible ? p.network / 1e5 : null,
-    costL: p.feasible ? (p.visitAcq + p.network) / 1e5 : null,
+    costL: p.feasible ? (p.visitAcq + p.sampling + p.network) / 1e5 : null,
     pnlL: p.feasible ? p.pnl / 1e5 : null,
   }));
 }
@@ -62,6 +62,7 @@ function Tip({
       </div>
       <div>Gross profit · ₹{lakhs(row.grossProfit)}L</div>
       <div>Visit cost · ₹{lakhs(row.visitAcq)}L</div>
+      <div>Sampling · ₹{lakhs(row.sampling)}L</div>
       <div>Network · {row.feasible ? `₹${lakhs(row.network)}L` : "infeasible"}</div>
       <div className="mt-1 font-semibold">
         P&L · {row.feasible ? `₹${lakhs(row.pnl)}L` : "—"}

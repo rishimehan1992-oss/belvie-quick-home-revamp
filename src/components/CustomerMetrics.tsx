@@ -29,7 +29,8 @@ export function CustomerMetrics({ eco }: { eco: CustomerEconomics }) {
       </h3>
       <p className="mb-2.5 mt-0 text-[11.5px] leading-[1.4] text-gray">
         One converting visit is one customer. She then places N non-consult (no-visit) orders.
-        CAC is visit cost ÷ conversion. Consult and non-consult AOV can differ.
+        CAC is visit cost ÷ conversion. Sampling is testers on the visit. Consult and
+        non-consult AOV can differ.
       </p>
       <div className="mb-3.5 grid grid-cols-[repeat(auto-fit,minmax(140px,1fr))] gap-2.5">
         <Metric
@@ -41,6 +42,11 @@ export function CustomerMetrics({ eco }: { eco: CustomerEconomics }) {
           label="LTV (gross profit)"
           value={rupees(eco.gpLtv)}
           hint={`${eco.ordersPerCustomer.toFixed(2)} orders · mixed AOV`}
+        />
+        <Metric
+          label="Sampling / customer"
+          value={rupees(eco.samplingPerCustomer)}
+          hint={`${rupees(eco.samplingPerVisit)} × ${eco.visitsPerCustomer.toFixed(2)} visits`}
         />
         <Metric
           label="LTV : CAC"
@@ -94,7 +100,7 @@ export function CustomerMetrics({ eco }: { eco: CustomerEconomics }) {
               ? rupees(eco.contributionPerCustomer)
               : "—"
           }
-          hint="GP LTV − CAC − network"
+          hint="GP LTV − CAC − sampling − network"
         />
         <Metric
           label="Payback"

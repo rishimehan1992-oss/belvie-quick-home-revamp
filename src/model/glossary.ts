@@ -26,7 +26,7 @@ export const GLOSSARY: GlossarySection[] = [
   {
     id: "flow",
     title: "How the tabs connect",
-    lead: "P&L sets what you sell and how customers buy. Network sizes the physical system to serve that demand. Sensitivity moves one lever at a time. Growth copies the city model across India. This page defines every line item those tabs use.",
+    lead: "P&L sets what you sell and how customers buy. Network sizes the physical system to serve that demand. Sensitivity moves one lever at a time. Favorable maps the green operating pocket. Growth copies the city model across India. This page defines every line item those tabs use.",
     items: [
       {
         name: "P&L",
@@ -53,8 +53,16 @@ export const GLOSSARY: GlossarySection[] = [
           "Re-runs the full chain while moving one input. AOV and visit cost move P&L only. Conversion, mix, volume and k also re-optimise the network.",
       },
       {
-        name: "Growth",
+        name: "Favorable",
         symbol: "4",
+        unit: "—",
+        def: "Green / red zones",
+        meaning:
+          "At a mature-city volume, maps consult AOV × non-consults per consult × k into profit and loss. Sampling cost is the fourth lever. Does not overwrite P&L settings except when you move sampling on that page.",
+      },
+      {
+        name: "Growth",
+        symbol: "5",
         unit: "—",
         def: "Scale-out",
         meaning:
@@ -62,7 +70,7 @@ export const GLOSSARY: GlossarySection[] = [
       },
       {
         name: "Line items",
-        symbol: "5",
+        symbol: "6",
         unit: "—",
         def: "This page",
         meaning:
@@ -93,6 +101,16 @@ export const GLOSSARY: GlossarySection[] = [
         meaning:
           "Planning cost to generate one consult (ads, booking, no-show load). Not observed CAC. Monthly visit spend = consults × c_v.",
         now: (_p, c) => inr(c.visitCost),
+      },
+      {
+        name: "Sampling cost per visit",
+        symbol: "c_s",
+        unit: "₹ / consult",
+        def: "100",
+        meaning:
+          "Testers / kit given on the in-home visit. Not CAC. Monthly sampling = consults × c_s. Slider 50–250. Per acquired customer this is c_s / φ.",
+        formula: "sampling = V · c_s",
+        now: (_p, c) => inr(c.samplingCost),
       },
       {
         name: "Consult AOV",
@@ -171,7 +189,7 @@ export const GLOSSARY: GlossarySection[] = [
         unit: "₹",
         def: "—",
         meaning:
-          "GP LTV − CAC − (network ₹/order × orders per customer). This is the number that must stay positive for the plan to hang together.",
+          "GP LTV − CAC − sampling per customer − (network ₹/order × orders per customer). This is the number that must stay positive for the plan to hang together.",
       },
     ],
   },
@@ -525,7 +543,7 @@ export const GLOSSARY: GlossarySection[] = [
         unit: "—",
         def: "—",
         meaning:
-          "Product COGS (except via GM on P&L), kit BOM and tester replacement, marketing beyond the visit-cost slider, technology, corporate overhead, statutory loading on w. High k is treated as free of extra kit modules — the largest known gap.",
+          "Product COGS (except via GM on P&L), kit BOM beyond the sampling-per-visit slider, marketing beyond the visit-cost slider, technology, corporate overhead, statutory loading on w. High k is treated as free of extra kit modules — the largest known gap.",
       },
     ],
   },
@@ -572,7 +590,38 @@ export const GLOSSARY: GlossarySection[] = [
         unit: "—",
         def: "independent H, S",
         meaning:
-          "Each live city runs the same hub–spoke model with this session’s conversion, mix, AOV, visit cost, wages and factors. Only catchment area and local demand change. No shared national hub, no city wage index. Bengaluru’s area follows the Network tab; other areas are planning envelopes.",
+          "Each live city runs the same hub–spoke model with this session’s conversion, mix, AOV, visit cost, sampling, wages and factors. Only catchment area and local demand change. No shared national hub, no city wage index. Bengaluru’s area follows the Network tab; other areas are planning envelopes.",
+      },
+    ],
+  },
+  {
+    id: "favorable",
+    title: "Favorable operating zone",
+    lead: "A map, not a second optimiser. Volume is held at scale; AOV, mix, k and sampling move.",
+    items: [
+      {
+        name: "At-scale volume",
+        symbol: "—",
+        unit: "orders / day",
+        def: "2,500",
+        meaning:
+          "Default is one mature city. Toggle uses this session’s P&L demand instead. Mix still changes consults, so visit and sampling cash move even when orders are fixed.",
+      },
+      {
+        name: "AOV × n × k heatmaps",
+        symbol: "—",
+        unit: "₹ lakh / month",
+        def: "four k slices",
+        meaning:
+          "Each panel is one k. Columns are consult AOV; rows are non-consults per consult. Colour is city P&L after network, CAC and sampling. Green is profit, red is loss.",
+      },
+      {
+        name: "Sampling as the fourth lever",
+        symbol: "c_s",
+        unit: "₹ / visit",
+        def: "50–250",
+        meaning:
+          "Moving sampling re-colours every cell. Network cost does not change with sampling; contribution does. Non-consult AOV tracks consult AOV at this session’s ratio.",
       },
     ],
   },

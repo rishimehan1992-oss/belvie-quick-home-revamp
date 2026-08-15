@@ -22,7 +22,7 @@ export function PnlHero({
         sub={
           point.feasible
             ? positive
-              ? "GP − CAC visits − optimiser network"
+              ? "GP − CAC visits − sampling − optimiser network"
               : "loss at this volume"
             : "no feasible network"
         }
