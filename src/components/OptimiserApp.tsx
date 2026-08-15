@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import { AppNav } from "@/components/AppNav";
 import { CostBySpokeChart } from "@/components/CostBySpokeChart";
 import { HeroStats } from "@/components/HeroStats";
@@ -32,10 +33,10 @@ export function OptimiserApp() {
             Belvie · Bengaluru
           </div>
           <h1 className="mt-1 font-serif text-[clamp(22px,3vw,32px)] font-normal text-charcoal">
-            Network Cost Optimiser
+            Network cost
           </h1>
           <p className="mt-0.5 text-[13.5px] text-gray">
-            Change any input; the model re-solves. P&L uses this optimum.
+            Step 2 — size the network from the P&L demand mix. S* and ₹/order feed P&L and sensitivity.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-1.5">
@@ -66,10 +67,13 @@ export function OptimiserApp() {
           <p className="mt-[18px] border-t border-line pt-2.5 text-[11.5px] leading-[1.55] text-gray">
             <b className="text-charcoal">What is optimised:</b> total recurring monthly cost = hub
             opex + spoke opex + advisor payroll + delivery, plus amortised capex if enabled. Demand
-            is exogenous — the model chooses how cheaply to serve a fixed order volume, not how many
-            orders to chase.{" "}
-            <b className="text-charcoal">P&L tab</b> takes this S*, network ₹/order, conversion and
-            reorder mix and layers on CAC, LTV and contribution.{" "}
+            comes from the P&L tab — consults × conversion / (1 − reorder mix). The model chooses
+            how cheaply to serve that volume.{" "}
+            <b className="text-charcoal">Next:</b>{" "}
+            <Link href="/sensitivity" className="text-terracotta no-underline hover:underline">
+              sensitivity
+            </Link>{" "}
+            sweeps those same P&L inputs across this optimum.{" "}
             <b className="text-charcoal">Binding constraints:</b> spoke throughput on a peak day,
             and van route duration inside the delivery slot. All figures are planning estimates
             derived from the inputs above, not observed operating data.

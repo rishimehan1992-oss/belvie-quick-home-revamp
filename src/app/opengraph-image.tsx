@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 
-export const alt = "Belvie Network Cost Optimiser";
+export const alt = "Belvie Network model";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -31,10 +31,10 @@ export default function OgImage() {
           Belvie · Bengaluru
         </div>
         <div style={{ fontSize: 64, marginTop: 12, fontFamily: "Georgia, serif" }}>
-          Network Cost Optimiser
+          Network model
         </div>
         <div style={{ fontSize: 28, marginTop: 18, color: "#6B6560" }}>
-          How many spokes, and what does the network cost?
+          P&L first, then the spoke network, then sensitivity.
         </div>
       </div>
     ),

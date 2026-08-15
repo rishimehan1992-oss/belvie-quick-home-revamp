@@ -31,7 +31,7 @@ export function PnlHero({
       <Stat
         label="Revenue"
         value={`₹${lakhs(point.revenue)}L`}
-        sub={`${integer(point.orders)} orders from model 1`}
+        sub={`${integer(point.orders)} orders from P&L mix`}
       />
       <Stat
         label="CAC"

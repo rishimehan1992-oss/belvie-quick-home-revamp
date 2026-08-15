@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import { AppNav } from "@/components/AppNav";
 import { CustomerMetrics } from "@/components/CustomerMetrics";
 import { MethodologyDrawer } from "@/components/MethodologyDrawer";
@@ -72,7 +73,7 @@ export function PnlApp() {
             Network P&L
           </h1>
           <p className="mt-0.5 text-[13.5px] text-gray">
-            Uses the Network cost optimiser’s current assumptions and its cost-optimal network.
+            Step 1 — set the commercial inputs. They become demand and mix for the network model.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-1.5">
@@ -106,17 +107,24 @@ export function PnlApp() {
         <div>
           <div className="mb-3.5 rounded-[10px] border border-line bg-card px-3.5 py-2.5 text-[12.5px] leading-[1.45] text-charcoal">
             <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-terracotta">
-              From model 1 · optimum
+              Network optimum from these P&L inputs
             </span>
             <div className="mt-1 font-serif text-[17px]">
               {point.feasible
                 ? `S* ${point.S} · ${point.H} hub${point.H === 1 ? "" : "s"} · ${integer(point.N ?? 0)} advisors · ₹${Math.round(point.networkCpo)} / order · ₹${lakhs(point.network)}L network`
-                : "No feasible network at these model-1 inputs"}
+                : "No feasible network at these P&L inputs"}
             </div>
             <div className="mt-0.5 text-[11.5px] text-gray">
               k={params.k} · {integer(params.D)} orders · {integer(consults)} consults · φ{" "}
               {params.phi}% · {nonConsultsPerConsult(params.rho).toFixed(2)} non-consults / consult.
-              Same session as Network cost — change either tab and both update.
+              Next:{" "}
+              <Link href="/network" className="text-terracotta no-underline hover:underline">
+                size the network
+              </Link>
+              {" · "}
+              <Link href="/sensitivity" className="text-terracotta no-underline hover:underline">
+                sensitivity
+              </Link>
             </div>
           </div>
 
@@ -173,7 +181,7 @@ export function PnlApp() {
                   per={-eco.cac}
                 />
                 <Row
-                  label="Network (model 1 optimum)"
+                  label="Network (optimum)"
                   month={point.feasible ? -point.network : NaN}
                   per={point.feasible ? -eco.networkPerCustomer : NaN}
                 />
@@ -188,8 +196,9 @@ export function PnlApp() {
           </div>
 
           <p className="mt-[18px] border-t border-line pt-2.5 text-[11.5px] leading-[1.55] text-gray">
-            <b className="text-charcoal">Link:</b> consults, conversion, k, non-consults per consult
-            and demand are the Network cost model. Network ₹ is that model’s cost-optimal S*.{" "}
+            <b className="text-charcoal">Flow:</b> P&L inputs set consults, conversion and
+            non-consults per consult, which become order volume for the network. Network ₹ is that
+            model’s cost-optimal S*.{" "}
             <b className="text-charcoal">Customer:</b> CAC = visit cost / conversion. Each acquired
             customer places 1 consult order plus N non-consult orders. Consult LTV uses consult AOV;
             non-consult LTV uses non-consult AOV. Contribution / customer = GP LTV − CAC − network

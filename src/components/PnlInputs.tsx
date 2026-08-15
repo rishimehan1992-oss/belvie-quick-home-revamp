@@ -117,23 +117,23 @@ export function PnlInputs({
 
       <div className={`${open ? "block" : "hidden"} min-[900px]:block`}>
         <p className="mb-3 text-[11.5px] leading-[1.4] text-gray">
-          Linked to Network cost. Volume, conversion, k and non-consults per consult write into
-          that model; network ₹, S* and advisors are its optimum.
+          Start here. Consults, conversion and non-consults per consult set order volume for the
+          network. Visit cost, AOV and margin stay on this page; S* comes back from step 2.
         </p>
         <p className="mb-3 rounded-md bg-card px-2.5 py-2 text-[11.5px] text-charcoal">
-          Model 1 demand{" "}
+          Feeds the network with{" "}
           <b className="font-serif">{Math.round(orders).toLocaleString("en-IN")}</b> orders / month
         </p>
 
         <fieldset className="mb-2 border-0 p-0">
           <legend className="mb-1.5 p-0 text-[10px] font-bold uppercase tracking-[0.12em] text-terracotta">
-            From the optimiser
+            Demand mix
           </legend>
           <div className="-my-0.5 mb-2 rounded-[7px] bg-card px-2.5 pt-2">
             <SliderField
               id="consults"
               label="Monthly consults"
-              hint="sets model-1 order volume"
+              hint="sets network demand"
               value={consults}
               min={c.min}
               max={c.max}
@@ -145,7 +145,7 @@ export function PnlInputs({
           <SliderField
             id="conversion"
             label="Conversion per visit"
-            hint="model 1 · φ"
+            hint="feeds the network"
             value={conversion}
             min={5}
             max={100}
@@ -156,7 +156,7 @@ export function PnlInputs({
           <SliderField
             id="k"
             label="k — consults per kit load"
-            hint="model 1 lever"
+            hint="feeds the network"
             value={k}
             min={1}
             max={10}

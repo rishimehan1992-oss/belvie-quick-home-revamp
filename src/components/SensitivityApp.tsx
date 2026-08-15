@@ -54,7 +54,7 @@ export function SensitivityApp() {
             Sensitivity
           </h1>
           <p className="mt-0.5 text-[13.5px] text-gray">
-            P&L against each lever, re-using the Network cost optimum at every point.
+            Step 3 — stress-test the P&L inputs across the network optimum.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-1.5">
@@ -79,8 +79,8 @@ export function SensitivityApp() {
           {commercial.gm}% · k={params.k}
         </div>
         <div className="mt-0.5 text-[11.5px] text-gray">
-          {integer(params.D)} orders / month from model 1. Dashed line is the current setting.
-          Change levers on Network cost or P&L.
+          {integer(params.D)} orders / month from the P&L inputs. Dashed line is the current
+          setting. Change levers on P&L; the network re-solves at each point.
         </div>
       </div>
 

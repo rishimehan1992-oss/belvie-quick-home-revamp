@@ -80,6 +80,10 @@ export function InputPanel({
       </button>
 
       <div className={`${open ? "block" : "hidden"} min-[900px]:block`}>
+        <p className="mb-3 text-[11.5px] leading-[1.4] text-gray">
+          Demand, conversion and non-consults per consult come from P&L. Set fulfilment assumptions
+          here; the optimum S* goes back to P&L and Sensitivity.
+        </p>
         <div className="mb-3.5 flex flex-wrap gap-1.5">
           {(Object.keys(PRESETS) as PresetName[]).map((name) => (
             <button
@@ -112,7 +116,7 @@ export function InputPanel({
           <legend className="mb-1.5 p-0 text-[10px] font-bold uppercase tracking-[0.12em] text-terracotta">
             Demand
           </legend>
-          <NumberField id="D" label="Orders / month" value={params.D} onChange={set} />
+          <NumberField id="D" label="Orders / month" hint="from P&L consults × mix" value={params.D} onChange={set} />
           <NumberField id="A" label="Serviceable area" hint="km²" value={params.A} onChange={set} />
           <div className="num-row mb-1.5 grid grid-cols-[1fr_82px] items-center gap-2">
             <label htmlFor="nonConsultsPerConsult" className="text-[12.5px] leading-[1.25] text-charcoal">
