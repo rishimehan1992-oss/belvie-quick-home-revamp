@@ -74,6 +74,10 @@ export function OptimiserApp() {
               sensitivity
             </Link>{" "}
             sweeps those same P&L inputs across this optimum.{" "}
+            <Link href="/growth" className="text-terracotta no-underline hover:underline">
+              Growth
+            </Link>{" "}
+            copies the city model from 100 to 25,000 orders a day across ten metros.{" "}
             <b className="text-charcoal">Binding constraints:</b> spoke throughput on a peak day,
             and van route duration inside the delivery slot. All figures are planning estimates
             derived from the inputs above, not observed operating data.

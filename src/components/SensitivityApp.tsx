@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import { AppNav } from "@/components/AppNav";
 import { MethodologyDrawer } from "@/components/MethodologyDrawer";
 import { useModel } from "@/components/ModelProvider";
@@ -145,7 +146,11 @@ export function SensitivityApp() {
         <b className="text-charcoal">Reading:</b> terracotta is monthly P&L, sage is gross profit,
         charcoal is network cost. Axes are zoomed and include zero so a sign change is visible.
         Non-consults per consult is ρ/(1−ρ); two non-consults per consult means each acquired
-        customer places one visit order and two reorders. All figures are planning estimates.
+        customer places one visit order and two reorders.{" "}
+        <Link href="/growth" className="text-terracotta no-underline hover:underline">
+          Growth
+        </Link>{" "}
+        copies the city model across ten metros. All figures are planning estimates.
       </p>
 
       <MethodologyDrawer open={methodOpen} onClose={() => setMethodOpen(false)} />

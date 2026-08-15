@@ -73,7 +73,11 @@ function reorderAov(c: CommercialParams): number {
   return Number.isFinite(c.nonConsultAov) ? c.nonConsultAov : c.aov;
 }
 
-export function solvePnl(commercial: CommercialParams, network: Params): PnlPoint {
+export function solvePnl(
+  commercial: CommercialParams,
+  network: Params,
+  maxS = 28,
+): PnlPoint {
   const orders = ordersFromConsults(
     commercial.consults,
     commercial.conversion,
@@ -94,6 +98,7 @@ export function solvePnl(commercial: CommercialParams, network: Params): PnlPoin
       D: orders,
       phi: commercial.conversion,
     }),
+    maxS,
   );
 
   const feasible = Boolean(best && Number.isFinite(best.total));

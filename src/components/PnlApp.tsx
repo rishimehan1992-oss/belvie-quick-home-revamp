@@ -125,6 +125,10 @@ export function PnlApp() {
               <Link href="/sensitivity" className="text-terracotta no-underline hover:underline">
                 sensitivity
               </Link>
+              {" · "}
+              <Link href="/growth" className="text-terracotta no-underline hover:underline">
+                growth
+              </Link>
             </div>
           </div>
 

@@ -26,7 +26,7 @@ export const GLOSSARY: GlossarySection[] = [
   {
     id: "flow",
     title: "How the tabs connect",
-    lead: "P&L sets what you sell and how customers buy. Network sizes the physical system to serve that demand. Sensitivity moves one lever at a time across both. This page defines every line item those tabs use."
+    lead: "P&L sets what you sell and how customers buy. Network sizes the physical system to serve that demand. Sensitivity moves one lever at a time. Growth copies the city model across India. This page defines every line item those tabs use.",
     items: [
       {
         name: "P&L",
@@ -53,8 +53,16 @@ export const GLOSSARY: GlossarySection[] = [
           "Re-runs the full chain while moving one input. AOV and visit cost move P&L only. Conversion, mix, volume and k also re-optimise the network.",
       },
       {
-        name: "Line items",
+        name: "Growth",
         symbol: "4",
+        unit: "—",
+        def: "Scale-out",
+        meaning:
+          "A planning path from 100 orders/day in Bengaluru to 2,500/day per city and 25,000/day across five major metros then five next metros. Each live city is its own hub–spoke optimiser using this session’s commercial levers. Does not overwrite Bengaluru demand on P&L.",
+      },
+      {
+        name: "Line items",
+        symbol: "5",
         unit: "—",
         def: "This page",
         meaning:
@@ -518,6 +526,53 @@ export const GLOSSARY: GlossarySection[] = [
         def: "—",
         meaning:
           "Product COGS (except via GM on P&L), kit BOM and tester replacement, marketing beyond the visit-cost slider, technology, corporate overhead, statutory loading on w. High k is treated as free of extra kit modules — the largest known gap.",
+      },
+    ],
+  },
+  {
+    id: "growth",
+    title: "National growth path",
+    lead: "A scenario on the Growth tab, not a second solver. Same cost stack in every city.",
+    items: [
+      {
+        name: "National orders / day",
+        symbol: "V_nat",
+        unit: "orders / day",
+        def: "100 → 25,000",
+        meaning:
+          "Slider on Growth. Monthly orders in a city = that city’s daily orders × delivery days. 100/day is early Bengaluru; 2,500/day is a mature city; 25,000/day is ten cities at target.",
+      },
+      {
+        name: "Sequential fill",
+        symbol: "—",
+        unit: "orders / day",
+        def: "mature, then seed",
+        meaning:
+          "Fill the current city to its target, then open the next only if leftover ≥ 100/day. Thinner leftover stays on the last live city so a new hub is never opened on a handful of orders.",
+      },
+      {
+        name: "Five major metros",
+        symbol: "—",
+        unit: "cities",
+        def: "12,500 / day together",
+        meaning:
+          "Bengaluru, Mumbai, Delhi NCR, Hyderabad, Chennai — 2,500 orders/day each when filled. Home market first, then the other four majors.",
+      },
+      {
+        name: "Next five metros",
+        symbol: "—",
+        unit: "cities",
+        def: "12,500 / day together",
+        meaning:
+          "Pune, Ahmedabad, Kolkata, Kochi, Jaipur — 2,500 orders/day each. They start after the five majors are filled.",
+      },
+      {
+        name: "Per-city optimiser",
+        symbol: "—",
+        unit: "—",
+        def: "independent H, S",
+        meaning:
+          "Each live city runs the same hub–spoke model with this session’s conversion, mix, AOV, visit cost, wages and factors. Only catchment area and local demand change. No shared national hub, no city wage index. Bengaluru’s area follows the Network tab; other areas are planning envelopes.",
       },
     ],
   },
