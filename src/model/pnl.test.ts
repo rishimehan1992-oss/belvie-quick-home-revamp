@@ -3,6 +3,9 @@ import { DEFAULTS } from "./defaults";
 import {
   COMMERCIAL_DEFAULTS,
   breakEvenConsults,
+  commercialFromNetwork,
+  consultsFromNetwork,
+  customerEconomics,
   ordersFromConsults,
   pnlVsConsults,
   pnlVsK,
@@ -67,5 +70,40 @@ describe("series", () => {
     const series = pnlVsConsults(COMMERCIAL_DEFAULTS, { ...DEFAULTS, incCap: false });
     const be = breakEvenConsults(series);
     expect(be === null || be > 0).toBe(true);
+  });
+});
+
+describe("link to network model", () => {
+  it("recovers model-1 demand from consults × conversion / (1−ρ)", () => {
+    expect(consultsFromNetwork(DEFAULTS)).toBeCloseTo(25000 * 0.65 / 0.6, 5);
+    expect(ordersFromConsults(consultsFromNetwork(DEFAULTS), DEFAULTS.phi, DEFAULTS.rho)).toBeCloseTo(
+      DEFAULTS.D,
+      4,
+    );
+  });
+});
+
+describe("customer economics", () => {
+  it("splits LTV into consult and non-consult orders per acquired customer", () => {
+    const row = solvePnl(
+      commercialFromNetwork(DEFAULTS, COMMERCIAL_DEFAULTS),
+      DEFAULTS,
+    );
+    const eco = customerEconomics(COMMERCIAL_DEFAULTS, DEFAULTS, row.networkCpo);
+    expect(eco.visitsPerCustomer).toBeCloseTo(1 / 0.6, 6);
+    expect(eco.cac).toBeCloseTo(400 / 0.6, 4);
+    expect(eco.consultOrdersPerCustomer).toBe(1);
+    expect(eco.nonConsultOrdersPerCustomer).toBeCloseTo(0.35 / 0.65, 6);
+    expect(eco.ordersPerCustomer).toBeCloseTo(1 / 0.65, 6);
+    expect(eco.consultRevenueLtv).toBe(4000);
+    expect(eco.nonConsultRevenueLtv).toBeCloseTo(4000 * (0.35 / 0.65), 4);
+    expect(eco.revenueLtv).toBeCloseTo(4000 / 0.65, 4);
+    expect(eco.consultGpLtv).toBeCloseTo(4000 * 0.35, 4);
+    expect(eco.nonConsultGpLtv).toBeCloseTo(4000 * 0.35 * (0.35 / 0.65), 4);
+    expect(eco.gpLtv).toBeCloseTo((4000 / 0.65) * 0.35, 4);
+    expect(eco.ltvCac).toBeCloseTo(eco.gpLtv / eco.cac, 6);
+    expect(eco.customersPerMonth).toBeCloseTo(25000 * 0.65, 4);
+    expect(eco.nonConsultOrdersPerMonth).toBeCloseTo(25000 * 0.35, 4);
+    expect(eco.paybackOrders).toBeCloseTo(eco.cac / (4000 * 0.35), 6);
   });
 });

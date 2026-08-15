@@ -2,44 +2,62 @@
 
 import { useMemo, useState } from "react";
 import { AppNav } from "@/components/AppNav";
+import { CustomerMetrics } from "@/components/CustomerMetrics";
 import { MethodologyDrawer } from "@/components/MethodologyDrawer";
+import { useModel } from "@/components/ModelProvider";
 import { PnlVsConsultsChart, PnlVsKChart } from "@/components/PnlCharts";
 import { PnlHero } from "@/components/PnlHero";
 import { PnlInputs } from "@/components/PnlInputs";
-import { DEFAULTS } from "@/model/defaults";
 import { integer, lakhs, rupees } from "@/model/format";
 import {
-  COMMERCIAL_DEFAULTS,
   COMMERCIAL_META,
   breakEvenConsults,
+  commercialFromNetwork,
+  consultsFromNetwork,
+  customerEconomics,
+  ordersFromConsults,
   pnlVsConsults,
   pnlVsK,
   solvePnl,
 } from "@/model/pnl";
-import type { CommercialParams, Params } from "@/model/types";
+import type { CommercialLevers } from "@/components/ModelProvider";
 
-function clampCommercial(key: keyof CommercialParams, value: number): number {
+function clamp(key: keyof typeof COMMERCIAL_META, value: number): number {
   const meta = COMMERCIAL_META[key];
   if (!Number.isFinite(value)) return meta.min;
   return Math.min(meta.max, Math.max(meta.min, value));
 }
 
 export function PnlApp() {
-  const [commercial, setCommercial] = useState<CommercialParams>(COMMERCIAL_DEFAULTS);
-  const [network, setNetwork] = useState<Params>(DEFAULTS);
+  const { params, dispatch, commercial, setCommercial } = useModel();
   const [methodOpen, setMethodOpen] = useState(false);
 
-  const point = useMemo(() => solvePnl(commercial, network), [commercial, network]);
-  const vsConsults = useMemo(
-    () => pnlVsConsults(commercial, network),
-    [commercial, network],
+  const linked = useMemo(
+    () => commercialFromNetwork(params, commercial),
+    [params, commercial],
   );
-  const vsK = useMemo(() => pnlVsK(commercial, network), [commercial, network]);
+  const point = useMemo(() => solvePnl(linked, params), [linked, params]);
+  const eco = useMemo(
+    () => customerEconomics(commercial, params, point.networkCpo),
+    [commercial, params, point.networkCpo],
+  );
+  const vsConsults = useMemo(() => pnlVsConsults(linked, params), [linked, params]);
+  const vsK = useMemo(() => pnlVsK(linked, params), [linked, params]);
   const breakEven = useMemo(() => breakEvenConsults(vsConsults), [vsConsults]);
+  const consults = consultsFromNetwork(params);
 
-  const gpPerConsult =
-    commercial.consults > 0 ? point.grossProfit / commercial.consults : 0;
-  const contribBeforeNetwork = gpPerConsult - commercial.visitCost;
+  function setConsults(next: number) {
+    const value = clamp("consults", next);
+    dispatch({
+      type: "set",
+      key: "D",
+      value: ordersFromConsults(value, params.phi, params.rho),
+    });
+  }
+
+  function setLever(key: keyof CommercialLevers, value: number) {
+    setCommercial(key, clamp(key, value));
+  }
 
   return (
     <div className="mx-auto max-w-[1180px] px-3.5 pb-[60px] pt-[18px]">
@@ -52,7 +70,7 @@ export function PnlApp() {
             Network P&L
           </h1>
           <p className="mt-0.5 text-[13.5px] text-gray">
-            Contribution as consults scale — visit cost, AOV, conversion, and margin are live.
+            Uses the Network cost optimiser’s current assumptions and its cost-optimal network.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-1.5">
@@ -69,46 +87,49 @@ export function PnlApp() {
 
       <div className="grid items-start gap-5 min-[900px]:grid-cols-[308px_1fr]">
         <PnlInputs
+          consults={consults}
+          conversion={params.phi}
+          k={params.k}
+          rho={params.rho}
+          orders={params.D}
           commercial={commercial}
-          k={network.k}
-          rho={network.rho}
-          onCommercial={(key, value) =>
-            setCommercial((prev) => ({ ...prev, [key]: clampCommercial(key, value) }))
-          }
-          onK={(k) => setNetwork((prev) => ({ ...prev, k }))}
-          onRho={(rho) => setNetwork((prev) => ({ ...prev, rho }))}
+          onConsults={setConsults}
+          onConversion={(phi) => dispatch({ type: "set", key: "phi", value: phi })}
+          onK={(k) => dispatch({ type: "set", key: "k", value: k })}
+          onRho={(rho) => dispatch({ type: "set", key: "rho", value: rho })}
+          onCommercial={setLever}
         />
         <div>
-          <PnlHero point={point} breakEven={breakEven} />
-
-          <div className="mb-3.5 rounded-[10px] border border-line bg-white px-3.5 py-3 text-[12.5px] leading-[1.5] text-charcoal">
-            <div className="mb-1 text-[10px] font-bold uppercase tracking-[0.12em] text-terracotta">
-              Per consult
+          <div className="mb-3.5 rounded-[10px] border border-line bg-card px-3.5 py-2.5 text-[12.5px] leading-[1.45] text-charcoal">
+            <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-terracotta">
+              From model 1 · optimum
+            </span>
+            <div className="mt-1 font-serif text-[17px]">
+              {point.feasible
+                ? `S* ${point.S} · ${point.H} hub${point.H === 1 ? "" : "s"} · ${integer(point.N ?? 0)} advisors · ₹${Math.round(point.networkCpo)} / order · ₹${lakhs(point.network)}L network`
+                : "No feasible network at these model-1 inputs"}
             </div>
-            Expected orders {((commercial.conversion / 100) / (1 - network.rho / 100)).toFixed(2)}
-            {" · "}
-            Gross profit {rupees(gpPerConsult)}
-            {" · "}
-            Visit cost {rupees(commercial.visitCost)}
-            {" · "}
-            After visit {rupees(contribBeforeNetwork)}
-            {" · "}
-            Network {point.feasible ? rupees(point.network / commercial.consults) : "—"}
-            {" · "}
-            P&L {point.feasible ? rupees(point.pnlPerConsult) : "—"}
+            <div className="mt-0.5 text-[11.5px] text-gray">
+              k={params.k} · {integer(params.D)} orders · {integer(consults)} consults · φ{" "}
+              {params.phi}% · reorder {params.rho}%. Same session as Network cost — change either
+              tab and both update.
+            </div>
           </div>
 
-          <PnlVsConsultsChart series={vsConsults} current={commercial.consults} />
-          <PnlVsKChart series={vsK} currentK={network.k} />
+          <PnlHero point={point} eco={eco} breakEven={breakEven} />
+          <CustomerMetrics eco={eco} />
+
+          <PnlVsConsultsChart series={vsConsults} current={consults} />
+          <PnlVsKChart series={vsK} currentK={params.k} />
 
           <div className="mt-3.5 overflow-x-auto rounded-[10px] border border-line bg-white px-3.5 py-3">
             <h3 className="m-0 font-serif text-sm font-normal text-charcoal">
-              P&L at this volume
+              P&L at the optimiser’s volume
             </h3>
             <table className="mt-2 w-full border-collapse text-xs">
               <thead>
                 <tr>
-                  {["Line", "₹ lakh / month", "₹ / consult"].map((h, i) => (
+                  {["Line", "₹ lakh / month", "₹ / customer"].map((h, i) => (
                     <th
                       key={h}
                       className={`bg-charcoal px-2 py-1.5 text-[10.5px] font-bold uppercase tracking-[0.05em] text-card ${
@@ -121,28 +142,41 @@ export function PnlApp() {
                 </tr>
               </thead>
               <tbody>
-                <Row label="Revenue" month={point.revenue} consult={point.revenue / commercial.consults} />
-                <Row label="COGS" month={-point.cogs} consult={-point.cogs / commercial.consults} />
                 <Row
-                  label="Gross profit"
-                  month={point.grossProfit}
-                  consult={gpPerConsult}
-                  strong
+                  label="Revenue"
+                  month={point.revenue}
+                  per={eco.revenueLtv}
                 />
                 <Row
-                  label="Visit acquisition"
+                  label="COGS"
+                  month={-point.cogs}
+                  per={-(eco.revenueLtv - eco.gpLtv)}
+                />
+                <Row label="Gross profit" month={point.grossProfit} per={eco.gpLtv} strong />
+                <Row
+                  label="  Consult GP"
+                  month={eco.consultGpLtv * eco.customersPerMonth}
+                  per={eco.consultGpLtv}
+                />
+                <Row
+                  label="  Non-consult GP"
+                  month={eco.nonConsultGpLtv * eco.customersPerMonth}
+                  per={eco.nonConsultGpLtv}
+                />
+                <Row
+                  label="Visit CAC"
                   month={-point.visitAcq}
-                  consult={-commercial.visitCost}
+                  per={-eco.cac}
                 />
                 <Row
-                  label="Network (optimised)"
+                  label="Network (model 1 optimum)"
                   month={point.feasible ? -point.network : NaN}
-                  consult={point.feasible ? -point.network / commercial.consults : NaN}
+                  per={point.feasible ? -eco.networkPerCustomer : NaN}
                 />
                 <Row
                   label="P&L"
                   month={point.feasible ? point.pnl : NaN}
-                  consult={point.feasible ? point.pnlPerConsult : NaN}
+                  per={point.feasible ? eco.contributionPerCustomer : NaN}
                   strong
                 />
               </tbody>
@@ -150,14 +184,16 @@ export function PnlApp() {
           </div>
 
           <p className="mt-[18px] border-t border-line pt-2.5 text-[11.5px] leading-[1.55] text-gray">
-            <b className="text-charcoal">Identity:</b> orders = consults × conversion / (1 − reorder
-            share). Revenue = orders × AOV. Gross profit = revenue × gross margin. P&L = gross
-            profit − (consults × visit cost) − network cost. Network cost is the optimiser at that
-            order volume, using current k. Visit acquisition is a planning input, not an observed
-            CAC. All figures are estimates, not operating data.{" "}
+            <b className="text-charcoal">Link:</b> consults, conversion, k, reorder share and
+            demand are the Network cost model. Network ₹ is that model’s cost-optimal S*.{" "}
+            <b className="text-charcoal">Customer:</b> CAC = visit cost / conversion. Orders per
+            customer = 1 / (1 − reorder share), of which 1 is the consult order and the rest are
+            non-consult reorders. GP LTV = orders × AOV × margin. Contribution / customer = GP LTV
+            − CAC − network ₹/order × her orders. All figures are planning estimates.{" "}
             {breakEven
               ? `Break-even is about ${integer(breakEven)} consults / month at these settings.`
-              : null}
+              : null}{" "}
+            Per consult P&L {point.feasible ? rupees(point.pnlPerConsult) : "—"}.
           </p>
         </div>
       </div>
@@ -170,12 +206,12 @@ export function PnlApp() {
 function Row({
   label,
   month,
-  consult,
+  per,
   strong = false,
 }: {
   label: string;
   month: number;
-  consult: number;
+  per: number;
   strong?: boolean;
 }) {
   return (
@@ -185,7 +221,7 @@ function Row({
         {Number.isFinite(month) ? lakhs(month) : "—"}
       </td>
       <td className="border-b border-line px-2 py-1.5 text-right tabular-nums">
-        {Number.isFinite(consult) ? rupees(consult) : "—"}
+        {Number.isFinite(per) ? rupees(per) : "—"}
       </td>
     </tr>
   );

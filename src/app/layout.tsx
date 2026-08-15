@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { PasswordGate } from "@/components/PasswordGate";
+import { Providers } from "@/components/Providers";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -30,7 +30,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="h-full antialiased">
       <body className="min-h-full bg-cream font-sans text-ink">
-        <PasswordGate>{children}</PasswordGate>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

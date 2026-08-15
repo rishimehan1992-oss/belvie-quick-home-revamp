@@ -1,32 +1,20 @@
 "use client";
 
-import { useMemo, useReducer, useState } from "react";
+import { useMemo, useState } from "react";
 import { AppNav } from "@/components/AppNav";
 import { CostBySpokeChart } from "@/components/CostBySpokeChart";
 import { HeroStats } from "@/components/HeroStats";
 import { InputPanel } from "@/components/InputPanel";
 import { InsightBanners } from "@/components/InsightBanners";
 import { MethodologyDrawer } from "@/components/MethodologyDrawer";
+import { useModel } from "@/components/ModelProvider";
 import { SensitivityChart } from "@/components/SensitivityChart";
 import { SolutionTable } from "@/components/SolutionTable";
-import { DEFAULTS, PRESETS } from "@/model/defaults";
 import { getInsights } from "@/model/insights";
 import { normalise, optimise } from "@/model/solver";
-import type { Params, ParamsAction } from "@/model/types";
-
-function reducer(state: Params, action: ParamsAction): Params {
-  switch (action.type) {
-    case "set":
-      return { ...state, [action.key]: action.value };
-    case "preset":
-      return { ...state, ...PRESETS[action.name] };
-    default:
-      return state;
-  }
-}
 
 export function OptimiserApp() {
-  const [params, dispatch] = useReducer(reducer, DEFAULTS);
+  const { params, dispatch } = useModel();
   const [methodOpen, setMethodOpen] = useState(false);
 
   const solverParams = useMemo(() => normalise(params), [params]);
@@ -47,7 +35,7 @@ export function OptimiserApp() {
             Network Cost Optimiser
           </h1>
           <p className="mt-0.5 text-[13.5px] text-gray">
-            Change any input; the model re-solves.
+            Change any input; the model re-solves. P&L uses this optimum.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-1.5">
@@ -80,11 +68,11 @@ export function OptimiserApp() {
             opex + spoke opex + advisor payroll + delivery, plus amortised capex if enabled. Demand
             is exogenous — the model chooses how cheaply to serve a fixed order volume, not how many
             orders to chase.{" "}
+            <b className="text-charcoal">P&L tab</b> takes this S*, network ₹/order, conversion and
+            reorder mix and layers on CAC, LTV and contribution.{" "}
             <b className="text-charcoal">Binding constraints:</b> spoke throughput on a peak day,
-            and van route duration inside the delivery slot.{" "}
-            <b className="text-charcoal">Excluded:</b> COGS, kit BOM and tester replacement,
-            marketing, technology, overhead, statutory loading on advisor cost. All figures are
-            planning estimates derived from the inputs above, not observed operating data.
+            and van route duration inside the delivery slot. All figures are planning estimates
+            derived from the inputs above, not observed operating data.
           </p>
         </div>
       </div>

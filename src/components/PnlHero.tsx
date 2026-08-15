@@ -1,12 +1,14 @@
 import type { ReactNode } from "react";
 import { integer, lakhs, rupees } from "@/model/format";
-import type { PnlPoint } from "@/model/types";
+import type { CustomerEconomics, PnlPoint } from "@/model/types";
 
 export function PnlHero({
   point,
+  eco,
   breakEven,
 }: {
   point: PnlPoint;
+  eco: CustomerEconomics;
   breakEven: number | null;
 }) {
   const positive = point.feasible && point.pnl >= 0;
@@ -20,7 +22,7 @@ export function PnlHero({
         sub={
           point.feasible
             ? positive
-              ? "gross profit − visit cost − network"
+              ? "GP − CAC visits − optimiser network"
               : "loss at this volume"
             : "no feasible network"
         }
@@ -29,26 +31,30 @@ export function PnlHero({
       <Stat
         label="Revenue"
         value={`₹${lakhs(point.revenue)}L`}
-        sub={`${integer(point.orders)} orders`}
+        sub={`${integer(point.orders)} orders from model 1`}
       />
       <Stat
-        label="Gross profit"
-        value={`₹${lakhs(point.grossProfit)}L`}
-        sub="after COGS"
+        label="CAC"
+        value={rupees(eco.cac)}
+        sub={`${eco.visitsPerCustomer.toFixed(2)} visits / customer`}
       />
       <Stat
-        label="Visit acquisition"
-        value={`₹${lakhs(point.visitAcq)}L`}
-        sub={`${integer(point.consults)} consults`}
+        label="LTV"
+        value={rupees(eco.gpLtv)}
+        sub={Number.isFinite(eco.ltvCac) ? `${eco.ltvCac.toFixed(2)}× CAC · GP` : "—"}
       />
       <Stat
-        label="Network cost"
+        label="Network (S*)"
         value={point.feasible ? `₹${lakhs(point.network)}L` : "—"}
-        sub={point.S != null ? `S* ${point.S} · ${integer(point.N ?? 0)} advisors` : "infeasible"}
+        sub={
+          point.S != null
+            ? `S* ${point.S} · ${integer(point.N ?? 0)} advisors · ₹${Math.round(point.networkCpo)}/order`
+            : "infeasible"
+        }
       />
       <Stat
-        label="P&L / consult"
-        value={point.feasible ? rupees(point.pnlPerConsult) : "—"}
+        label="P&L / customer"
+        value={point.feasible ? rupees(eco.contributionPerCustomer) : "—"}
         sub={
           breakEven
             ? `break-even ~ ${integer(breakEven)} consults`

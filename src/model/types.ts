@@ -103,7 +103,31 @@ export interface PnlPoint {
   networkCpo: number;
   S: number | null;
   N: number | null;
+  H: number | null;
   pnl: number;
   pnlPerConsult: number;
   feasible: boolean;
+}
+
+export interface CustomerEconomics {
+  conversion: number;
+  reorderShare: number;
+  visitsPerCustomer: number;
+  consultOrdersPerCustomer: number;
+  nonConsultOrdersPerCustomer: number;
+  ordersPerCustomer: number;
+  cac: number;
+  consultRevenueLtv: number;
+  nonConsultRevenueLtv: number;
+  revenueLtv: number;
+  consultGpLtv: number;
+  nonConsultGpLtv: number;
+  gpLtv: number;
+  ltvCac: number;
+  networkPerCustomer: number;
+  contributionPerCustomer: number;
+  customersPerMonth: number;
+  consultOrdersPerMonth: number;
+  nonConsultOrdersPerMonth: number;
+  paybackOrders: number;
 }
