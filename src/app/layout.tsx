@@ -1,28 +1,18 @@
 import type { Metadata, Viewport } from "next";
-import { Figtree, Italiana } from "next/font/google";
+import { PasswordGate } from "@/components/PasswordGate";
 import "./globals.css";
 
-const italiana = Italiana({
-  weight: "400",
-  subsets: ["latin"],
-  variable: "--font-italiana",
-  display: "swap",
-});
-
-const figtree = Figtree({
-  subsets: ["latin"],
-  variable: "--font-figtree",
-  display: "swap",
-});
-
 export const metadata: Metadata = {
-  title: "Belvie — Quick Home Revamp | Bangalore",
+  metadataBase: new URL(
+    process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000",
+  ),
+  title: "Belvie — Network Cost Optimiser",
   description:
-    "Upload your room photo. Get a makeover plan with before/after preview and Bangalore pricing. No room vacation — revamp done in under 4 hours.",
+    "Interactive model for how many spokes the Belvie fulfilment network should have in Bengaluru, and what the whole network costs per month.",
   openGraph: {
-    title: "Belvie — Quick Home Revamp",
+    title: "Belvie — Network Cost Optimiser",
     description:
-      "Indian home makeovers, Bangalore pace. Photo in. Plan out. Done in 4 hours.",
+      "Change any operating assumption; the model re-solves the Bengaluru spoke network in under a millisecond.",
     type: "website",
   },
 };
@@ -30,7 +20,6 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
 };
 
 export default function RootLayout({
@@ -39,11 +28,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={`${italiana.variable} ${figtree.variable} h-full antialiased`}
-    >
-      <body className="min-h-full flex flex-col font-sans text-ink">{children}</body>
+    <html lang="en" className="h-full antialiased">
+      <body className="min-h-full bg-cream font-sans text-ink">
+        <PasswordGate>{children}</PasswordGate>
+      </body>
     </html>
   );
 }

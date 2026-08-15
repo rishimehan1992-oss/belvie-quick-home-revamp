@@ -1,0 +1,29 @@
+:root {
+  --charcoal: #2b2622;
+  --terracotta: #ba5d42;
+  --card: #f6ede8;
+  --gray: #6b6560;
+  --cream: #fbf7f4;
+  --line: #e4d8d0;
+  --ink: #1a1a1a;
+  --delivery: #c9beb6;
+  --capex: #8c9a8e;
+  --bad: #b03a2e;
+  --belvie-serif: Georgia, "Times New Roman", serif;
+  --belvie-sans: Calibri, "Segoe UI", system-ui, sans-serif;
+}
+
+@theme inline {
+  --color-charcoal: var(--charcoal);
+  --color-terracotta: var(--terracotta);
+  --color-card: var(--card);
+  --color-gray: var(--gray);
+  --color-cream: var(--cream);
+  --color-line: var(--line);
+  --color-ink: var(--ink);
+  --color-delivery: var(--delivery);
+  --color-capex: var(--capex);
+  --color-bad: var(--bad);
+  --font-serif: var(--belvie-serif);
+  --font-sans: var(--belvie-sans);
+}

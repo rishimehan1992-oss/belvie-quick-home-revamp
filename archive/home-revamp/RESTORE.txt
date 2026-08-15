@@ -1,0 +1,2 @@
+Previous Belvie Quick Home Revamp (room photo makeover) site, archived 2026-08-15 before the Network Cost Optimiser replaced the live app.
+To restore: copy these files back over the project root (keep this archive folder).
