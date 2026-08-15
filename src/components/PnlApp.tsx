@@ -15,9 +15,11 @@ import {
   commercialFromNetwork,
   consultsFromNetwork,
   customerEconomics,
+  nonConsultsPerConsult,
   ordersFromConsults,
   pnlVsConsults,
   pnlVsK,
+  rhoFromNonConsultsPerConsult,
   solvePnl,
 } from "@/model/pnl";
 import type { CommercialLevers } from "@/components/ModelProvider";
@@ -96,7 +98,9 @@ export function PnlApp() {
           onConsults={setConsults}
           onConversion={(phi) => dispatch({ type: "set", key: "phi", value: phi })}
           onK={(k) => dispatch({ type: "set", key: "k", value: k })}
-          onRho={(rho) => dispatch({ type: "set", key: "rho", value: rho })}
+          onNonConsultsPerConsult={(n) =>
+            dispatch({ type: "set", key: "rho", value: rhoFromNonConsultsPerConsult(n) })
+          }
           onCommercial={setLever}
         />
         <div>
@@ -111,8 +115,8 @@ export function PnlApp() {
             </div>
             <div className="mt-0.5 text-[11.5px] text-gray">
               k={params.k} · {integer(params.D)} orders · {integer(consults)} consults · φ{" "}
-              {params.phi}% · reorder {params.rho}%. Same session as Network cost — change either
-              tab and both update.
+              {params.phi}% · {nonConsultsPerConsult(params.rho).toFixed(2)} non-consults / consult.
+              Same session as Network cost — change either tab and both update.
             </div>
           </div>
 
@@ -184,12 +188,12 @@ export function PnlApp() {
           </div>
 
           <p className="mt-[18px] border-t border-line pt-2.5 text-[11.5px] leading-[1.55] text-gray">
-            <b className="text-charcoal">Link:</b> consults, conversion, k, reorder share and
-            demand are the Network cost model. Network ₹ is that model’s cost-optimal S*.{" "}
-            <b className="text-charcoal">Customer:</b> CAC = visit cost / conversion. Orders per
-            customer = 1 / (1 − reorder share), of which 1 is the consult order and the rest are
-            non-consult reorders. GP LTV = orders × AOV × margin. Contribution / customer = GP LTV
-            − CAC − network ₹/order × her orders. All figures are planning estimates.{" "}
+            <b className="text-charcoal">Link:</b> consults, conversion, k, non-consults per consult
+            and demand are the Network cost model. Network ₹ is that model’s cost-optimal S*.{" "}
+            <b className="text-charcoal">Customer:</b> CAC = visit cost / conversion. Each acquired
+            customer places 1 consult order plus N non-consult orders. Consult LTV uses consult AOV;
+            non-consult LTV uses non-consult AOV. Contribution / customer = GP LTV − CAC − network
+            ₹/order × her orders. All figures are planning estimates.{" "}
             {breakEven
               ? `Break-even is about ${integer(breakEven)} consults / month at these settings.`
               : null}{" "}

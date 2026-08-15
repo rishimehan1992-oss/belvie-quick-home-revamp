@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { FIELD_META, PRESETS } from "@/model/defaults";
+import { NON_CONSULTS_PER_CONSULT_META, nonConsultsPerConsult, rhoFromNonConsultsPerConsult } from "@/model/pnl";
 import type { Params, ParamsAction, PresetName } from "@/model/types";
 
 const PRESET_LABELS: Record<PresetName, string> = {
@@ -113,7 +114,27 @@ export function InputPanel({
           </legend>
           <NumberField id="D" label="Orders / month" value={params.D} onChange={set} />
           <NumberField id="A" label="Serviceable area" hint="km²" value={params.A} onChange={set} />
-          <NumberField id="rho" label="Reorder share" hint="% no visit" value={params.rho} onChange={set} />
+          <div className="num-row mb-1.5 grid grid-cols-[1fr_82px] items-center gap-2">
+            <label htmlFor="nonConsultsPerConsult" className="text-[12.5px] leading-[1.25] text-charcoal">
+              Non-consults per consult
+              <span className="block text-[11px] text-gray">
+                reorders after one consult · {params.rho.toFixed(0)}% of orders
+              </span>
+            </label>
+            <input
+              id="nonConsultsPerConsult"
+              type="number"
+              inputMode="decimal"
+              min={NON_CONSULTS_PER_CONSULT_META.min}
+              max={NON_CONSULTS_PER_CONSULT_META.max}
+              step={NON_CONSULTS_PER_CONSULT_META.step}
+              value={Number(nonConsultsPerConsult(params.rho).toFixed(2))}
+              onChange={(e) =>
+                set("rho", rhoFromNonConsultsPerConsult(Number(e.target.value)))
+              }
+              className="w-full rounded-[5px] border border-line bg-white px-[7px] py-[5px] text-right text-[12.5px] text-ink tabular-nums focus:border-terracotta focus:outline-2 focus:outline-offset-1 focus:outline-terracotta"
+            />
+          </div>
           <NumberField id="phi" label="Conversion" hint="%" value={params.phi} onChange={set} />
           <NumberField id="peak" label="Peak-day factor" value={params.peak} onChange={set} />
           <NumberField id="ddel" label="Delivery days / mo" value={params.ddel} onChange={set} />

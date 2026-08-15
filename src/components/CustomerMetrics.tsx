@@ -28,8 +28,8 @@ export function CustomerMetrics({ eco }: { eco: CustomerEconomics }) {
         Per acquired customer
       </h3>
       <p className="mb-2.5 mt-0 text-[11.5px] leading-[1.4] text-gray">
-        One converting visit is one customer. Reorders are the non-consult share of her lifetime
-        orders. CAC is visit cost ÷ conversion. LTV is gross profit unless labelled revenue.
+        One converting visit is one customer. She then places N non-consult (no-visit) orders.
+        CAC is visit cost ÷ conversion. Consult and non-consult AOV can differ.
       </p>
       <div className="mb-3.5 grid grid-cols-[repeat(auto-fit,minmax(140px,1fr))] gap-2.5">
         <Metric
@@ -40,7 +40,7 @@ export function CustomerMetrics({ eco }: { eco: CustomerEconomics }) {
         <Metric
           label="LTV (gross profit)"
           value={rupees(eco.gpLtv)}
-          hint={`${eco.ordersPerCustomer.toFixed(2)} orders × AOV × GM`}
+          hint={`${eco.ordersPerCustomer.toFixed(2)} orders · mixed AOV`}
         />
         <Metric
           label="LTV : CAC"
@@ -48,24 +48,34 @@ export function CustomerMetrics({ eco }: { eco: CustomerEconomics }) {
           hint="gross-profit LTV / CAC"
         />
         <Metric
-          label="Orders / customer"
-          value={eco.ordersPerCustomer.toFixed(2)}
-          hint="1 / (1 − reorder share)"
-        />
-        <Metric
-          label="Consult orders"
-          value={eco.consultOrdersPerCustomer.toFixed(2)}
-          hint={`LTV ${rupees(eco.consultGpLtv)} GP · ${rupees(eco.consultRevenueLtv)} revenue`}
-        />
-        <Metric
-          label="Non-consult orders"
+          label="Non-consults / consult"
           value={eco.nonConsultOrdersPerCustomer.toFixed(2)}
-          hint={`LTV ${rupees(eco.nonConsultGpLtv)} GP · ${rupees(eco.nonConsultRevenueLtv)} revenue`}
+          hint="reorders after one consult order"
+        />
+        <Metric
+          label="Consult AOV"
+          value={rupees(eco.consultAov)}
+          hint={`1 consult order · LTV ${rupees(eco.consultGpLtv)} GP`}
+        />
+        <Metric
+          label="Non-consult AOV"
+          value={rupees(eco.nonConsultAov)}
+          hint={`${eco.nonConsultOrdersPerCustomer.toFixed(2)} orders · LTV ${rupees(eco.nonConsultGpLtv)} GP`}
+        />
+        <Metric
+          label="Consult LTV"
+          value={rupees(eco.consultGpLtv)}
+          hint={`${rupees(eco.consultRevenueLtv)} revenue`}
         />
         <Metric
           label="Non-consult LTV"
           value={rupees(eco.nonConsultGpLtv)}
-          hint="reorder gross profit only"
+          hint={`${rupees(eco.nonConsultRevenueLtv)} revenue`}
+        />
+        <Metric
+          label="Orders / customer"
+          value={eco.ordersPerCustomer.toFixed(2)}
+          hint="1 consult + non-consults per consult"
         />
         <Metric
           label="Revenue LTV"
@@ -89,9 +99,9 @@ export function CustomerMetrics({ eco }: { eco: CustomerEconomics }) {
         <Metric
           label="Payback"
           value={
-            Number.isFinite(eco.paybackOrders) ? `${eco.paybackOrders.toFixed(2)} orders` : "—"
+            Number.isFinite(eco.paybackOrders) ? `${eco.paybackOrders.toFixed(2)} consult orders` : "—"
           }
-          hint="CAC / (AOV × gross margin)"
+          hint="CAC / (consult AOV × gross margin)"
         />
       </div>
 
@@ -112,7 +122,7 @@ export function CustomerMetrics({ eco }: { eco: CustomerEconomics }) {
         <Metric
           label="Non-consult orders / month"
           value={integer(eco.nonConsultOrdersPerMonth)}
-          hint={`${(eco.reorderShare * 100).toFixed(0)}% reorder share`}
+          hint={`${eco.nonConsultOrdersPerCustomer.toFixed(2)} per consult`}
         />
       </div>
     </div>

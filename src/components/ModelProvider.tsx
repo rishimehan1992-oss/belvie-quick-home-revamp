@@ -9,10 +9,10 @@ import {
   type ReactNode,
 } from "react";
 import { DEFAULTS, PRESETS } from "@/model/defaults";
-import { COMMERCIAL_DEFAULTS } from "@/model/pnl";
-import type { CommercialParams, Params, ParamsAction } from "@/model/types";
+import { COMMERCIAL_DEFAULTS, type CommercialLevers } from "@/model/pnl";
+import type { Params, ParamsAction } from "@/model/types";
 
-export type CommercialLevers = Pick<CommercialParams, "visitCost" | "aov" | "gm">;
+export type { CommercialLevers };
 
 type ModelContextValue = {
   params: Params;
@@ -39,6 +39,7 @@ export function ModelProvider({ children }: { children: ReactNode }) {
   const [commercial, setCommercialState] = useState<CommercialLevers>({
     visitCost: COMMERCIAL_DEFAULTS.visitCost,
     aov: COMMERCIAL_DEFAULTS.aov,
+    nonConsultAov: COMMERCIAL_DEFAULTS.nonConsultAov,
     gm: COMMERCIAL_DEFAULTS.gm,
   });
 

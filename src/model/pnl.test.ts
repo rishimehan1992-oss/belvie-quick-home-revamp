@@ -6,9 +6,12 @@ import {
   commercialFromNetwork,
   consultsFromNetwork,
   customerEconomics,
+  nonConsultsPerConsult,
   ordersFromConsults,
+  pnlVsAov,
   pnlVsConsults,
   pnlVsK,
+  rhoFromNonConsultsPerConsult,
   solvePnl,
 } from "./pnl";
 
@@ -25,7 +28,7 @@ describe("ordersFromConsults", () => {
 describe("solvePnl", () => {
   it("computes visit unit economics before network cost", () => {
     const row = solvePnl(
-      { consults: 1, visitCost: 400, aov: 4000, conversion: 60, gm: 35 },
+      { consults: 1, visitCost: 400, aov: 4000, nonConsultAov: 4000, conversion: 60, gm: 35 },
       { ...DEFAULTS, rho: 0, incCap: false },
     );
     expect(row.orders).toBeCloseTo(0.6, 6);
@@ -105,5 +108,43 @@ describe("customer economics", () => {
     expect(eco.customersPerMonth).toBeCloseTo(25000 * 0.65, 4);
     expect(eco.nonConsultOrdersPerMonth).toBeCloseTo(25000 * 0.35, 4);
     expect(eco.paybackOrders).toBeCloseTo(eco.cac / (4000 * 0.35), 6);
+  });
+});
+
+describe("non-consults per consult", () => {
+  it("round-trips with reorder share", () => {
+    expect(nonConsultsPerConsult(35)).toBeCloseTo(0.35 / 0.65, 6);
+    expect(rhoFromNonConsultsPerConsult(0.35 / 0.65)).toBeCloseTo(35, 6);
+    expect(nonConsultsPerConsult(0)).toBe(0);
+    expect(rhoFromNonConsultsPerConsult(0)).toBe(0);
+  });
+});
+
+describe("split AOV", () => {
+  it("uses a separate non-consult AOV on reorder revenue", () => {
+    const same = solvePnl(COMMERCIAL_DEFAULTS, { ...DEFAULTS, rho: 35, incCap: false });
+    const cheaperReorder = solvePnl(
+      { ...COMMERCIAL_DEFAULTS, nonConsultAov: 2000 },
+      { ...DEFAULTS, rho: 35, incCap: false },
+    );
+    expect(cheaperReorder.revenue).toBeLessThan(same.revenue);
+    expect(cheaperReorder.network).toBeCloseTo(same.network, 0);
+    const eco = customerEconomics(
+      { ...COMMERCIAL_DEFAULTS, nonConsultAov: 2000 },
+      DEFAULTS,
+      cheaperReorder.networkCpo,
+    );
+    expect(eco.consultRevenueLtv).toBe(4000);
+    expect(eco.nonConsultRevenueLtv).toBeCloseTo(2000 * (0.35 / 0.65), 4);
+  });
+
+  it("P&L rises with consult AOV while network stays put", () => {
+    const series = pnlVsAov(COMMERCIAL_DEFAULTS, { ...DEFAULTS, incCap: false });
+    const low = series.find((p) => p.x === 2000);
+    const high = series.find((p) => p.x === 8000);
+    expect(low && high).toBeTruthy();
+    if (!low || !high) return;
+    expect(high.pnl).toBeGreaterThan(low.pnl);
+    expect(high.network).toBeCloseTo(low.network, 0);
   });
 });

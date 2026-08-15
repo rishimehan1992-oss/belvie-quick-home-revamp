@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { COMMERCIAL_META } from "@/model/pnl";
+import { COMMERCIAL_META, NON_CONSULTS_PER_CONSULT_META, nonConsultsPerConsult } from "@/model/pnl";
 import type { CommercialLevers } from "@/components/ModelProvider";
 
 function SliderField({
@@ -79,7 +79,7 @@ export function PnlInputs({
   onConsults,
   onConversion,
   onK,
-  onRho,
+  onNonConsultsPerConsult,
   onCommercial,
 }: {
   consults: number;
@@ -91,13 +91,14 @@ export function PnlInputs({
   onConsults: (value: number) => void;
   onConversion: (value: number) => void;
   onK: (value: number) => void;
-  onRho: (value: number) => void;
+  onNonConsultsPerConsult: (value: number) => void;
   onCommercial: (key: keyof CommercialLevers, value: number) => void;
 }) {
   const [open, setOpen] = useState(false);
   const c = COMMERCIAL_META.consults;
   const v = COMMERCIAL_META.visitCost;
   const a = COMMERCIAL_META.aov;
+  const na = COMMERCIAL_META.nonConsultAov;
   const g = COMMERCIAL_META.gm;
 
   return (
@@ -116,8 +117,8 @@ export function PnlInputs({
 
       <div className={`${open ? "block" : "hidden"} min-[900px]:block`}>
         <p className="mb-3 text-[11.5px] leading-[1.4] text-gray">
-          Linked to Network cost. Volume, conversion, k and reorder share write into that model;
-          network ₹, S* and advisors are its optimum.
+          Linked to Network cost. Volume, conversion, k and non-consults per consult write into
+          that model; network ₹, S* and advisors are its optimum.
         </p>
         <p className="mb-3 rounded-md bg-card px-2.5 py-2 text-[11.5px] text-charcoal">
           Model 1 demand{" "}
@@ -163,15 +164,14 @@ export function PnlInputs({
             onChange={onK}
           />
           <SliderField
-            id="rho"
-            label="Reorder share"
-            hint="non-consult orders · model 1"
-            value={rho}
-            min={0}
-            max={90}
-            step={5}
-            unit="%"
-            onChange={onRho}
+            id="n"
+            label="Non-consults per consult"
+            hint={`${rho.toFixed(0)}% of all orders are non-consult`}
+            value={Number(nonConsultsPerConsult(rho).toFixed(2))}
+            min={NON_CONSULTS_PER_CONSULT_META.min}
+            max={NON_CONSULTS_PER_CONSULT_META.max}
+            step={NON_CONSULTS_PER_CONSULT_META.step}
+            onChange={onNonConsultsPerConsult}
           />
         </fieldset>
 
@@ -193,7 +193,8 @@ export function PnlInputs({
           />
           <SliderField
             id="aov"
-            label="Average order value"
+            label="Consult AOV"
+            hint="first order after a visit"
             value={commercial.aov}
             min={a.min}
             max={a.max}
@@ -201,6 +202,18 @@ export function PnlInputs({
             unit="₹"
             format={(n) => n.toLocaleString("en-IN")}
             onChange={(value) => onCommercial("aov", value)}
+          />
+          <SliderField
+            id="nonConsultAov"
+            label="Non-consult AOV"
+            hint="reorder / no visit"
+            value={commercial.nonConsultAov}
+            min={na.min}
+            max={na.max}
+            step={na.step}
+            unit="₹"
+            format={(n) => n.toLocaleString("en-IN")}
+            onChange={(value) => onCommercial("nonConsultAov", value)}
           />
           <SliderField
             id="gm"

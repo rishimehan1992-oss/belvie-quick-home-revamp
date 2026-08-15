@@ -88,6 +88,7 @@ export interface CommercialParams {
   consults: number;
   visitCost: number;
   aov: number;
+  nonConsultAov: number;
   conversion: number;
   gm: number;
 }
@@ -130,4 +131,6 @@ export interface CustomerEconomics {
   consultOrdersPerMonth: number;
   nonConsultOrdersPerMonth: number;
   paybackOrders: number;
+  consultAov: number;
+  nonConsultAov: number;
 }
