@@ -26,7 +26,7 @@ export const GLOSSARY: GlossarySection[] = [
   {
     id: "flow",
     title: "How the tabs connect",
-    lead: "P&L sets what you sell and how customers buy. Network sizes the physical system to serve that demand. Sensitivity moves one lever at a time. Favorable maps the green operating pocket. Growth copies the city model across India. This page defines every line item those tabs use.",
+    lead: "P&L sets what you sell and how customers buy. Network sizes the physical system to serve that demand. Sensitivity moves one lever at a time. Favorable maps the green operating pocket. Growth copies the city model across India. Simulate plays one kit cycle and a van tour on the map. This page defines every line item those tabs use.",
     items: [
       {
         name: "P&L",
@@ -69,8 +69,16 @@ export const GLOSSARY: GlossarySection[] = [
           "A planning path from 100 orders/day in Bengaluru to 2,500/day per city and 25,000/day across five major metros then five next metros. Each live city is its own hub–spoke optimiser using this session’s commercial levers. Does not overwrite Bengaluru demand on P&L.",
       },
       {
-        name: "Line items",
+        name: "Simulate",
         symbol: "6",
+        unit: "—",
+        def: "Watch the day",
+        meaning:
+          "A stage map of one kit cycle and a van tour, at ~100 orders/day and at this session’s S*. Scooters use travel + kit + k × consult + home-to-home. Last-mile vans use the slot tour. The restock van uses the hub→spoke envelope. Not a discrete-event digital twin — vehicle counts are reduced so the motion stays readable.",
+      },
+      {
+        name: "Line items",
+        symbol: "7",
         unit: "—",
         def: "This page",
         meaning:

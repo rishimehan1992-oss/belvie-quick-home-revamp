@@ -20,13 +20,16 @@ export function dbar(A: number, S: number, tau: number): number {
   return 0.4 * Math.sqrt(A / S) * tau;
 }
 
+export function tourMinutes(n: number, a: number, p: SolverParams): number {
+  const m = Math.max(n / p.qsoc, 1);
+  const L = p.beta * Math.sqrt(m * a) * p.tau;
+  return L * p.mkVan + n * p.thd + m * p.thst;
+}
+
 export function maxDrops(a: number, p: SolverParams): number {
   let best = 0;
   for (let n = 1; n <= 200; n++) {
-    const m = Math.max(n / p.qsoc, 1);
-    const L = p.beta * Math.sqrt(m * a) * p.tau;
-    const t = L * p.mkVan + n * p.thd + m * p.thst;
-    if (t <= p.Tslot) best = n;
+    if (tourMinutes(n, a, p) <= p.Tslot) best = n;
     else break;
   }
   return best;

@@ -107,6 +107,10 @@ export function OptimiserApp() {
               sensitivity
             </Link>{" "}
             sweeps those same P&L inputs across this optimum.{" "}
+            <Link href="/simulate" className="text-terracotta no-underline hover:underline">
+              Simulate
+            </Link>{" "}
+            plays the kit cycle and van tours on a map.{" "}
             <Link href="/growth" className="text-terracotta no-underline hover:underline">
               Growth
             </Link>{" "}
