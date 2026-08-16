@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { AdvisorBreakdown } from "@/components/AdvisorBreakdown";
+import { AdvisorTravelSim } from "@/components/AdvisorTravelSim";
 import { AppNav } from "@/components/AppNav";
 import { CostBySpokeChart } from "@/components/CostBySpokeChart";
 import { CostSplitCharts } from "@/components/CostSplitCharts";
@@ -94,6 +95,7 @@ export function OptimiserApp() {
             consults={consults}
             visitCost={commercial.visitCost}
           />
+          <AdvisorTravelSim rows={result.rows} best={result.best} params={params} />
           <p className="mt-[18px] border-t border-line pt-2.5 text-[11.5px] leading-[1.55] text-gray">
             <b className="text-charcoal">What is optimised:</b> hub opex + spoke opex + advisor
             payroll + delivery, plus amortised capex if enabled. Sampling ({consults.toLocaleString("en-IN")}{" "}
