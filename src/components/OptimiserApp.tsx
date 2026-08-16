@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { AppNav } from "@/components/AppNav";
 import { CostBySpokeChart } from "@/components/CostBySpokeChart";
+import { CostSplitCharts } from "@/components/CostSplitCharts";
 import { CostStack } from "@/components/CostStack";
 import { HeroStats } from "@/components/HeroStats";
 import { InputPanel } from "@/components/InputPanel";
@@ -63,12 +64,6 @@ export function OptimiserApp() {
             samplingCost={commercial.samplingCost}
             consults={consults}
           />
-          <CostStack
-            best={result.best}
-            consults={consults}
-            samplingCost={commercial.samplingCost}
-            visitCost={commercial.visitCost}
-          />
           <InsightBanners insights={insights} />
           <CostBySpokeChart
             rows={result.rows}
@@ -78,11 +73,25 @@ export function OptimiserApp() {
           />
           <SensitivityChart params={solverParams} />
           <SolutionTable rows={result.rows} best={result.best} />
+          <CostStack
+            best={result.best}
+            params={params}
+            consults={consults}
+            samplingCost={commercial.samplingCost}
+            visitCost={commercial.visitCost}
+          />
+          <CostSplitCharts
+            best={result.best}
+            params={params}
+            consults={consults}
+            samplingCost={commercial.samplingCost}
+            visitCost={commercial.visitCost}
+          />
           <p className="mt-[18px] border-t border-line pt-2.5 text-[11.5px] leading-[1.55] text-gray">
             <b className="text-charcoal">What is optimised:</b> hub opex + spoke opex + advisor
             payroll + delivery, plus amortised capex if enabled. Sampling ({consults.toLocaleString("en-IN")}{" "}
-            visits × ₹{commercial.samplingCost}) and visit CAC sit on P&L — they are in the stack
-            above but they do not move S*. Demand comes from consults × conversion / (1 − reorder
+            visits × ₹{commercial.samplingCost}) and visit CAC sit on P&L — they are in the split
+            at the bottom but they do not move S*. Demand comes from consults × conversion / (1 − reorder
             mix).{" "}
             <b className="text-charcoal">Next:</b>{" "}
             <Link href="/sensitivity" className="text-terracotta no-underline hover:underline">
