@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { AdvisorBreakdown } from "@/components/AdvisorBreakdown";
 import { AppNav } from "@/components/AppNav";
 import { CostBySpokeChart } from "@/components/CostBySpokeChart";
 import { CostSplitCharts } from "@/components/CostSplitCharts";
@@ -85,6 +86,12 @@ export function OptimiserApp() {
             params={params}
             consults={consults}
             samplingCost={commercial.samplingCost}
+            visitCost={commercial.visitCost}
+          />
+          <AdvisorBreakdown
+            best={result.best}
+            params={params}
+            consults={consults}
             visitCost={commercial.visitCost}
           />
           <p className="mt-[18px] border-t border-line pt-2.5 text-[11.5px] leading-[1.55] text-gray">

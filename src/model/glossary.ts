@@ -295,17 +295,17 @@ export const GLOSSARY: GlossarySection[] = [
         name: "Home to home",
         symbol: "t_intra",
         unit: "min",
-        def: "5",
-        meaning: "Between consults on the same kit load. Appears (k − 1) times.",
+        def: "20",
+        meaning: "Between consults on the same kit load. Appears (k − 1) times. Zero at k=1.",
         now: (p) => String(p.tintra),
       },
       {
         name: "Shift / admin",
         symbol: "T_shift, T_admin",
         unit: "min",
-        def: "480 / 30",
+        def: "540 / 60  (9h / 1h)",
         meaning:
-          "Paid day minus admin is the productive window. Consults/day = k · (shift − admin) / cycle. Fractional cycles are allowed — this slightly overstates productivity at high k.",
+          "Paid day is 9 hours; 1 hour is admin. The remaining 8 hours are the productive window. Consults/day = k · (shift − admin) / cycle. Fractional cycles are allowed — this slightly overstates productivity at high k.",
         now: (p) => `${p.Tshift} / ${p.Tadmin}`,
       },
       {

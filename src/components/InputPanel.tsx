@@ -152,9 +152,9 @@ export function InputPanel({
           <NumberField id="mkAdv" label="Travel" hint="min / km" value={params.mkAdv} onChange={set} />
           <NumberField id="Tc" label="In-home consult" hint="min" value={params.Tc} onChange={set} />
           <NumberField id="Tkit" label="Kit rebuild at spoke" hint="min" value={params.Tkit} onChange={set} />
-          <NumberField id="tintra" label="Home to home" hint="min" value={params.tintra} onChange={set} />
-          <NumberField id="Tshift" label="Shift" hint="min" value={params.Tshift} onChange={set} />
-          <NumberField id="Tadmin" label="Daily admin" hint="min" value={params.Tadmin} onChange={set} />
+          <NumberField id="tintra" label="Home to home" hint="min between homes" value={params.tintra} onChange={set} />
+          <NumberField id="Tshift" label="Shift" hint="min · 9 hour day" value={params.Tshift} onChange={set} />
+          <NumberField id="Tadmin" label="Daily admin" hint="min · 1 hour" value={params.Tadmin} onChange={set} />
           <NumberField id="w" label="Cost" hint="₹ / month" value={params.w} onChange={set} />
         </fieldset>
 

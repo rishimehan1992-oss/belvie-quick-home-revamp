@@ -31,7 +31,7 @@ export function getInsights(params: SolverParams, result: SolveResult): Insight[
       const pct = Math.round((best.rt / best.cycle) * 100);
       insights.push({
         severity: "critical",
-        text: `At k=1 the advisor spends ${pct}% of her paid day travelling to and from the spoke. Moving to k=3 saves ₹${lakhs(delta)}L a month (₹${((delta * 12) / 1e7).toFixed(2)} Cr a year) with no capex.`,
+        text: `At k=1 the advisor spends ${pct}% of each kit cycle travelling to and from the spoke. Moving to k=3 saves ₹${lakhs(delta)}L a month (₹${((delta * 12) / 1e7).toFixed(2)} Cr a year) with no capex.`,
       });
     }
   }

@@ -59,13 +59,13 @@ describe("golden cases", () => {
       {
         S: 10,
         minS: 9,
-        N: 246,
-        cday: 4.24,
+        N: 231,
+        cday: 4.52,
         cycle: 106,
         travel: 49,
         drops: 33,
-        totalL: 139.01,
-        cpo: 556,
+        totalL: 133.01,
+        cpo: 532,
       },
     );
   });
@@ -76,13 +76,13 @@ describe("golden cases", () => {
       {
         S: 9,
         minS: 9,
-        N: 162,
-        cday: 6.46,
-        cycle: 209,
+        N: 173,
+        cday: 6.03,
+        cycle: 239,
         travel: 52,
         drops: 32,
-        totalL: 103.49,
-        cpo: 414,
+        totalL: 107.89,
+        cpo: 432,
       },
     );
   });
@@ -93,13 +93,13 @@ describe("golden cases", () => {
       {
         S: 13,
         minS: 9,
-        N: 282,
-        cday: 3.7,
+        N: 265,
+        cday: 3.94,
         cycle: 122,
         travel: 65,
         drops: 35,
-        totalL: 159.55,
-        cpo: 638,
+        totalL: 152.75,
+        cpo: 611,
       },
     );
   });
@@ -110,13 +110,13 @@ describe("golden cases", () => {
       {
         S: 9,
         minS: 9,
-        N: 182,
-        cday: 5.75,
-        cycle: 235,
+        N: 192,
+        cday: 5.44,
+        cycle: 265,
         travel: 78,
         drops: 32,
-        totalL: 111.49,
-        cpo: 446,
+        totalL: 115.49,
+        cpo: 462,
       },
     );
   });
@@ -127,13 +127,13 @@ describe("golden cases", () => {
       {
         S: 9,
         minS: 9,
-        N: 182,
-        cday: 5.74,
+        N: 171,
+        cday: 6.12,
         cycle: 78,
         travel: 21,
         drops: 32,
-        totalL: 111.49,
-        cpo: 446,
+        totalL: 107.09,
+        cpo: 428,
       },
     );
   });
@@ -144,13 +144,13 @@ describe("golden cases", () => {
       {
         S: 10,
         minS: 9,
-        N: 246,
-        cday: 4.24,
+        N: 231,
+        cday: 4.52,
         cycle: 106,
         travel: 49,
         drops: 33,
-        totalL: 144.62,
-        cpo: 578,
+        totalL: 138.62,
+        cpo: 554,
       },
     );
   });
@@ -161,13 +161,13 @@ describe("golden cases", () => {
       {
         S: 10,
         minS: 7,
-        N: 197,
-        cday: 4.24,
+        N: 185,
+        cday: 4.52,
         cycle: 106,
         travel: 49,
         drops: 33,
-        totalL: 117.28,
-        cpo: 586,
+        totalL: 112.48,
+        cpo: 562,
       },
     );
   });
@@ -178,13 +178,13 @@ describe("golden cases", () => {
       {
         S: 6,
         minS: 6,
-        N: 171,
-        cday: 6.12,
-        cycle: 221,
+        N: 182,
+        cday: 5.75,
+        cycle: 251,
         travel: 64,
         drops: 28,
-        totalL: 101.9,
-        cpo: 408,
+        totalL: 106.3,
+        cpo: 425,
       },
     );
   });
@@ -195,13 +195,13 @@ describe("golden cases", () => {
       {
         S: 9,
         minS: 9,
-        N: 199,
-        cday: 5.24,
-        cycle: 172,
+        N: 203,
+        cday: 5.14,
+        cycle: 187,
         travel: 65,
         drops: 32,
-        totalL: 118.29,
-        cpo: 473,
+        totalL: 119.89,
+        cpo: 480,
       },
     );
   });

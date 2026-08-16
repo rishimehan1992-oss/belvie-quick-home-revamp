@@ -116,9 +116,10 @@ C_total(S) = C_infra + C_advisor + C_delivery + C_capex`}
           <Section title="Default parameters">
             <p className="text-gray">
               Orders 25,000 / month over 350 km²; reorder 35%; conversion 60%; k = 1 consult per kit
-              load; advisor 8 min/km; van 6 min/km; spoke opex ₹2.25L; hub opex ₹7.5L; spoke
-              capacity 130 orders/day; line-haul 2.7 min/km (off-peak). Capex is included in the
-              objective at 12% cost of capital over 5 years unless you turn it off.
+              load; 9-hour shift with 1 hour admin; 20 min home-to-home when k≥2; advisor 8 min/km;
+              van 6 min/km; spoke opex ₹2.25L; hub opex ₹7.5L; spoke capacity 130 orders/day;
+              line-haul 2.7 min/km (off-peak). Capex is included in the objective at 12% cost of
+              capital over 5 years unless you turn it off.
             </p>
           </Section>
 
