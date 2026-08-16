@@ -61,6 +61,8 @@ function PnlTip({
       </div>
       <div>{row.phase.label}</div>
       <div>Gross profit · ₹{lakhs(row.grossProfit)}L</div>
+      <div>Visit CAC · ₹{lakhs(row.visitAcq)}L</div>
+      <div>Sampling · ₹{lakhs(row.sampling)}L</div>
       <div>Network · {row.feasible ? `₹${lakhs(row.network)}L` : "infeasible"}</div>
       <div className="mt-1 font-semibold">
         P&L · {row.feasible ? `₹${lakhs(row.pnl)}L` : "—"}

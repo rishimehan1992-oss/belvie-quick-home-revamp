@@ -122,11 +122,20 @@ C_total(S) = C_infra + C_advisor + C_delivery + C_capex`}
             </p>
           </Section>
 
+          <Section title="Commercial costs outside C_total">
+            <p className="text-gray">
+              Sampling (testers on the visit) and visit CAC live on the P&L tab. Monthly sampling =
+              consults × sampling cost (₹50–250). They are subtracted in contribution and shown on
+              the Network stack, but they do not enter C_total(S) and they do not change S*.
+            </p>
+          </Section>
+
           <Section title="What is excluded">
             <p className="text-gray">
-              COGS, kit BOM and tester replacement, marketing/CAC, technology, corporate overhead,
-              and statutory loading on advisor cost. All figures are planning estimates derived from
-              the inputs, not observed operating data.
+              Product COGS (except via GM on P&L), kit BOM beyond the sampling slider, marketing
+              beyond visit cost, technology, corporate overhead, and statutory loading on advisor
+              cost. All figures are planning estimates derived from the inputs, not observed
+              operating data.
             </p>
           </Section>
         </div>

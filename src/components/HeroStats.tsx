@@ -2,7 +2,17 @@ import type { ReactNode } from "react";
 import { crores, integer, lakhs } from "@/model/format";
 import type { Params, Solution } from "@/model/types";
 
-export function HeroStats({ best, params }: { best: Solution | null; params: Params }) {
+export function HeroStats({
+  best,
+  params,
+  samplingCost,
+  consults,
+}: {
+  best: Solution | null;
+  params: Params;
+  samplingCost: number;
+  consults: number;
+}) {
   if (!best) {
     return (
       <div className="mb-3.5 grid grid-cols-[repeat(auto-fit,minmax(128px,1fr))] gap-2.5">
@@ -51,6 +61,11 @@ export function HeroStats({ best, params }: { best: Solution | null; params: Par
           </>
         }
         sub={`${Math.round(best.rt)} min travel (${travelPct}%)`}
+      />
+      <Stat
+        label="Sampling / month"
+        value={`₹${lakhs(consults * samplingCost)}L`}
+        sub={`${integer(consults)} visits × ₹${Math.round(samplingCost)} · not in S*`}
       />
       <Stat
         label="Delivery"

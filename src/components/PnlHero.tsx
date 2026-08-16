@@ -39,6 +39,11 @@ export function PnlHero({
         sub={`${eco.visitsPerCustomer.toFixed(2)} visits / customer`}
       />
       <Stat
+        label="Sampling / visit"
+        value={rupees(eco.samplingPerVisit)}
+        sub={`${rupees(eco.samplingPerCustomer)} / customer · ${integer(point.consults)} visits`}
+      />
+      <Stat
         label="LTV"
         value={rupees(eco.gpLtv)}
         sub={Number.isFinite(eco.ltvCac) ? `${eco.ltvCac.toFixed(2)}× CAC · GP` : "—"}

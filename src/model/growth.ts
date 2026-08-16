@@ -153,6 +153,7 @@ export interface GrowthSnapshot {
   revenue: number;
   grossProfit: number;
   visitAcq: number;
+  sampling: number;
   network: number;
   networkCpo: number;
   S: number;
@@ -176,6 +177,7 @@ function emptyNational(ordersDay: number, byCity: Record<string, number>): Growt
     revenue: 0,
     grossProfit: 0,
     visitAcq: 0,
+    sampling: 0,
     network: 0,
     networkCpo: Infinity,
     S: 0,
@@ -239,6 +241,7 @@ export function evaluateGrowth(
     revenue,
     grossProfit,
     visitAcq,
+    sampling,
     network,
     networkCpo: orders > 0 && feasible ? network / orders : Infinity,
     S,

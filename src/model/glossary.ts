@@ -108,7 +108,7 @@ export const GLOSSARY: GlossarySection[] = [
         unit: "₹ / consult",
         def: "100",
         meaning:
-          "Testers / kit given on the in-home visit. Not CAC. Monthly sampling = consults × c_s. Slider 50–250. Per acquired customer this is c_s / φ.",
+          "Testers / kit given on the in-home visit. Not CAC and not inside S*. Monthly sampling = consults × c_s. Slider 50–250 on P&L. Shown on the Network cost stack and subtracted in P&L, Favorable and Growth. Per acquired customer this is c_s / φ.",
         formula: "sampling = V · c_s",
         now: (_p, c) => inr(c.samplingCost),
       },

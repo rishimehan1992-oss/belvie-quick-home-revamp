@@ -111,7 +111,7 @@ export function PnlApp() {
             </span>
             <div className="mt-1 font-serif text-[17px]">
               {point.feasible
-                ? `S* ${point.S} · ${point.H} hub${point.H === 1 ? "" : "s"} · ${integer(point.N ?? 0)} advisors · ₹${Math.round(point.networkCpo)} / order · ₹${lakhs(point.network)}L network`
+                ? `S* ${point.S} · ${point.H} hub${point.H === 1 ? "" : "s"} · ${integer(point.N ?? 0)} advisors · ₹${Math.round(point.networkCpo)} / order · ₹${lakhs(point.network)}L network · ₹${lakhs(point.sampling)}L sampling`
                 : "No feasible network at these P&L inputs"}
             </div>
             <div className="mt-0.5 text-[11.5px] text-gray">

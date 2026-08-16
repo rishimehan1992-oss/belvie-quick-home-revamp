@@ -113,7 +113,7 @@ export function GrowthApp() {
           sub={
             snap.feasible
               ? positive
-                ? "GP − visits − city networks"
+                ? "GP − visits − sampling − city networks"
                 : "loss at this volume"
               : "a city network is infeasible"
           }
@@ -123,6 +123,11 @@ export function GrowthApp() {
           label="Revenue"
           value={`₹${lakhs(snap.revenue)}L`}
           sub={`${integer(snap.consults)} consults / month`}
+        />
+        <Stat
+          label="Sampling"
+          value={`₹${lakhs(snap.sampling)}L`}
+          sub={`${integer(snap.consults)} visits × ${rupees(commercial.samplingCost)}`}
         />
         <Stat
           label="Network"
@@ -160,7 +165,7 @@ export function GrowthApp() {
         / day. A city does not open until it can start at 100 orders / day — the same seed as
         early Bengaluru.{" "}
         <b className="text-charcoal">Each city</b> is an independent hub–spoke run with this
-        session’s conversion, mix, AOV, visit cost, wages and factors. Bengaluru’s catchment
+        session’s conversion, mix, AOV, visit cost, sampling, wages and factors. Bengaluru’s catchment
         follows Network; other catchments are planning envelopes, not municipal limits. Same
         cost stack in every city — no city wage index. All figures are planning estimates.
       </p>
