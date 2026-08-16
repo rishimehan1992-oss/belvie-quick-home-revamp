@@ -1,15 +1,20 @@
 import { describe, expect, it } from "vitest";
 import { DEFAULTS } from "./defaults";
 import {
+  COMBOS,
   FAVORABLE_AOV,
   FAVORABLE_K,
   FAVORABLE_N,
+  comboIdFor,
   favorableGrid,
+  holdFromSession,
+  materialize,
   minProfitableAov,
   nearestGridK,
   scaleOrdersMonth,
+  sweepFavorable,
 } from "./favorable";
-import { COMMERCIAL_DEFAULTS } from "./pnl";
+import { COMMERCIAL_DEFAULTS, nonConsultsPerConsult } from "./pnl";
 
 const levers = {
   visitCost: COMMERCIAL_DEFAULTS.visitCost,
@@ -68,11 +73,40 @@ describe("favorableGrid", () => {
       levers,
       scaleOrdersMonth(DEFAULTS),
     );
-    const k3 = grid.slices.find((s) => s.k === 3);
+    const k3 = grid.slices.find((s) => s.facet === 3);
     expect(k3).toBeTruthy();
     if (!k3) return;
     const minAov = minProfitableAov(k3);
     expect(minAov === null || minAov >= 2000).toBe(true);
     expect(nearestGridK(3)).toBe(3);
+  });
+});
+
+describe("sweepFavorable", () => {
+  it("builds a visit × conversion map at the held mix", () => {
+    const hold = holdFromSession(DEFAULTS, levers);
+    const grid = sweepFavorable(
+      { ...DEFAULTS, incCap: false },
+      hold,
+      scaleOrdersMonth(DEFAULTS),
+      { x: "visitCost", y: "conversion", facet: null },
+    );
+    expect(grid.slices).toHaveLength(1);
+    expect(grid.slices[0].cells.length).toBeGreaterThan(10);
+    expect(comboIdFor(grid.spec)).toBe("visit-phi");
+    expect(COMBOS.some((c) => c.id === "aov-n-k")).toBe(true);
+  });
+
+  it("materialize writes conversion and mix onto the network", () => {
+    const hold = holdFromSession(DEFAULTS, levers);
+    hold.conversion = 80;
+    hold.n = 2;
+    hold.k = 3;
+    const { network, levers: next } = materialize(hold, DEFAULTS, 75000);
+    expect(network.phi).toBe(80);
+    expect(network.k).toBe(3);
+    expect(network.D).toBe(75000);
+    expect(next.aov).toBe(hold.aov);
+    expect(nonConsultsPerConsult(network.rho)).toBeCloseTo(2, 5);
   });
 });

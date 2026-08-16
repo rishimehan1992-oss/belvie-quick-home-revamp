@@ -58,7 +58,7 @@ export const GLOSSARY: GlossarySection[] = [
         unit: "—",
         def: "Green / red zones",
         meaning:
-          "At a mature-city volume, maps consult AOV × non-consults per consult × k into profit and loss. Sampling cost is the fourth lever. Does not overwrite P&L settings except when you move sampling on that page.",
+          "At a mature-city volume, pick which levers to sweep — AOV, reorders, k, conversion, visit cost, sampling, margin. Named combinations or custom axes. Does not overwrite P&L until you apply a cell.",
       },
       {
         name: "Growth",
@@ -600,6 +600,14 @@ export const GLOSSARY: GlossarySection[] = [
     lead: "A map, not a second optimiser. Volume is held at scale; AOV, mix, k and sampling move.",
     items: [
       {
+        name: "Combination",
+        symbol: "—",
+        unit: "—",
+        def: "dropdown",
+        meaning:
+          "Named pairs such as AOV × reorders by k, visit cost × conversion, sampling × AOV. Or set columns, rows and an optional split yourself. Held sliders stay fixed while those axes sweep.",
+      },
+      {
         name: "At-scale volume",
         symbol: "—",
         unit: "orders / day",
@@ -608,20 +616,20 @@ export const GLOSSARY: GlossarySection[] = [
           "Default is one mature city. Toggle uses this session’s P&L demand instead. Mix still changes consults, so visit and sampling cash move even when orders are fixed.",
       },
       {
-        name: "AOV × n × k heatmaps",
+        name: "Heatmap cell",
         symbol: "—",
         unit: "₹ lakh / month",
-        def: "four k slices",
+        def: "click to inspect",
         meaning:
-          "Each panel is one k. Columns are consult AOV; rows are non-consults per consult. Colour is city P&L after network, CAC and sampling. Green is profit, red is loss.",
+          "Colour is city P&L after network, CAC and sampling. Apply sends that cell’s levers to P&L. The ring is the held point, not a fitted optimum.",
       },
       {
-        name: "Sampling as the fourth lever",
-        symbol: "c_s",
-        unit: "₹ / visit",
-        def: "50–250",
+        name: "Held levers",
+        symbol: "—",
+        unit: "—",
+        def: "not on the axes",
         meaning:
-          "Moving sampling re-colours every cell. Network cost does not change with sampling; contribution does. Non-consult AOV tracks consult AOV at this session’s ratio.",
+          "Conversion, visit cost, sampling, GM, k, mix and both AOVs can be held or swept. Holds do not write P&L until you apply or reset.",
       },
     ],
   },
