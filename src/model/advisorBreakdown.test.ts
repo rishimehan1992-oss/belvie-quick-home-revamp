@@ -58,5 +58,7 @@ describe("advisorCostVsVolume", () => {
     expect(low.visitCacPerOrder).toBeCloseTo(high.visitCacPerOrder ?? 0, 6);
     expect(low.advisorPerOrder ?? 0).toBeGreaterThan(high.advisorPerOrder ?? 0);
     expect(high.S ?? 0).toBeGreaterThan(low.S ?? 0);
+    expect(high.consultsPerAdvisor ?? 0).toBeGreaterThan(low.consultsPerAdvisor ?? 0);
+    expect(high.cday ?? 0).toBeGreaterThan(low.cday ?? 0);
   });
 });

@@ -71,9 +71,10 @@ export function AdvisorBreakdown({
       D: p.D,
       advisor: Math.round(p.advisorPerOrder ?? 0),
       visit: Math.round(p.visitCacPerOrder ?? 0),
+      consultsMo: p.consultsPerAdvisor != null ? Math.round(p.consultsPerAdvisor) : null,
+      cday: p.cday != null ? Number(p.cday.toFixed(2)) : null,
       S: p.S,
       N: p.N,
-      cday: p.cday,
       travel: p.travel,
     }));
 
@@ -265,6 +266,94 @@ export function AdvisorBreakdown({
                 stroke={GP}
                 strokeWidth={2}
                 dot={{ r: 3, fill: GP }}
+                isAnimationActive={false}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+
+      <div className="rounded-[10px] border border-line bg-white px-3.5 pt-3 pb-2">
+        <h3 className="m-0 font-serif text-sm font-normal text-charcoal">
+          Consults per advisor as orders rise
+        </h3>
+        <p className="mb-2 mt-0.5 text-[11.5px] leading-[1.4] text-gray">
+          Same sweep. More orders add spokes, travel shrinks, and each advisor fits more consults
+          into the productive day. Monthly book is visits ÷ paid headcount, so it also sawtooths
+          when you hire the next person. Now: {best.cday.toFixed(2)} consults / day ·{" "}
+          {integer(consults / best.N)} / month.
+        </p>
+        <div className="h-[260px] w-full">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={volData} margin={{ top: 12, right: 16, left: 4, bottom: 8 }}>
+              <CartesianGrid stroke="#F2EAE5" vertical={false} />
+              <XAxis
+                type="number"
+                dataKey="D"
+                domain={["dataMin", "dataMax"]}
+                tick={{ fill: GY, fontSize: 10 }}
+                axisLine={{ stroke: LN }}
+                tickLine={false}
+                tickFormatter={(v: number) => `${Math.round(v / 1000)}k`}
+                label={{
+                  value: "orders / month",
+                  position: "insideBottom",
+                  offset: -4,
+                  fill: GY,
+                  fontSize: 10,
+                }}
+              />
+              <YAxis
+                yAxisId="month"
+                tick={{ fill: GY, fontSize: 10 }}
+                axisLine={{ stroke: LN }}
+                tickLine={false}
+                width={40}
+              />
+              <YAxis
+                yAxisId="day"
+                orientation="right"
+                tick={{ fill: GY, fontSize: 10 }}
+                axisLine={{ stroke: LN }}
+                tickLine={false}
+                width={36}
+              />
+              <Tooltip
+                formatter={(v: unknown, name: unknown) => [
+                  Number(v ?? 0),
+                  name === "consultsMo" ? "consults / advisor / month" : "consults / advisor / day",
+                ]}
+                labelFormatter={(v: unknown) => `${integer(Number(v))} orders / month`}
+              />
+              <Legend
+                wrapperStyle={{ fontSize: 11, color: GY }}
+                formatter={(value) =>
+                  value === "consultsMo" ? "Consults / month" : "Consults / day"
+                }
+              />
+              <ReferenceLine
+                yAxisId="month"
+                x={params.D}
+                stroke={CH}
+                strokeDasharray="3 3"
+                label={{ value: "now", fill: GY, fontSize: 10, position: "insideTopRight" }}
+              />
+              <Line
+                yAxisId="month"
+                type="monotone"
+                dataKey="consultsMo"
+                stroke={CH}
+                strokeWidth={2}
+                dot={{ r: 3, fill: CH }}
+                isAnimationActive={false}
+              />
+              <Line
+                yAxisId="day"
+                type="monotone"
+                dataKey="cday"
+                stroke={TE}
+                strokeWidth={2}
+                dot={{ r: 3, fill: TE }}
                 isAnimationActive={false}
               />
             </LineChart>

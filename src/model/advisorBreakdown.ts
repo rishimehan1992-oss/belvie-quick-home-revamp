@@ -135,6 +135,7 @@ export type AdvisorVolumePoint = {
   travel: number | null;
   advisorPerOrder: number | null;
   visitCacPerOrder: number | null;
+  consultsPerAdvisor: number | null;
   feasible: boolean;
 };
 
@@ -150,23 +151,25 @@ export function advisorCostVsVolume(params: Params, visitCost: number): AdvisorV
   const phi = params.phi / 100;
   const visitShare = phi > 0 ? (1 - rho) / phi : Infinity;
   const visitCacPerOrder = Number.isFinite(visitShare) ? visitCost * visitShare : NaN;
+  const empty = {
+    S: null,
+    N: null,
+    cday: null,
+    travel: null,
+    advisorPerOrder: null,
+    visitCacPerOrder: Number.isFinite(visitCacPerOrder) ? visitCacPerOrder : null,
+    consultsPerAdvisor: null,
+    feasible: false,
+  };
 
   return [...volumes]
     .sort((a, b) => a - b)
     .map((D) => {
       const { best } = optimise(normalise({ ...params, D }));
-      if (!best || !Number.isFinite(best.Cadv)) {
-        return {
-          D,
-          S: null,
-          N: null,
-          cday: null,
-          travel: null,
-          advisorPerOrder: null,
-          visitCacPerOrder: Number.isFinite(visitCacPerOrder) ? visitCacPerOrder : null,
-          feasible: false,
-        };
+      if (!best || !Number.isFinite(best.Cadv) || !(best.N > 0)) {
+        return { D, ...empty };
       }
+      const consults = Number.isFinite(visitShare) ? D * visitShare : NaN;
       return {
         D,
         S: best.S,
@@ -175,6 +178,7 @@ export function advisorCostVsVolume(params: Params, visitCost: number): AdvisorV
         travel: best.rt,
         advisorPerOrder: best.Cadv / D,
         visitCacPerOrder: Number.isFinite(visitCacPerOrder) ? visitCacPerOrder : null,
+        consultsPerAdvisor: Number.isFinite(consults) ? consults / best.N : null,
         feasible: true,
       };
     });
