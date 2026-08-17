@@ -26,7 +26,7 @@ export const GLOSSARY: GlossarySection[] = [
   {
     id: "flow",
     title: "How the tabs connect",
-    lead: "P&L sets what you sell and how customers buy. Network sizes the physical system to serve that demand. Sensitivity moves one lever at a time. Favorable maps the green operating pocket. Growth copies the city model across India. Simulate plays one kit cycle and a van tour on the map. This page defines every line item those tabs use.",
+    lead: "P&L sets what you sell and how customers buy. Network sizes the physical system to serve that demand. Sensitivity moves one lever at a time. Favorable maps the green operating pocket. Growth copies the city model across India. Inventory is the 900/1,500 SKU edit and replacement rates. Simulate plays one kit cycle and a van tour on the map. This page defines every line item those tabs use.",
     items: [
       {
         name: "P&L",
@@ -69,8 +69,16 @@ export const GLOSSARY: GlossarySection[] = [
           "A planning path from 100 orders/day in Bengaluru to 2,500/day per city and 25,000/day across five major metros then five next metros. Each live city is its own hub–spoke optimiser using this session’s commercial levers. Does not overwrite Bengaluru demand on P&L.",
       },
       {
-        name: "Simulate",
+        name: "Inventory",
         symbol: "6",
+        unit: "—",
+        def: "Assortment",
+        meaning:
+          "Planning tree: 900 SKUs on every spoke, 1,500 at the hub (900 + 600 extras). Categories × brand-line roles × SKUs. Replacement = 30 / days of cover by A/B/C class. Does not change S* or P&L. Testers stay on the sampling slider.",
+      },
+      {
+        name: "Simulate",
+        symbol: "7",
         unit: "—",
         def: "Watch the day",
         meaning:
@@ -78,7 +86,7 @@ export const GLOSSARY: GlossarySection[] = [
       },
       {
         name: "Line items",
-        symbol: "7",
+        symbol: "8",
         unit: "—",
         def: "This page",
         meaning:
@@ -638,6 +646,37 @@ export const GLOSSARY: GlossarySection[] = [
         def: "not on the axes",
         meaning:
           "Conversion, visit cost, sampling, GM, k, mix and both AOVs can be held or swept. Holds do not write P&L until you apply or reset.",
+      },
+    ],
+  },
+  {
+    id: "inventory",
+    title: "Inventory and SKUs",
+    lead: "A planning catalog on the Inventory tab. Not inside C_total(S).",
+    items: [
+      {
+        name: "Spoke edit",
+        symbol: "900",
+        unit: "SKUs / spoke",
+        def: "900",
+        meaning:
+          "A+B assortment cloned to every spoke so last-mile can leave the same day. Built as categories × brand-line roles × SKUs. Testers on the visit are not in this number.",
+      },
+      {
+        name: "Hub catalog",
+        symbol: "1,500",
+        unit: "SKUs / hub",
+        def: "1,500",
+        meaning: "Spoke 900 plus 600 extras: slow colorways, oversized, seasonal. Not planted at every spoke.",
+      },
+      {
+        name: "Replacement rate",
+        symbol: "30 / cover",
+        unit: "waves / SKU / month",
+        def: "A 3.0 · B 1.4 · C 0.75",
+        meaning:
+          "Stock replacement, not catalog delist. Default cover 10 / 21 / 40 days. Network waves = SKUs × locations × this rate. Catalog churn is a separate 20% / year on the tail.",
+        formula: "replace = 30 / days of cover",
       },
     ],
   },
