@@ -8,7 +8,7 @@ import {
 } from "./pnl";
 import type { CustomerEconomics, Params, PnlPoint } from "./types";
 
-export type LifestyleId = "bags" | "footwear" | "watches";
+export type LifestyleId = "bags";
 
 export type LifestyleCategory = {
   id: LifestyleId;
@@ -27,30 +27,20 @@ export type LifestyleLevers = {
 export const LIFESTYLE_AOV_MIN = 8000;
 export const LIFESTYLE_AOV_MAX = 20000;
 
+/**
+ * Attach is handbags per consult — not 0.2 of each line, and not a combined
+ * bags+footwear+watches mix. Footwear and watches are out for now.
+ */
 export const LIFESTYLE_DEFAULTS: LifestyleLevers = {
-  attachPerConsult: 0.5,
+  attachPerConsult: 0.2,
   gm: 40,
   categories: [
     {
       id: "bags",
       name: "Handbags",
-      meaning: "Premium bags sold after the in-home consult. Lower frequency than beauty.",
-      share: 0.4,
+      meaning: "Premium bags on the same consult. 0.2 bags / visit — handbags only.",
+      share: 1,
       aov: 14000,
-    },
-    {
-      id: "footwear",
-      name: "Footwear",
-      meaning: "Premium shoes delivered to the same consulted customer.",
-      share: 0.35,
-      aov: 10000,
-    },
-    {
-      id: "watches",
-      name: "Watches",
-      meaning: "Premium watches. Slowest of the three, highest ticket.",
-      share: 0.25,
-      aov: 16000,
     },
   ],
 };
@@ -384,7 +374,7 @@ export function lifestyleCompare(
     },
     {
       key: "lifeAov",
-      label: "Lifestyle ticket / piece",
+      label: "Handbag ticket",
       beauty: NaN,
       combined: lifestyle.blendedAov,
       delta: lifestyle.blendedAov,
@@ -392,7 +382,7 @@ export function lifestyleCompare(
     },
     {
       key: "attach",
-      label: "Lifestyle pieces / consult",
+      label: "Handbags / consult",
       beauty: 0,
       combined: lifestyle.attachPerConsult,
       delta: lifestyle.attachPerConsult,

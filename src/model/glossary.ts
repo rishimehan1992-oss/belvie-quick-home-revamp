@@ -26,7 +26,7 @@ export const GLOSSARY: GlossarySection[] = [
   {
     id: "flow",
     title: "How the tabs connect",
-    lead: "P&L sets what you sell and how customers buy. Network sizes the physical system to serve that demand. Sensitivity moves one lever at a time. Favorable maps the green operating pocket. Growth copies the city model across India. Inventory is the BPC colour edit: ~850 fast-moving SKUs on the spoke, ~1,250 at the hub. Lifestyle adds premium bags, footwear and watches on the consulted customer. Simulate plays one kit cycle and a van tour on the map. This page defines every line item those tabs use.",
+    lead: "P&L sets what you sell and how customers buy. Network sizes the physical system to serve that demand. Sensitivity moves one lever at a time. Favorable maps the green operating pocket. Growth copies the city model across India. Inventory is the BPC colour edit: ~850 fast-moving SKUs on the spoke, ~1,250 at the hub. Lifestyle adds 0.2 handbags per consult on the same visit. Simulate plays one kit cycle and a van tour on the map. This page defines every line item those tabs use.",
     items: [
       {
         name: "P&L",
@@ -80,9 +80,9 @@ export const GLOSSARY: GlossarySection[] = [
         name: "Lifestyle",
         symbol: "7",
         unit: "—",
-        def: "Bags, shoes, watches",
+        def: "Handbags only",
         meaning:
-          "Premium attach on the same consulted customer. Default 0.5 pieces per consult, ticket ₹8,000–20,000, GM 40%. Side-by-side vs beauty-only P&L: same visit CAC, sampling and S*; lifestyle GP sits on top. Unit economics (₹/consult, contribution/customer, LTV/CAC) move; network ₹/order does not.",
+          "0.2 handbags per consult on the same visit — not 0.2 of each line, not a combined mix. Footwear and watches are out. Ticket ₹8,000–20,000, GM 40%. Side-by-side vs beauty-only P&L: same visit CAC, sampling and S*; handbag GP sits on top. Unit economics move; network ₹/order does not.",
       },
       {
         name: "Simulate",
@@ -707,8 +707,8 @@ export const GLOSSARY: GlossarySection[] = [
         unit: "₹ / month",
         def: "beauty P&L + lifestyle GP",
         meaning:
-          "Same costs, extra GP from bags/footwear/watches on the consult. No second CAC. Combined revenue = beauty revenue + lifestyle revenue.",
-        formula: "combined P&L = beauty P&L + attach × blended ticket × GM",
+          "Same costs, extra GP from 0.2 handbags per consult. No footwear or watches. No second CAC. Combined revenue = beauty revenue + handbag revenue.",
+        formula: "combined P&L = beauty P&L + 0.2 × handbag ticket × GM",
       },
       {
         name: "Unit economics lift",

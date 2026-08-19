@@ -35,10 +35,10 @@ export function LifestyleMixChart({ row }: { row: LifestylePoint }) {
   }));
   return (
     <div className="rounded-[10px] border border-line bg-white px-3.5 pt-3 pb-2">
-      <h3 className="m-0 font-serif text-sm font-normal text-charcoal">Gross profit by line</h3>
+      <h3 className="m-0 font-serif text-sm font-normal text-charcoal">Handbag gross profit</h3>
       <p className="mb-2 mt-0.5 text-[11.5px] leading-[1.4] text-gray">
-        {row.attachPerConsult} units / consult split across bags, footwear and watches. Tickets stay
-        in ₹8,000–20,000. Margin {row.gm}%.
+        {row.attachPerConsult} handbags / consult. Not split with footwear or watches. Ticket in
+        ₹8,000–20,000. Margin {row.gm}%.
       </p>
       <div className="h-[240px] w-full">
         <ResponsiveContainer width="100%" height="100%">

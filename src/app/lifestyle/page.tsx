@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Belvie — Lifestyle",
   description:
-    "Beauty only vs beauty + lifestyle: complete P&L and unit economics on the same consult.",
+    "Beauty + 0.2 handbags per consult. Not a bags/footwear/watches mix.",
 };
 
 export default function LifestylePage() {

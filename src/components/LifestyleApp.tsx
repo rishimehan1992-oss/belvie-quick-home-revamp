@@ -72,9 +72,9 @@ export function LifestyleApp() {
             Lifestyle
           </h1>
           <p className="mt-0.5 max-w-[52rem] text-[13.5px] leading-[1.45] text-gray">
-            Beauty only vs beauty + lifestyle on the same consult. Handbags, footwear and watches
-            attach at 0.5 pieces / visit, ticket ₹8,000–20,000, margin 40%. Visit CAC, sampling and
-            S* stay on beauty. Lifestyle GP sits on top — it does not move the network.
+            Beauty only vs beauty + handbags on the same consult. Attach is 0.2 handbags per visit
+            — not 0.2 of each line, and not a bags+footwear+watches mix. Footwear and watches are
+            out. Ticket ₹8,000–20,000, margin 40%. Visit CAC, sampling and S* stay on beauty.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-1.5">
@@ -97,24 +97,24 @@ export function LifestyleApp() {
           sub={`P&L · S* ${beauty.S ?? "—"} · ${rupees(beauty.pnlPerConsult)} / consult`}
         />
         <Stat
-          label="Beauty + lifestyle"
+          label="Beauty + handbags"
           value={beauty.feasible ? `₹${lakhs(compare.combinedPnl)}L` : "—"}
           sub={`${rupees(beauty.feasible ? beauty.pnlPerConsult + lifestyle.gpPerConsult : NaN)} / consult`}
         />
         <Stat
           label="Lift"
           value={beauty.feasible ? `+₹${lakhs(compare.lift)}L` : "—"}
-          sub="lifestyle GP on the same visits"
+          sub="handbag GP on the same visits"
         />
         <Stat
-          label="Lifestyle GP"
+          label="Handbag GP"
           value={`₹${lakhs(lifestyle.gp)}L`}
           sub={`${integer(lifestyle.units)} pieces · AOV ${rupees(lifestyle.blendedAov)}`}
         />
         <Stat
-          label="Attach"
+          label="Handbags / consult"
           value={`${lifestyle.attachPerConsult.toFixed(2)}`}
-          sub={`pieces / consult · ${integer(consults)} visits`}
+          sub={`not a mix · ${integer(consults)} visits`}
         />
       </div>
 
@@ -129,9 +129,9 @@ export function LifestyleApp() {
         {rupees(sim.eco.contributionPerCustomer + lifestyle.gp / compare.customers)}. No second CAC.
       </div>
 
-      <div className="mb-3.5 grid grid-cols-2 gap-2 min-[800px]:grid-cols-4">
+      <div className="mb-3.5 grid grid-cols-2 gap-2 min-[800px]:grid-cols-3">
         <Lever
-          label="Pieces / consult"
+          label="Handbags / consult"
           value={levers.attachPerConsult}
           min={0.1}
           max={1}
@@ -169,7 +169,7 @@ export function LifestyleApp() {
         <table className="w-full border-collapse text-[12.5px]">
           <thead>
             <tr>
-              {["Line", "Share of 0.5", "AOV", "Pieces / mo", "Revenue", "GP"].map((h, i) => (
+              {["Line", "Bags / consult", "AOV", "Pieces / mo", "Revenue", "GP"].map((h, i) => (
                 <th
                   key={h}
                   className={`bg-charcoal px-2 py-1.5 text-[10.5px] font-bold uppercase tracking-[0.05em] text-card ${
@@ -213,17 +213,17 @@ export function LifestyleApp() {
         <LifestyleCompareChart compare={compare} />
         <LifestyleMixChart row={lifestyle} />
         <LifestyleSweepChart
-          title="Lifestyle GP vs attach rate"
-          caption="How much extra GP if one consult sells 0.1 to 1.0 lifestyle pieces."
-          xLabel="pieces / consult"
+          title="Handbag GP vs attach rate"
+          caption="Extra GP if one consult sells 0.1 to 1.0 handbags — handbags only, not a mix."
+          xLabel="handbags / consult"
           pts={vsAttach}
           xKey="attachPerConsult"
           markX={levers.attachPerConsult}
           xFormat={(v) => v.toFixed(1)}
         />
         <LifestyleSweepChart
-          title="Lifestyle GP vs ticket"
-          caption="If every line sat at the same ticket inside ₹8,000–20,000."
+          title="Handbag GP vs ticket"
+          caption="If the handbag sat at the same ticket inside ₹8,000–20,000."
           xLabel="ticket · ₹"
           pts={vsTicket}
           xKey="blendedAov"
@@ -234,9 +234,9 @@ export function LifestyleApp() {
       </div>
 
       <p className="mt-[18px] border-t border-line pt-2.5 text-[11.5px] leading-[1.55] text-gray">
-        <b className="text-charcoal">What is not modelled:</b> extra van drops from lifestyle
-        pieces, warehouse for bags/shoes/watches, or a second CAC. Pieces ride the existing
-        consulted customer. Per-customer LTV puts funnel GP (including visits that do not convert)
+        <b className="text-charcoal">What is not modelled:</b> extra van drops from handbags,
+        a bag warehouse, footwear, watches, or a second CAC. Attach is 0.2 handbags / consult on
+        the existing visit. Per-customer LTV puts funnel GP (including visits that do not convert)
         on acquired customers, same as visit CAC. Beauty GM, visit cost and S* stay on their own tabs.
       </p>
 
