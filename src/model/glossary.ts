@@ -82,7 +82,7 @@ export const GLOSSARY: GlossarySection[] = [
         unit: "—",
         def: "Bags, shoes, watches",
         meaning:
-          "Premium attach on the same consulted customer. Default 0.5 pieces per consult, ticket ₹8,000–20,000, GM 40%. Gross profit sits on top of beauty P&L. Does not change S*, CAC or beauty inventory.",
+          "Premium attach on the same consulted customer. Default 0.5 pieces per consult, ticket ₹8,000–20,000, GM 40%. Side-by-side vs beauty-only P&L: same visit CAC, sampling and S*; lifestyle GP sits on top. Unit economics (₹/consult, contribution/customer, LTV/CAC) move; network ₹/order does not.",
       },
       {
         name: "Simulate",
@@ -685,6 +685,38 @@ export const GLOSSARY: GlossarySection[] = [
         meaning:
           "Stock replacement, not catalog delist. Default cover 10 / 21 / 40 days. Network waves = SKUs × locations × this rate. Catalog churn is a separate 20% / year on the tail.",
         formula: "replace = 30 / days of cover",
+      },
+    ],
+  },
+  {
+    id: "lifestyle",
+    title: "Lifestyle vs beauty",
+    lead: "Planning attach on the Lifestyle tab. Not inside C_total(S).",
+    items: [
+      {
+        name: "Beauty-only P&L",
+        symbol: "beauty",
+        unit: "₹ / month",
+        def: "GP − visit CAC − sampling − network",
+        meaning:
+          "The P&L tab result. Lifestyle does not rewrite it. Visit CAC, sampling and S* stay here.",
+      },
+      {
+        name: "Beauty + lifestyle",
+        symbol: "combined",
+        unit: "₹ / month",
+        def: "beauty P&L + lifestyle GP",
+        meaning:
+          "Same costs, extra GP from bags/footwear/watches on the consult. No second CAC. Combined revenue = beauty revenue + lifestyle revenue.",
+        formula: "combined P&L = beauty P&L + attach × blended ticket × GM",
+      },
+      {
+        name: "Unit economics lift",
+        symbol: "Δ ₹/consult",
+        unit: "₹",
+        def: "lifestyle GP / consults",
+        meaning:
+          "All-in cost per consult and network ₹/order stay. Revenue, GP, P&L per consult and contribution per customer rise by the lifestyle GP allocated on that unit. LTV/CAC uses GP LTV including funnel attach on visits that do not convert, same as visit CAC.",
       },
     ],
   },

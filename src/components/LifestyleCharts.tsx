@@ -15,7 +15,7 @@ import {
   YAxis,
 } from "recharts";
 import { integer, lakhs, rupees } from "@/model/format";
-import type { LifestylePoint } from "@/model/lifestyle";
+import type { LifestyleCompare, LifestylePoint } from "@/model/lifestyle";
 
 const GY = "#6B6560";
 const LN = "#E4D8D0";
@@ -200,3 +200,55 @@ export function LifestyleSweepChart({
 }
 
 export { rupees };
+
+export function LifestyleCompareChart({
+  compare,
+}: {
+  compare: LifestyleCompare;
+}) {
+  const keys = new Set(["rev", "gp", "pnl"]);
+  const data = compare.pnl
+    .filter((r) => keys.has(r.key))
+    .map((r) => ({
+      name: r.key === "rev" ? "Revenue" : r.key === "gp" ? "Gross profit" : "P&L",
+      beauty: Number.isFinite(r.beauty) ? r.beauty / 1e5 : null,
+      combined: Number.isFinite(r.combined) ? r.combined / 1e5 : null,
+    }));
+  return (
+    <div className="rounded-[10px] border border-line bg-white px-3.5 pt-3 pb-2 min-[900px]:col-span-2">
+      <h3 className="m-0 font-serif text-sm font-normal text-charcoal">
+        Beauty only vs beauty + lifestyle
+      </h3>
+      <p className="mb-2 mt-0.5 text-[11.5px] leading-[1.4] text-gray">
+        Same visits, same S*, same CAC. Lifestyle GP stacks on beauty P&L — costs do not move.
+      </p>
+      <div className="h-[260px] w-full">
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart data={data} margin={{ top: 12, right: 12, left: 4, bottom: 4 }}>
+            <CartesianGrid stroke="#F2EAE5" vertical={false} />
+            <XAxis dataKey="name" tick={{ fill: GY, fontSize: 11 }} axisLine={{ stroke: LN }} tickLine={false} />
+            <YAxis
+              tick={{ fill: GY, fontSize: 10 }}
+              axisLine={{ stroke: LN }}
+              tickLine={false}
+              width={44}
+              tickFormatter={(v: number) => `${v}`}
+            />
+            <Tooltip
+              formatter={(v: unknown, name: unknown) => [
+                `₹${lakhs(Number(v) * 1e5)}L`,
+                name === "beauty" ? "beauty only" : "beauty + lifestyle",
+              ]}
+            />
+            <Legend
+              wrapperStyle={{ fontSize: 11, color: GY }}
+              formatter={(v) => (v === "beauty" ? "Beauty only" : "Beauty + lifestyle")}
+            />
+            <Bar dataKey="beauty" fill={CH} maxBarSize={36} radius={[3, 3, 0, 0]} isAnimationActive={false} />
+            <Bar dataKey="combined" fill={GP} maxBarSize={36} radius={[3, 3, 0, 0]} isAnimationActive={false} />
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+    </div>
+  );
+}

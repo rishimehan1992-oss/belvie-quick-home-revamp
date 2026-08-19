@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { AppNav } from "@/components/AppNav";
 import {
+  LifestyleCompareChart,
   LifestyleMixChart,
   LifestyleSweepChart,
   LifestyleVsConsultsChart,
@@ -20,6 +21,8 @@ import {
   lifestyleVsTicket,
   simulateLifestyle,
   type LifestyleLevers,
+  type PnlCompareRow,
+  type UnitCompareRow,
 } from "@/model/lifestyle";
 import { consultsFromNetwork } from "@/model/pnl";
 
@@ -55,7 +58,8 @@ export function LifestyleApp() {
     }));
   }
 
-  const { beauty, lifestyle } = sim;
+  const { beauty, lifestyle, compare } = sim;
+  const beautyPnl = beauty.feasible ? beauty.pnl : NaN;
 
   return (
     <div className="mx-auto max-w-[1180px] px-3.5 pb-[60px] pt-[18px]">
@@ -68,9 +72,9 @@ export function LifestyleApp() {
             Lifestyle
           </h1>
           <p className="mt-0.5 max-w-[52rem] text-[13.5px] leading-[1.45] text-gray">
-            Premium handbags, footwear and watches delivered to the same consulted customer.
-            Frequency is lower than beauty — default 0.5 pieces per consult, ticket ₹8,000–20,000,
-            margin 40%. This sits on top of existing P&L. It does not move S* or beauty inventory.
+            Beauty only vs beauty + lifestyle on the same consult. Handbags, footwear and watches
+            attach at 0.5 pieces / visit, ticket ₹8,000–20,000, margin 40%. Visit CAC, sampling and
+            S* stay on beauty. Lifestyle GP sits on top — it does not move the network.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-1.5">
@@ -88,30 +92,41 @@ export function LifestyleApp() {
       <div className="mb-3.5 grid grid-cols-[repeat(auto-fit,minmax(140px,1fr))] gap-2.5">
         <Stat
           lead
-          label="Combined / month"
-          value={`₹${lakhs(sim.combinedPnl)}L`}
-          sub="beauty P&L + lifestyle GP"
+          label="Beauty only"
+          value={beauty.feasible ? `₹${lakhs(beautyPnl)}L` : "—"}
+          sub={`P&L · S* ${beauty.S ?? "—"} · ${rupees(beauty.pnlPerConsult)} / consult`}
+        />
+        <Stat
+          label="Beauty + lifestyle"
+          value={beauty.feasible ? `₹${lakhs(compare.combinedPnl)}L` : "—"}
+          sub={`${rupees(beauty.feasible ? beauty.pnlPerConsult + lifestyle.gpPerConsult : NaN)} / consult`}
+        />
+        <Stat
+          label="Lift"
+          value={beauty.feasible ? `+₹${lakhs(compare.lift)}L` : "—"}
+          sub="lifestyle GP on the same visits"
         />
         <Stat
           label="Lifestyle GP"
           value={`₹${lakhs(lifestyle.gp)}L`}
-          sub={`${rupees(lifestyle.gpPerConsult)} / consult · ${lifestyle.gm}% GM`}
-        />
-        <Stat
-          label="Lifestyle revenue"
-          value={`₹${lakhs(lifestyle.revenue)}L`}
           sub={`${integer(lifestyle.units)} pieces · AOV ${rupees(lifestyle.blendedAov)}`}
-        />
-        <Stat
-          label="Beauty P&L"
-          value={beauty.feasible ? `₹${lakhs(beauty.pnl)}L` : "—"}
-          sub="unchanged · same S* and CAC"
         />
         <Stat
           label="Attach"
           value={`${lifestyle.attachPerConsult.toFixed(2)}`}
           sub={`pieces / consult · ${integer(consults)} visits`}
         />
+      </div>
+
+      <div className="mb-3.5 rounded-[10px] border border-line bg-card px-3.5 py-3 text-[13px] leading-[1.55] text-ink">
+        <b className="text-charcoal">What stays the same:</b> visit CAC {rupees(beauty.visitAcq)}{" "}
+        / month, sampling {rupees(beauty.sampling)}, network {beauty.feasible ? rupees(beauty.network) : "—"}{" "}
+        (S* {beauty.S ?? "—"} · {integer(beauty.N ?? 0)} advisors · {rupees(beauty.networkCpo)} / order).{" "}
+        <b className="text-charcoal">What changes:</b> extra revenue {rupees(lifestyle.revenue)}, extra
+        GP {rupees(lifestyle.gp)}, P&L / consult {rupees(beauty.pnlPerConsult)} →{" "}
+        {rupees(beauty.feasible ? beauty.pnlPerConsult + lifestyle.gpPerConsult : NaN)}, contribution /
+        customer {rupees(sim.eco.contributionPerCustomer)} →{" "}
+        {rupees(sim.eco.contributionPerCustomer + lifestyle.gp / compare.customers)}. No second CAC.
       </div>
 
       <div className="mb-3.5 grid grid-cols-2 gap-2 min-[800px]:grid-cols-4">
@@ -146,6 +161,9 @@ export function LifestyleApp() {
           />
         ))}
       </div>
+
+      <ComparePnlTable rows={compare.pnl} />
+      <CompareUnitTable rows={compare.units} />
 
       <div className="mb-3.5 overflow-x-auto rounded-[10px] border border-line bg-white">
         <table className="w-full border-collapse text-[12.5px]">
@@ -192,6 +210,7 @@ export function LifestyleApp() {
       </div>
 
       <div className="mb-3.5 grid grid-cols-1 gap-3.5 min-[900px]:grid-cols-2">
+        <LifestyleCompareChart compare={compare} />
         <LifestyleMixChart row={lifestyle} />
         <LifestyleSweepChart
           title="Lifestyle GP vs attach rate"
@@ -217,10 +236,169 @@ export function LifestyleApp() {
       <p className="mt-[18px] border-t border-line pt-2.5 text-[11.5px] leading-[1.55] text-gray">
         <b className="text-charcoal">What is not modelled:</b> extra van drops from lifestyle
         pieces, warehouse for bags/shoes/watches, or a second CAC. Pieces ride the existing
-        consulted customer. Beauty GM, visit cost and S* stay on their own tabs.
+        consulted customer. Per-customer LTV puts funnel GP (including visits that do not convert)
+        on acquired customers, same as visit CAC. Beauty GM, visit cost and S* stay on their own tabs.
       </p>
 
       <MethodologyDrawer open={methodOpen} onClose={() => setMethodOpen(false)} />
+    </div>
+  );
+}
+
+function signedLakhs(n: number): string {
+  if (!Number.isFinite(n)) return "—";
+  if (Math.abs(n) < 0.5) return "0";
+  return `${n > 0 ? "+" : "−"}₹${lakhs(Math.abs(n))}L`;
+}
+
+function signedRupees(n: number): string {
+  if (!Number.isFinite(n)) return "—";
+  if (Math.abs(n) < 0.5) return "0";
+  const mag = `₹${Math.round(Math.abs(n)).toLocaleString("en-IN")}`;
+  if (n > 0) return `+${mag}`;
+  if (n < 0) return `−${mag}`;
+  return mag;
+}
+
+function unitValue(n: number, format: UnitCompareRow["format"]): string {
+  if (!Number.isFinite(n)) return "—";
+  if (format === "x") return `${n.toFixed(2)}×`;
+  if (format === "num") return n.toFixed(2);
+  return rupees(n);
+}
+
+function unitDelta(n: number, format: UnitCompareRow["format"]): string {
+  if (!Number.isFinite(n)) return "—";
+  if (Math.abs(n) < 1e-9) return "0";
+  if (format === "x") return `${n > 0 ? "+" : ""}${n.toFixed(2)}×`;
+  if (format === "num") return `${n > 0 ? "+" : ""}${n.toFixed(2)}`;
+  return signedRupees(n);
+}
+
+function deltaTone(n: number, unchanged?: boolean): string {
+  if (unchanged || !Number.isFinite(n) || Math.abs(n) < 1e-9) return "text-gray";
+  return n > 0 ? "text-[#4A7A5C]" : "text-terracotta";
+}
+
+function ComparePnlTable({ rows }: { rows: PnlCompareRow[] }) {
+  return (
+    <div className="mb-3.5 overflow-x-auto rounded-[10px] border border-line bg-white">
+      <div className="border-b border-line px-3.5 py-3">
+        <h2 className="m-0 font-serif text-base font-normal text-charcoal">
+          Complete P&L · beauty only vs beauty + lifestyle
+        </h2>
+        <p className="mb-0 mt-1 text-[13px] leading-[1.5] text-gray">
+          ₹ lakh / month. Visit CAC, sampling and network do not move. Combined P&L = beauty P&L +
+          lifestyle GP.
+        </p>
+      </div>
+      <table className="w-full border-collapse text-[12.5px]">
+        <thead>
+          <tr>
+            {["Line", "Beauty only", "Lifestyle", "Combined", "Δ"].map((h, i) => (
+              <th
+                key={h}
+                className={`bg-charcoal px-2 py-1.5 text-[10.5px] font-bold uppercase tracking-[0.05em] text-card ${
+                  i === 0 ? "text-left" : "text-right"
+                }`}
+              >
+                {h}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((r) => (
+            <tr
+              key={r.key}
+              className={r.strong ? "bg-card font-bold text-charcoal" : "text-ink"}
+            >
+              <td className="border-b border-line px-2 py-1.5">
+                {r.label}
+                {r.unchanged ? (
+                  <span className="ml-1.5 text-[10px] font-normal uppercase tracking-[0.06em] text-gray">
+                    same
+                  </span>
+                ) : null}
+              </td>
+              <td className="border-b border-line px-2 py-1.5 text-right font-serif tabular-nums">
+                {Number.isFinite(r.beauty) ? `₹${lakhs(r.beauty)}L` : "—"}
+              </td>
+              <td className="border-b border-line px-2 py-1.5 text-right font-serif tabular-nums text-gray">
+                {r.unchanged ? "—" : `₹${lakhs(r.lifestyle)}L`}
+              </td>
+              <td className="border-b border-line px-2 py-1.5 text-right font-serif tabular-nums">
+                {Number.isFinite(r.combined) ? `₹${lakhs(r.combined)}L` : "—"}
+              </td>
+              <td
+                className={`border-b border-line px-2 py-1.5 text-right font-serif tabular-nums ${deltaTone(r.delta, r.unchanged)}`}
+              >
+                {r.unchanged ? "0" : signedLakhs(r.delta)}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function CompareUnitTable({ rows }: { rows: UnitCompareRow[] }) {
+  return (
+    <div className="mb-3.5 overflow-x-auto rounded-[10px] border border-line bg-white">
+      <div className="border-b border-line px-3.5 py-3">
+        <h2 className="m-0 font-serif text-base font-normal text-charcoal">
+          Unit economics · what changes on the same visit
+        </h2>
+        <p className="mb-0 mt-1 text-[13px] leading-[1.5] text-gray">
+          Per consult is the visit. Per customer puts funnel GP on acquired customers, same as CAC =
+          visit cost / conversion. Network ₹/order and beauty AOV stay put.
+        </p>
+      </div>
+      <table className="w-full border-collapse text-[12.5px]">
+        <thead>
+          <tr>
+            {["Metric", "Beauty only", "Beauty + lifestyle", "Δ"].map((h, i) => (
+              <th
+                key={h}
+                className={`bg-charcoal px-2 py-1.5 text-[10.5px] font-bold uppercase tracking-[0.05em] text-card ${
+                  i === 0 ? "text-left" : "text-right"
+                }`}
+              >
+                {h}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((r) => (
+            <tr
+              key={r.key}
+              className={r.strong ? "bg-card font-bold text-charcoal" : "text-ink"}
+            >
+              <td className="border-b border-line px-2 py-1.5">
+                {r.label}
+                {r.unchanged ? (
+                  <span className="ml-1.5 text-[10px] font-normal uppercase tracking-[0.06em] text-gray">
+                    same
+                  </span>
+                ) : null}
+              </td>
+              <td className="border-b border-line px-2 py-1.5 text-right font-serif tabular-nums">
+                {unitValue(r.beauty, r.format)}
+              </td>
+              <td className="border-b border-line px-2 py-1.5 text-right font-serif tabular-nums">
+                {unitValue(r.combined, r.format)}
+              </td>
+              <td
+                className={`border-b border-line px-2 py-1.5 text-right font-serif tabular-nums ${deltaTone(r.delta, r.unchanged)}`}
+              >
+                {unitDelta(r.delta, r.format)}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }
