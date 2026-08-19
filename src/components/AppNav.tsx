@@ -9,8 +9,9 @@ const TABS = [
   { id: "favorable" as const, href: "/favorable", n: "4", label: "Favorable" },
   { id: "growth" as const, href: "/growth", n: "5", label: "Growth" },
   { id: "inventory" as const, href: "/inventory", n: "6", label: "Inventory" },
-  { id: "simulate" as const, href: "/simulate", n: "7", label: "Simulate" },
-  { id: "glossary" as const, href: "/glossary", n: "8", label: "Line items" },
+  { id: "lifestyle" as const, href: "/lifestyle", n: "7", label: "Lifestyle" },
+  { id: "simulate" as const, href: "/simulate", n: "8", label: "Simulate" },
+  { id: "glossary" as const, href: "/glossary", n: "9", label: "Line items" },
 ];
 
 export function AppNav({
@@ -23,6 +24,7 @@ export function AppNav({
     | "favorable"
     | "growth"
     | "inventory"
+    | "lifestyle"
     | "simulate"
     | "glossary";
 }) {

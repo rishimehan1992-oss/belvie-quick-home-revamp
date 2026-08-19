@@ -26,7 +26,7 @@ export const GLOSSARY: GlossarySection[] = [
   {
     id: "flow",
     title: "How the tabs connect",
-    lead: "P&L sets what you sell and how customers buy. Network sizes the physical system to serve that demand. Sensitivity moves one lever at a time. Favorable maps the green operating pocket. Growth copies the city model across India. Inventory is the 900/1,500 SKU edit and replacement rates. Simulate plays one kit cycle and a van tour on the map. This page defines every line item those tabs use.",
+    lead: "P&L sets what you sell and how customers buy. Network sizes the physical system to serve that demand. Sensitivity moves one lever at a time. Favorable maps the green operating pocket. Growth copies the city model across India. Inventory is the 900/1,500 SKU edit and replacement rates. Lifestyle adds premium bags, footwear and watches on the consulted customer. Simulate plays one kit cycle and a van tour on the map. This page defines every line item those tabs use.",
     items: [
       {
         name: "P&L",
@@ -77,8 +77,16 @@ export const GLOSSARY: GlossarySection[] = [
           "Planning tree: 900 SKUs on every spoke, 1,500 at the hub (900 + 600 extras). Categories × brand-line roles × SKUs. Replacement = 30 / days of cover by A/B/C class. Does not change S* or P&L. Testers stay on the sampling slider.",
       },
       {
-        name: "Simulate",
+        name: "Lifestyle",
         symbol: "7",
+        unit: "—",
+        def: "Bags, shoes, watches",
+        meaning:
+          "Premium attach on the same consulted customer. Default 0.5 pieces per consult, ticket ₹8,000–20,000, GM 40%. Gross profit sits on top of beauty P&L. Does not change S*, CAC or beauty inventory.",
+      },
+      {
+        name: "Simulate",
+        symbol: "8",
         unit: "—",
         def: "Watch the day",
         meaning:
@@ -86,7 +94,7 @@ export const GLOSSARY: GlossarySection[] = [
       },
       {
         name: "Line items",
-        symbol: "8",
+        symbol: "9",
         unit: "—",
         def: "This page",
         meaning:
