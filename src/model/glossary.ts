@@ -26,7 +26,7 @@ export const GLOSSARY: GlossarySection[] = [
   {
     id: "flow",
     title: "How the tabs connect",
-    lead: "P&L sets what you sell and how customers buy. Network sizes the physical system to serve that demand. Sensitivity moves one lever at a time. Favorable maps the green operating pocket. Growth copies the city model across India. Inventory is the 900/1,500 SKU edit and replacement rates. Lifestyle adds premium bags, footwear and watches on the consulted customer. Simulate plays one kit cycle and a van tour on the map. This page defines every line item those tabs use.",
+    lead: "P&L sets what you sell and how customers buy. Network sizes the physical system to serve that demand. Sensitivity moves one lever at a time. Favorable maps the green operating pocket. Growth copies the city model across India. Inventory is the BPC colour edit: ~850 fast-moving SKUs on the spoke, ~1,250 at the hub. Lifestyle adds premium bags, footwear and watches on the consulted customer. Simulate plays one kit cycle and a van tour on the map. This page defines every line item those tabs use.",
     items: [
       {
         name: "P&L",
@@ -74,7 +74,7 @@ export const GLOSSARY: GlossarySection[] = [
         unit: "—",
         def: "Assortment",
         meaning:
-          "Planning tree: 900 SKUs on every spoke, 1,500 at the hub (900 + 600 extras). Categories × brand-line roles × SKUs. Replacement = 30 / days of cover by A/B/C class. Does not change S* or P&L. Testers stay on the sampling slider.",
+          "BPC colour cosmetics. Fast-moving spoke edit 850 SKUs (inside 800–900). Full catalog 1,250 (inside 1,200–1,300) = 850 + 400 slow shades. Replacement = 30 / days of cover by A/B/C class. Does not change S* or P&L. Testers stay on the sampling slider.",
       },
       {
         name: "Lifestyle",
@@ -663,19 +663,19 @@ export const GLOSSARY: GlossarySection[] = [
     lead: "A planning catalog on the Inventory tab. Not inside C_total(S).",
     items: [
       {
-        name: "Spoke edit",
-        symbol: "900",
+        name: "Fast-moving edit",
+        symbol: "850",
         unit: "SKUs / spoke",
-        def: "900",
+        def: "850 (800–900)",
         meaning:
-          "A+B assortment cloned to every spoke so last-mile can leave the same day. Built as categories × brand-line roles × SKUs. Testers on the visit are not in this number.",
+          "Colour cosmetics cloned to every spoke so last-mile can leave the same day. Lips, complexion, cheeks, eyes. Testers on the visit are not in this number.",
       },
       {
         name: "Hub catalog",
-        symbol: "1,500",
+        symbol: "1,250",
         unit: "SKUs / hub",
-        def: "1,500",
-        meaning: "Spoke 900 plus 600 extras: slow colorways, oversized, seasonal. Not planted at every spoke.",
+        def: "1,250 (1,200–1,300)",
+        meaning: "Spoke 850 plus 400 extras: slow shades, rare undertones, limited colour drops. Not planted at every spoke.",
       },
       {
         name: "Replacement rate",

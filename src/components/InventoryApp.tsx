@@ -2,11 +2,12 @@
 
 import { useMemo, useState } from "react";
 import { AppNav } from "@/components/AppNav";
-import { InventoryCharts, InventoryLevers, InventoryTables } from "@/components/InventoryCharts";
+import { InventoryCharts, InventoryLevers, InventoryTables, SkuSumTable } from "@/components/InventoryCharts";
 import { MethodologyDrawer } from "@/components/MethodologyDrawer";
 import { useModel } from "@/components/ModelProvider";
 import {
   ASSORTMENT_DEFAULTS,
+  HUB_EXTRA_TARGET,
   HUB_SKU_TARGET,
   SPOKE_SKU_TARGET,
   assortmentInsight,
@@ -22,8 +23,8 @@ export function InventoryApp() {
     () => assortmentInsight(params, commercial, levers),
     [params, commercial, levers],
   );
-  const floor1500 = HUB_SKU_TARGET * row.S * row.unitCost;
-  const floor900 = SPOKE_SKU_TARGET * row.S * row.unitCost;
+  const floorCatalog = HUB_SKU_TARGET * row.S * row.unitCost;
+  const floorFast = SPOKE_SKU_TARGET * row.S * row.unitCost;
 
   return (
     <div className="mx-auto max-w-[1180px] px-3.5 pb-[60px] pt-[18px]">
@@ -36,9 +37,9 @@ export function InventoryApp() {
             Inventory
           </h1>
           <p className="mt-0.5 max-w-[52rem] text-[13.5px] leading-[1.45] text-gray">
-            How 900 and 1,500 SKUs were built, where they sit, and how often they are replaced.
-            This is a planning edit for an in-home decor consult — not live POS. Testers on the
-            visit stay on the sampling slider; they are not in these counts.
+            BPC colour cosmetics only. Fast-moving spoke edit {integer(SPOKE_SKU_TARGET)} SKUs
+            (inside 800–900). Full catalog {integer(HUB_SKU_TARGET)} (inside 1,200–1,300). Testers on
+            the visit stay on the sampling slider; they are not in these counts.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-1.5">
@@ -54,10 +55,11 @@ export function InventoryApp() {
       </header>
 
       <div className="mb-3.5 rounded-[10px] border border-line bg-card px-3.5 py-3 text-[13px] leading-[1.55] text-ink">
-        <b className="text-charcoal">The split:</b> 900 SKUs live on every spoke so the van can
-        leave the same day. 1,500 is the hub catalog — those 900 plus 600 extras (slow colorways,
-        oversized rugs, seasonal). Brands are house / mill / design / value / specialist lines,
-        not signed contracts.{" "}
+        <b className="text-charcoal">The split:</b> {integer(SPOKE_SKU_TARGET)} fast-moving colour
+        SKUs live on every spoke so the van can leave the same day — lips, complexion, cheeks, eyes.
+        {integer(HUB_SKU_TARGET)} is the hub catalog: those {integer(SPOKE_SKU_TARGET)} plus{" "}
+        {integer(HUB_EXTRA_TARGET)} slow shades and limited drops. Lines are house / lab partner /
+        artist collab / value / specialist, not signed contracts.{" "}
         <b className="text-charcoal">Replacement:</b> A movers ~{row.classes[0].replenishPerSkuMonth.toFixed(1)}×
         / month ({row.classes[0].coverDays} day cover), B ~{row.classes[1].replenishPerSkuMonth.toFixed(1)}×,
         C ~{row.classes[2].replenishPerSkuMonth.toFixed(1)}× at the hub. Catalog churn is a separate
@@ -65,12 +67,21 @@ export function InventoryApp() {
       </div>
 
       <div className="mb-3.5 grid grid-cols-[repeat(auto-fit,minmax(140px,1fr))] gap-2.5">
-        <Stat lead label="Spoke edit" value={integer(row.tree.spokeSkus)} sub={`${row.tree.brands} brand lines · 12 categories`} />
-        <Stat label="Hub catalog" value={integer(row.tree.hubSkus)} sub={`${integer(row.tree.hubExtraSkus)} extra · not cloned to spokes`} />
+        <Stat
+          lead
+          label="Fast moving"
+          value={integer(row.tree.spokeSkus)}
+          sub={`inside 800–900 · ${row.tree.categories.length} colour categories`}
+        />
+        <Stat
+          label="Full catalog"
+          value={integer(row.tree.hubSkus)}
+          sub={`inside 1,200–1,300 · ${integer(row.tree.hubExtraSkus)} slow extra`}
+        />
         <Stat
           label="Spoke unit fill"
           value={`${Math.round(levers.spokeUnitShare * 100)}%`}
-          sub={`${integer(row.spokeUnitsMonth)} units / mo from the 900`}
+          sub={`${integer(row.spokeUnitsMonth)} units / mo from the ${integer(SPOKE_SKU_TARGET)}`}
         />
         <Stat
           label="A replace rate"
@@ -88,19 +99,21 @@ export function InventoryApp() {
 
       <div className="mb-3.5 rounded-[10px] border border-line bg-white px-3.5 py-3">
         <h2 className="m-0 font-serif text-base font-normal text-charcoal">
-          Why 900 at the spoke, not 1,500
+          Why {integer(SPOKE_SKU_TARGET)} fast movers at the spoke, not {integer(HUB_SKU_TARGET)}
         </h2>
         <p className="mb-2 mt-1 text-[13px] leading-[1.55] text-gray">
-          The 900 is brands × SKUs in the twelve categories below. Putting the extra 600 on every
-          spoke would plant a onesie of each SKU at {row.S} locations — about {rupees(floor1500)}{" "}
-          of floor stock versus {rupees(floor900)} for the 900, before any days-of-cover. At this
-          volume the range floor {row.spokeFloorBinds ? "is already binding" : "is not yet binding"}{" "}
-          on A+B. Hub-only SKUs take the remaining {Math.round((1 - levers.spokeUnitShare) * 100)}% of
-          units on a longer SLA. Demand is {integer(params.D)} orders / month from P&L, S* {row.S},{" "}
-          {row.H} hub{row.H > 1 ? "s" : ""}.
+          The {integer(SPOKE_SKU_TARGET)} is colour categories × line roles below — inside the 800–900
+          band. Putting the extra {integer(HUB_EXTRA_TARGET)} on every spoke would plant a onesie of
+          each SKU at {row.S} locations — about {rupees(floorCatalog)} of floor stock versus{" "}
+          {rupees(floorFast)} for the fast edit, before any days-of-cover. At this volume the range
+          floor {row.spokeFloorBinds ? "is already binding" : "is not yet binding"} on A+B. Hub-only
+          shades take the remaining {Math.round((1 - levers.spokeUnitShare) * 100)}% of units on a
+          longer SLA. Demand is {integer(params.D)} orders / month from P&L, S* {row.S}, {row.H} hub
+          {row.H > 1 ? "s" : ""}.
         </p>
       </div>
 
+      <SkuSumTable row={row} />
       <InventoryCharts row={row} />
       <InventoryTables row={row} />
 

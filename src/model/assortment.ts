@@ -41,159 +41,172 @@ export const UNIT_SHARE = { A: 0.6, B: 0.25, C: 0.15 } as const;
 
 export const ROLE_LABEL: Record<BrandRole, string> = {
   house: "House",
-  mill: "Mill partner",
-  design: "Design collab",
+  mill: "Lab partner",
+  design: "Artist collab",
   value: "Value",
   specialist: "Specialist",
 };
 
 /**
- * Planning tree for a home-decor in-home consult. Brand names are line roles,
- * not observed vendor contracts. Spoke SKUs sum to 900; hub extras sum to 600.
+ * BPC planning tree, colour-cosmetics first. Brand names are line roles, not
+ * contracts. Fast-moving spoke SKUs sum to 850 (inside 800–900). Hub catalog
+ * sums to 1,250 (inside 1,200–1,300). Slow extras are 400.
  */
 export const CATEGORIES: CategoryDef[] = [
   {
-    id: "curtains",
-    name: "Curtains & drapes",
-    meaning: "Core consult close. Colorways and heading types sit at the spoke.",
+    id: "lipstick",
+    name: "Lipstick",
+    meaning: "Core consult close. Hero nudes and daily mattes at the spoke; extra undertones at hub.",
     brands: [
-      { name: "House drapery", role: "house", spokeSkus: 28, hubExtraSkus: 12 },
-      { name: "Mill partner — drapes", role: "mill", spokeSkus: 28, hubExtraSkus: 12 },
-      { name: "Design collab — drapes", role: "design", spokeSkus: 24, hubExtraSkus: 12 },
-      { name: "Value weaves", role: "value", spokeSkus: 22, hubExtraSkus: 10 },
-      { name: "Blackout specialist", role: "specialist", spokeSkus: 20, hubExtraSkus: 10 },
-      { name: "Outdoor / performance", role: "specialist", spokeSkus: 16, hubExtraSkus: 8 },
-      { name: "Kids prints", role: "design", spokeSkus: 12, hubExtraSkus: 8 },
-      { name: "Artisan weave", role: "specialist", spokeSkus: 10, hubExtraSkus: 8 },
+      { name: "House lipstick", role: "house", spokeSkus: 48, hubExtraSkus: 20 },
+      { name: "Lab partner lips", role: "mill", spokeSkus: 40, hubExtraSkus: 18 },
+      { name: "Artist collab lips", role: "design", spokeSkus: 28, hubExtraSkus: 16 },
+      { name: "Nude wardrobe", role: "specialist", spokeSkus: 24, hubExtraSkus: 14 },
+      { name: "Matte specialist", role: "specialist", spokeSkus: 20, hubExtraSkus: 12 },
     ],
   },
   {
-    id: "sheers",
-    name: "Sheers & linings",
-    meaning: "Sold with drapes on the same visit. Tight spoke set; extra widths at hub.",
+    id: "lip-other",
+    name: "Lip gloss, liner, crayon",
+    meaning: "Attach to lipstick on the same visit. Tight spoke set.",
     brands: [
-      { name: "House sheers", role: "house", spokeSkus: 20, hubExtraSkus: 8 },
-      { name: "Mill linings", role: "mill", spokeSkus: 20, hubExtraSkus: 8 },
-      { name: "Design sheers", role: "design", spokeSkus: 12, hubExtraSkus: 4 },
-      { name: "Value sheers", role: "value", spokeSkus: 8, hubExtraSkus: 4 },
+      { name: "House gloss", role: "house", spokeSkus: 20, hubExtraSkus: 8 },
+      { name: "Liners", role: "specialist", spokeSkus: 18, hubExtraSkus: 8 },
+      { name: "Balm / crayon", role: "value", spokeSkus: 12, hubExtraSkus: 4 },
+      { name: "Value gloss", role: "value", spokeSkus: 10, hubExtraSkus: 4 },
     ],
   },
   {
-    id: "blinds",
-    name: "Blinds",
-    meaning: "Roller, venetian, motorised. Motorised extras stay hub-only.",
+    id: "foundation",
+    name: "Foundation",
+    meaning: "Shade-matched on the consult. Spoke holds the running range; deep/rare undertones at hub.",
     brands: [
-      { name: "House blinds", role: "house", spokeSkus: 24, hubExtraSkus: 8 },
-      { name: "National OEM", role: "mill", spokeSkus: 22, hubExtraSkus: 8 },
-      { name: "Motorised specialist", role: "specialist", spokeSkus: 16, hubExtraSkus: 8 },
-      { name: "Wood / bamboo", role: "design", spokeSkus: 16, hubExtraSkus: 6 },
-      { name: "Value aluminium", role: "value", spokeSkus: 12, hubExtraSkus: 6 },
+      { name: "House foundation", role: "house", spokeSkus: 36, hubExtraSkus: 20 },
+      { name: "Lab complexion", role: "mill", spokeSkus: 32, hubExtraSkus: 18 },
+      { name: "Shade-inclusive", role: "specialist", spokeSkus: 28, hubExtraSkus: 16 },
+      { name: "Stick / travel", role: "value", spokeSkus: 24, hubExtraSkus: 16 },
     ],
   },
   {
-    id: "upholstery",
-    name: "Upholstery fabric",
-    meaning: "By-the-metre after the consult. Deep color wall; slow SKUs at hub.",
+    id: "concealer",
+    name: "Concealer & corrector",
+    meaning: "Sold with foundation. Fast SKUs are the everyday concealers.",
     brands: [
-      { name: "House fabric", role: "house", spokeSkus: 32, hubExtraSkus: 16 },
-      { name: "Mill A", role: "mill", spokeSkus: 28, hubExtraSkus: 14 },
-      { name: "Mill B", role: "mill", spokeSkus: 24, hubExtraSkus: 12 },
-      { name: "Design textile", role: "design", spokeSkus: 20, hubExtraSkus: 10 },
-      { name: "Performance / pet", role: "specialist", spokeSkus: 18, hubExtraSkus: 10 },
-      { name: "Value fabric", role: "value", spokeSkus: 16, hubExtraSkus: 8 },
-      { name: "Outdoor fabric", role: "specialist", spokeSkus: 12, hubExtraSkus: 6 },
-      { name: "Artisan textile", role: "specialist", spokeSkus: 10, hubExtraSkus: 4 },
+      { name: "House concealer", role: "house", spokeSkus: 28, hubExtraSkus: 12 },
+      { name: "Colour corrector", role: "specialist", spokeSkus: 18, hubExtraSkus: 8 },
+      { name: "Partner concealer", role: "mill", spokeSkus: 14, hubExtraSkus: 6 },
+      { name: "Brightening", role: "design", spokeSkus: 10, hubExtraSkus: 4 },
     ],
   },
   {
-    id: "wallpaper",
-    name: "Wallpaper",
-    meaning: "High sample intensity on the visit; sellable rolls follow from spoke or hub.",
+    id: "powder",
+    name: "Powder & setting",
+    meaning: "Compacts and setting powder that finish the complexion service.",
     brands: [
-      { name: "House wall", role: "house", spokeSkus: 22, hubExtraSkus: 10 },
-      { name: "Design print", role: "design", spokeSkus: 20, hubExtraSkus: 12 },
-      { name: "National wallcover", role: "mill", spokeSkus: 18, hubExtraSkus: 8 },
-      { name: "Kids / theme", role: "design", spokeSkus: 16, hubExtraSkus: 10 },
-      { name: "Texture / grasscloth", role: "specialist", spokeSkus: 14, hubExtraSkus: 8 },
+      { name: "House powder", role: "house", spokeSkus: 18, hubExtraSkus: 6 },
+      { name: "Setting specialist", role: "specialist", spokeSkus: 16, hubExtraSkus: 6 },
+      { name: "Compact", role: "value", spokeSkus: 11, hubExtraSkus: 4 },
     ],
   },
   {
-    id: "rugs",
-    name: "Rugs",
-    meaning: "Bulky. Spoke holds sizes that fit a van; oversized stays hub.",
+    id: "blush",
+    name: "Blush",
+    meaning: "Cheeks. Cream and powder in the daily colours sit at the spoke.",
     brands: [
-      { name: "House rugs", role: "house", spokeSkus: 16, hubExtraSkus: 10 },
-      { name: "Flatweave mill", role: "mill", spokeSkus: 14, hubExtraSkus: 10 },
-      { name: "Design rugs", role: "design", spokeSkus: 10, hubExtraSkus: 8 },
-      { name: "Value rugs", role: "value", spokeSkus: 8, hubExtraSkus: 8 },
+      { name: "House blush", role: "house", spokeSkus: 24, hubExtraSkus: 8 },
+      { name: "Partner blush", role: "mill", spokeSkus: 20, hubExtraSkus: 8 },
+      { name: "Cream blush", role: "design", spokeSkus: 16, hubExtraSkus: 8 },
     ],
   },
   {
-    id: "soft",
-    name: "Cushions & throws",
-    meaning: "Attach to the curtain/upholstery ticket. Fast color refresh.",
+    id: "bronzer",
+    name: "Bronzer & contour",
+    meaning: "Sculpt. Smaller shade wall than blush; extras at hub.",
     brands: [
-      { name: "House cushions", role: "house", spokeSkus: 22, hubExtraSkus: 8 },
-      { name: "Throws mill", role: "mill", spokeSkus: 18, hubExtraSkus: 6 },
-      { name: "Design soft", role: "design", spokeSkus: 16, hubExtraSkus: 8 },
-      { name: "Value soft", role: "value", spokeSkus: 14, hubExtraSkus: 6 },
+      { name: "House bronzer", role: "house", spokeSkus: 18, hubExtraSkus: 6 },
+      { name: "Contour", role: "specialist", spokeSkus: 12, hubExtraSkus: 6 },
+      { name: "Partner bronzer", role: "mill", spokeSkus: 10, hubExtraSkus: 4 },
     ],
   },
   {
-    id: "hardware",
-    name: "Rods, tracks, hardware",
-    meaning: "Must sit with window SKUs or the install fails. Compact, high attach.",
+    id: "highlighter",
+    name: "Highlighter",
+    meaning: "Highlight shades that attach to the complexion ticket.",
     brands: [
-      { name: "House hardware", role: "house", spokeSkus: 28, hubExtraSkus: 6 },
-      { name: "Track systems", role: "specialist", spokeSkus: 24, hubExtraSkus: 6 },
-      { name: "Finials / decorative", role: "design", spokeSkus: 16, hubExtraSkus: 4 },
-      { name: "Value hardware", role: "value", spokeSkus: 12, hubExtraSkus: 4 },
+      { name: "House highlight", role: "house", spokeSkus: 16, hubExtraSkus: 6 },
+      { name: "Partner highlight", role: "mill", spokeSkus: 12, hubExtraSkus: 4 },
+      { name: "Liquid highlight", role: "design", spokeSkus: 7, hubExtraSkus: 4 },
     ],
   },
   {
-    id: "paint",
-    name: "Paint & stains",
-    meaning: "Sellable tins/colors. Testers on the visit are the sampling slider, not these SKUs.",
+    id: "eyeshadow",
+    name: "Eyeshadow & palettes",
+    meaning: "Eyes. Daily quads and singles at the spoke; extra palettes at hub.",
     brands: [
-      { name: "House paint", role: "house", spokeSkus: 28, hubExtraSkus: 16 },
-      { name: "Partner decorative", role: "mill", spokeSkus: 24, hubExtraSkus: 16 },
-      { name: "Specialty finish", role: "specialist", spokeSkus: 20, hubExtraSkus: 16 },
+      { name: "House palettes", role: "house", spokeSkus: 32, hubExtraSkus: 16 },
+      { name: "Singles", role: "value", spokeSkus: 28, hubExtraSkus: 12 },
+      { name: "Artist palettes", role: "design", spokeSkus: 24, hubExtraSkus: 12 },
+      { name: "Partner eyes", role: "mill", spokeSkus: 16, hubExtraSkus: 10 },
     ],
   },
   {
-    id: "lighting",
-    name: "Lighting",
-    meaning: "Small lamps and shades that fit spoke. Statement pieces hub-only.",
+    id: "mascara",
+    name: "Mascara",
+    meaning: "High repeat. Few SKUs, fast turns.",
     brands: [
-      { name: "House lighting", role: "house", spokeSkus: 16, hubExtraSkus: 8 },
-      { name: "Partner lamps", role: "mill", spokeSkus: 14, hubExtraSkus: 6 },
-      { name: "Specialist lighting", role: "specialist", spokeSkus: 10, hubExtraSkus: 6 },
+      { name: "House mascara", role: "house", spokeSkus: 16, hubExtraSkus: 4 },
+      { name: "Volume / length", role: "specialist", spokeSkus: 14, hubExtraSkus: 4 },
+      { name: "Partner mascara", role: "mill", spokeSkus: 10, hubExtraSkus: 4 },
     ],
   },
   {
-    id: "accessories",
-    name: "Decor accessories",
-    meaning: "Low-AOV attach. Spoke is a tight edit; seasonal extras at hub.",
+    id: "eyeliner",
+    name: "Eyeliner",
+    meaning: "Pencil, gel, liquid. Daily colours at the spoke.",
     brands: [
-      { name: "House decor", role: "house", spokeSkus: 12, hubExtraSkus: 10 },
-      { name: "Partner decor", role: "design", spokeSkus: 10, hubExtraSkus: 10 },
-      { name: "Value decor", role: "value", spokeSkus: 8, hubExtraSkus: 10 },
+      { name: "House liner", role: "house", spokeSkus: 14, hubExtraSkus: 4 },
+      { name: "Pencil / gel", role: "specialist", spokeSkus: 12, hubExtraSkus: 4 },
+      { name: "Partner liner", role: "mill", spokeSkus: 9, hubExtraSkus: 4 },
     ],
   },
   {
-    id: "seasonal",
-    name: "Seasonal & specials",
-    meaning: "Festival, monsoon, trial buys. Never duplicated at every spoke.",
+    id: "brows",
+    name: "Brows",
+    meaning: "Pencil, gel, pomade. Fast brow SKUs travel with the eye edit.",
     brands: [
-      { name: "Festival edit", role: "design", spokeSkus: 0, hubExtraSkus: 50 },
-      { name: "Monsoon / outdoor", role: "specialist", spokeSkus: 0, hubExtraSkus: 40 },
-      { name: "Trial & clearance", role: "value", spokeSkus: 0, hubExtraSkus: 60 },
+      { name: "House brow", role: "house", spokeSkus: 14, hubExtraSkus: 4 },
+      { name: "Pencil / gel", role: "specialist", spokeSkus: 12, hubExtraSkus: 4 },
+      { name: "Partner brow", role: "mill", spokeSkus: 9, hubExtraSkus: 4 },
     ],
+  },
+  {
+    id: "nails",
+    name: "Nail colour",
+    meaning: "Colour, but slower than face. Small spoke edit.",
+    brands: [
+      { name: "House nail colour", role: "house", spokeSkus: 16, hubExtraSkus: 8 },
+      { name: "Partner nails", role: "mill", spokeSkus: 14, hubExtraSkus: 8 },
+    ],
+  },
+  {
+    id: "primer",
+    name: "Colour primer / tinted",
+    meaning: "Tinted primer and colour bases used in the complexion service.",
+    brands: [{ name: "Tinted primer", role: "specialist", spokeSkus: 20, hubExtraSkus: 0 }],
+  },
+  {
+    id: "limited",
+    name: "Limited & seasonal colour",
+    meaning: "Festival and drop shades. Hub only — not cloned to every spoke.",
+    brands: [{ name: "Limited colour drops", role: "design", spokeSkus: 0, hubExtraSkus: 24 }],
   },
 ];
 
-export const SPOKE_SKU_TARGET = 900;
-export const HUB_EXTRA_TARGET = 600;
+/** Fast-moving colour on every spoke (inside 800–900). */
+export const SPOKE_SKU_TARGET = 850;
+/** Slow shades + limited at hub only. */
+export const HUB_EXTRA_TARGET = 400;
+/** Full BPC colour catalog (inside 1,200–1,300). */
 export const HUB_SKU_TARGET = SPOKE_SKU_TARGET + HUB_EXTRA_TARGET;
 
 export function categoryTotals(cat: CategoryDef) {
@@ -276,9 +289,9 @@ export function assortmentInsight(
   const hubOnlyUnitsMonth = unitsMonth * (1 - levers.spokeUnitShare);
 
   const classes: ClassRow[] = [
-    classRow("A", "Fast movers at spoke", "every spoke", aSkus, UNIT_SHARE.A, levers.coverA, unitsMonth * UNIT_SHARE.A, S),
-    classRow("B", "Core spoke edit", "every spoke", bSkus, UNIT_SHARE.B, levers.coverB, unitsMonth * UNIT_SHARE.B, S),
-    classRow("C", "Hub tail & seasonal", "hub only", cSkus, UNIT_SHARE.C, levers.coverC, unitsMonth * UNIT_SHARE.C, H),
+    classRow("A", "Fastest colour shades", "every spoke", aSkus, UNIT_SHARE.A, levers.coverA, unitsMonth * UNIT_SHARE.A, S),
+    classRow("B", "Fast-moving colour", "every spoke", bSkus, UNIT_SHARE.B, levers.coverB, unitsMonth * UNIT_SHARE.B, S),
+    classRow("C", "Slow shades & limited", "hub only", cSkus, UNIT_SHARE.C, levers.coverC, unitsMonth * UNIT_SHARE.C, H),
   ];
 
   const inventorySpoke = (classes[0].onHandUnits + classes[1].onHandUnits) * unitCost;

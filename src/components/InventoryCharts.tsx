@@ -14,8 +14,10 @@ import {
 } from "recharts";
 import { integer } from "@/model/format";
 import {
+  HUB_EXTRA_TARGET,
   HUB_SKU_TARGET,
   ROLE_LABEL,
+  SPOKE_SKU_TARGET,
   type AssortmentInsight,
   type AssortmentLevers,
 } from "@/model/assortment";
@@ -46,7 +48,8 @@ export function InventoryCharts({ row }: { row: AssortmentInsight }) {
           SKUs by category · spoke vs hub extra
         </h3>
         <p className="mb-2 mt-0.5 text-[11.5px] leading-[1.4] text-gray">
-          Stacked bars add to {integer(HUB_SKU_TARGET)}. Terracotta is the 900 on every spoke.
+          Stacked bars add to {integer(HUB_SKU_TARGET)} (inside 1,200–1,300). Terracotta is the{" "}
+          {integer(SPOKE_SKU_TARGET)} fast movers (inside 800–900).
         </p>
         <div className="h-[340px] w-full">
           <ResponsiveContainer width="100%" height="100%">
@@ -65,15 +68,15 @@ export function InventoryCharts({ row }: { row: AssortmentInsight }) {
               <YAxis
                 type="category"
                 dataKey="name"
-                width={118}
+                width={148}
                 tick={{ fill: GY, fontSize: 10 }}
                 axisLine={{ stroke: LN }}
                 tickLine={false}
               />
               <Tooltip />
               <Legend wrapperStyle={{ fontSize: 11, color: GY }} />
-              <Bar dataKey="spoke" name="Spoke" stackId="s" fill={TE} isAnimationActive={false} />
-              <Bar dataKey="extra" name="Hub extra" stackId="s" fill={DE} isAnimationActive={false} />
+              <Bar dataKey="spoke" name="Fast moving" stackId="s" fill={TE} isAnimationActive={false} />
+              <Bar dataKey="extra" name="Slow extra" stackId="s" fill={DE} isAnimationActive={false} />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -102,6 +105,72 @@ export function InventoryCharts({ row }: { row: AssortmentInsight }) {
           </ResponsiveContainer>
         </div>
       </div>
+    </div>
+  );
+}
+
+export function SkuSumTable({ row }: { row: AssortmentInsight }) {
+  return (
+    <div className="mb-3.5 overflow-x-auto rounded-[10px] border border-line bg-white">
+      <div className="border-b border-line px-3.5 py-3">
+        <h2 className="m-0 font-serif text-base font-normal text-charcoal">
+          How it adds to {integer(HUB_SKU_TARGET)}
+        </h2>
+        <p className="mb-0 mt-1 text-[13px] leading-[1.5] text-gray">
+          Fast moving {integer(SPOKE_SKU_TARGET)} (inside 800–900) + slow extra{" "}
+          {integer(HUB_EXTRA_TARGET)} = catalog {integer(HUB_SKU_TARGET)} (inside 1,200–1,300). Colour
+          cosmetics first: lips, complexion, cheeks, eyes. Nail colour, tinted primer and limited
+          drops sit at the edge.
+        </p>
+      </div>
+      <table className="w-full border-collapse text-[12.5px]">
+        <thead>
+          <tr>
+            {["Category", "Fast moving", "Slow extra", "Catalog"].map((h, i) => (
+              <th
+                key={h}
+                className={`bg-charcoal px-2 py-1.5 text-[10.5px] font-bold uppercase tracking-[0.05em] text-card ${
+                  i === 0 ? "text-left" : "text-right"
+                }`}
+              >
+                {h}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {row.tree.categories.map((c) => (
+            <tr key={c.id} className="text-ink">
+              <td className="border-b border-line px-2 py-1.5">{c.name}</td>
+              <td className="border-b border-line px-2 py-1.5 text-right font-serif tabular-nums">
+                {integer(c.spokeSkus)}
+              </td>
+              <td className="border-b border-line px-2 py-1.5 text-right font-serif tabular-nums">
+                {integer(c.hubExtraSkus)}
+              </td>
+              <td className="border-b border-line px-2 py-1.5 text-right font-serif tabular-nums">
+                {integer(c.spokeSkus + c.hubExtraSkus)}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+        <tfoot>
+          <tr className="bg-card text-charcoal">
+            <td className="px-2 py-2 font-semibold">
+              Total · {integer(SPOKE_SKU_TARGET)} + {integer(HUB_EXTRA_TARGET)} = {integer(HUB_SKU_TARGET)}
+            </td>
+            <td className="px-2 py-2 text-right font-serif tabular-nums font-semibold">
+              {integer(row.tree.spokeSkus)}
+            </td>
+            <td className="px-2 py-2 text-right font-serif tabular-nums font-semibold">
+              {integer(row.tree.hubExtraSkus)}
+            </td>
+            <td className="px-2 py-2 text-right font-serif tabular-nums font-semibold">
+              {integer(row.tree.hubSkus)}
+            </td>
+          </tr>
+        </tfoot>
+      </table>
     </div>
   );
 }
@@ -228,10 +297,10 @@ export function InventoryTables({ row }: { row: AssortmentInsight }) {
       </div>
 
       <div className="rounded-[10px] border border-line bg-white px-3.5 py-3">
-        <h3 className="m-0 font-serif text-sm font-normal text-charcoal">Brands in the edit</h3>
+        <h3 className="m-0 font-serif text-sm font-normal text-charcoal">Lines in the colour edit</h3>
         <p className="mb-2 mt-0.5 text-[11.5px] text-gray">
-          Planning line roles, not signed contracts. Open a category to see house / mill / design / value /
-          specialist.
+          Planning line roles, not signed contracts. Open a category to see house / lab partner / artist
+          collab / value / specialist.
         </p>
         <div className="flex flex-wrap gap-1.5">
           {row.tree.categories.map((c) => (
@@ -257,7 +326,7 @@ export function InventoryTables({ row }: { row: AssortmentInsight }) {
               <table className="w-full border-collapse text-[12.5px]">
                 <thead>
                   <tr>
-                    {["Line", "Role", "Spoke SKUs", "Hub extra", "Hub total"].map((h, i) => (
+                    {["Line", "Role", "Fast moving", "Slow extra", "Catalog"].map((h, i) => (
                       <th
                         key={h}
                         className={`bg-card px-2 py-1.5 text-[10.5px] font-bold uppercase tracking-[0.05em] text-charcoal ${

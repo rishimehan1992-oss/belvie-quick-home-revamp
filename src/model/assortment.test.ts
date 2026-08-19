@@ -15,22 +15,48 @@ import { DEFAULTS } from "./defaults";
 import { COMMERCIAL_DEFAULTS } from "./pnl";
 
 describe("assortment tree", () => {
-  it("builds 900 spoke SKUs and 600 hub extras to 1,500", () => {
+  it("builds 850 fast-moving spoke SKUs and 400 hub extras to 1,250", () => {
     const tree = assortmentTree();
+    expect(tree.spokeSkus).toBe(850);
+    expect(tree.hubExtraSkus).toBe(400);
+    expect(tree.hubSkus).toBe(1250);
     expect(tree.spokeSkus).toBe(SPOKE_SKU_TARGET);
     expect(tree.hubExtraSkus).toBe(HUB_EXTRA_TARGET);
     expect(tree.hubSkus).toBe(HUB_SKU_TARGET);
+    expect(tree.spokeSkus).toBeGreaterThanOrEqual(800);
+    expect(tree.spokeSkus).toBeLessThanOrEqual(900);
+    expect(tree.hubSkus).toBeGreaterThanOrEqual(1200);
+    expect(tree.hubSkus).toBeLessThanOrEqual(1300);
     for (const cat of CATEGORIES) {
       const t = categoryTotals(cat);
-      expect(t.spokeSkus + t.hubExtraSkus).toBe(t.spokeSkus + t.hubExtraSkus);
+      expect(t.spokeSkus + t.hubExtraSkus).toBe(t.hubExtraSkus + t.spokeSkus);
     }
   });
 
-  it("keeps seasonal lines hub-only", () => {
-    const seasonal = CATEGORIES.find((c) => c.id === "seasonal");
-    expect(seasonal).toBeTruthy();
-    expect(categoryTotals(seasonal!).spokeSkus).toBe(0);
-    expect(categoryTotals(seasonal!).hubExtraSkus).toBe(150);
+  it("keeps limited colour drops hub-only", () => {
+    const limited = CATEGORIES.find((c) => c.id === "limited");
+    expect(limited).toBeTruthy();
+    expect(categoryTotals(limited!).spokeSkus).toBe(0);
+    expect(categoryTotals(limited!).hubExtraSkus).toBe(24);
+  });
+
+  it("is colour-cosmetics first: lips, complexion and eyes dominate the spoke", () => {
+    const byId = Object.fromEntries(CATEGORIES.map((c) => [c.id, categoryTotals(c)]));
+    const colourCore =
+      byId.lipstick.spokeSkus +
+      byId["lip-other"].spokeSkus +
+      byId.foundation.spokeSkus +
+      byId.concealer.spokeSkus +
+      byId.powder.spokeSkus +
+      byId.blush.spokeSkus +
+      byId.bronzer.spokeSkus +
+      byId.highlighter.spokeSkus +
+      byId.eyeshadow.spokeSkus +
+      byId.mascara.spokeSkus +
+      byId.eyeliner.spokeSkus +
+      byId.brows.spokeSkus;
+    expect(colourCore).toBe(800);
+    expect(byId.nails.spokeSkus + byId.primer.spokeSkus).toBe(50);
   });
 });
 
